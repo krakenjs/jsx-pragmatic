@@ -9,6 +9,8 @@ Because JSX is pretty usefuls, even without React!
 
 #### Build an abstract jsx component
 
+First we'll build a small component. We're not tying ourselves to any particular framework yet, or any render target.
+
 ```javascript
 /* @jsx node */
 
@@ -27,6 +29,8 @@ function Login({ prefilledEmail }) {
 
 #### Render on the server
 
+Let's say we're on the server-side, and we want to render the jsx to html to serve to a client. Just pass `html()` to the renderer:
+
 ```javascript
 /* @jsx node */
 
@@ -41,6 +45,8 @@ function render() {
 ```
 
 #### Render on the client
+
+Now let's render the same jsx template on the client-side, directly to a DOM element:
 
 ```javascript
 /* @jsx node */
@@ -57,6 +63,8 @@ function render() {
 
 #### Render in a React app
 
+Or if we're using the same component in React, we can render it as a React component:
+
 ```javascript
 /* @jsx node */
 
@@ -71,6 +79,13 @@ function render() {
 ```
 
 ### Write your own renderer
+
+Renderers are just functions!
+
+- Write a factory like `customDom`. This will take some options and return our renderer.
+- Return a renderer which takes `name`, `props` and `children` and renders them in whatever way you want!
+
+This example renders the jsx directly to DOM elements:
 
 ```javascript
 /* @jsx node */
@@ -104,8 +119,11 @@ function customDom({ removeScriptTags = false } = {}) {
 
   return domRenderer;
 }
+```
 
+Then when you're ready to use your renderer, just pass it into `.render()` and pass any options you want to use to configure the renderer.
 
+```javascript
 function render() {
   return (
     <Login prefilledEmail='foo@bar.com' />
@@ -115,9 +133,10 @@ function render() {
 
 ### Use Fragments
 
+You can either import `Fragment` from `jsx-pragmatic`:
+
 ```javascript
 /* @jsx node */
-/* @jsxFrag Fragment */
 
 import { node, Fragment } from 'jsx-pragmatic';
 
@@ -132,7 +151,7 @@ function Login({ prefilledEmail }) {
 }
 ```
 
-or
+Or use the `@jsxFrag` comment, and the new `<>` `</>` syntax for Fragments, providing you're using Babel 7:
 
 ```javascript
 /* @jsx node */
