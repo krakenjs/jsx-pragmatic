@@ -5,7 +5,7 @@ JSX Pragmatic
 - Decide at runtime how you want to render them
 - Easily build custom renderers - render to HTML, DOM, or anything else!
 
-Because JSX is pretty usefuls, even without React!
+Because JSX is pretty useful, even without React!
 
 #### Build an abstract jsx component
 
