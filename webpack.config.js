@@ -3,8 +3,8 @@
 
 import { getWebpackConfig } from 'grumbler-scripts/config/webpack.config';
 
-const FILE_NAME = 'mylibrary';
-const MODULE_NAME = 'mylibrary';
+const FILE_NAME = 'jsx-pragmatic';
+const MODULE_NAME = 'pragmatic';
 
 export const WEBPACK_CONFIG = getWebpackConfig({
     filename:   `${ FILE_NAME }.js`,
