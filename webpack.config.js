@@ -8,7 +8,8 @@ const MODULE_NAME = 'pragmatic';
 
 export const WEBPACK_CONFIG = getWebpackConfig({
     filename:   `${ FILE_NAME }.js`,
-    modulename: MODULE_NAME
+    modulename: MODULE_NAME,
+    minify:     false
 });
 
 export const WEBPACK_CONFIG_MIN = getWebpackConfig({
