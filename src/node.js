@@ -113,9 +113,10 @@ export class FragmentNode extends Node {
     }
 }
 
-type JsxChildType = $ReadOnlyArray<JsxChildType> | NodeType | string | null | void;
+type JsxChildType = $ReadOnlyArray<JsxChildType> | NodeType | string;
+type NullableJsxChildType = $ReadOnlyArray<NullableJsxChildType> | NodeType | string | null | void;
 
-function normalizeChild(child : JsxChildType) : NodeType | void {
+function normalizeChild(child : NullableJsxChildType) : NodeType | void {
     if (typeof child === 'string') {
         return new TextNode(child);
 
@@ -133,7 +134,7 @@ function normalizeChild(child : JsxChildType) : NodeType | void {
     }
 }
 
-function normalizeChildren(children : $ReadOnlyArray<JsxChildType>) : NodeChildrenType {
+function normalizeChildren(children : $ReadOnlyArray<NullableJsxChildType>) : NodeChildrenType {
     const result = [];
 
     for (const child of children) {
@@ -155,16 +156,43 @@ function normalizeChildren(children : $ReadOnlyArray<JsxChildType>) : NodeChildr
     return result;
 }
 
-type JSXBasicBuilder = (element : string, props : NodePropsType | null, ...children : $ReadOnlyArray<JsxChildType>) => ElementNode;
-type JSXFunctionBuilder = (element : (NodePropsType, $ReadOnlyArray<JsxChildType>) => JsxChildType, props : NodePropsType | null, ...children : $ReadOnlyArray<JsxChildType>) => NodeType | void;
+type JSXElementBuilder = (
+    element : string,
+    props : NodePropsType | null,
+    ...children : $ReadOnlyArray<NullableJsxChildType>
+) => ElementNode;
 
-type JSXBuilder = JSXBasicBuilder & JSXFunctionBuilder;
+type JSXElementFunctionBuilder = (
+    element : (NodePropsType, $ReadOnlyArray<JsxChildType>) => ElementNode,
+    props : NodePropsType | null,
+    ...children : $ReadOnlyArray<NullableJsxChildType>
+) => ElementNode;
+
+type JSXTextFunctionBuilder = (
+    element : (NodePropsType, $ReadOnlyArray<JsxChildType>) => string | TextNode,
+    props : NodePropsType | null,
+    ...children : $ReadOnlyArray<NullableJsxChildType>
+) => TextNode;
+
+type JSXFragmentFunctionBuilder = (
+    element : (NodePropsType, $ReadOnlyArray<JsxChildType>) => FragmentNode | $ReadOnlyArray<JsxChildType>,
+    props : NodePropsType | null,
+    ...children : $ReadOnlyArray<NullableJsxChildType>
+) => FragmentNode;
+
+type JSXEmptyFunctionBuilder = (
+    element : (NodePropsType, $ReadOnlyArray<JsxChildType>) => null | void,
+    props : NodePropsType | null,
+    ...children : $ReadOnlyArray<NullableJsxChildType>
+) => void;
+
+type JSXBuilder = JSXElementBuilder & JSXElementFunctionBuilder & JSXTextFunctionBuilder & JSXFragmentFunctionBuilder & JSXEmptyFunctionBuilder;
 
 export const node : JSXBuilder = (element, props, ...children) => {
     if (typeof element === 'string') {
         return new ElementNode(element, props || {}, normalizeChildren(children));
     }
-    
+
     if (typeof element === 'function') {
         // $FlowFixMe
         return normalizeChild(element(props || {}, normalizeChildren(children)));
@@ -179,5 +207,5 @@ export function Fragment(props : NodePropsType, ...children : $ReadOnlyArray<Jsx
         throw new Error(`Do not pass props to Fragment`);
     }
 
-    return new FragmentNode(children);
+    return new FragmentNode(normalizeChildren(children));
 }

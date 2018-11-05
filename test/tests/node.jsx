@@ -2,7 +2,7 @@
 /** @jsx node */
 /** @jsxFrag Fragment */
 
-import { node, dom, Fragment } from '../../src';
+import { node, dom, Fragment, type ElementNode } from '../../src';
 
 describe('basic node cases', () => {
 
@@ -26,6 +26,7 @@ describe('basic node cases', () => {
 
     it('should return correct types for a fragment node', () => {
         const jsxNode = (
+            // $FlowFixMe
             <>
                 <div />
             </>
@@ -45,7 +46,7 @@ describe('basic node cases', () => {
     });
 
     it('should return correct types for a text node', () => {
-        const HelloWorld = () => {
+        const HelloWorld = () : string => {
             return 'Hello World';
         };
 
@@ -78,6 +79,7 @@ describe('basic node cases', () => {
 
     it('should not be able to get tag for fragment node', () => {
         const jsxNode = (
+            // $FlowFixMe
             <>
                 <div />
             </>
@@ -97,7 +99,7 @@ describe('basic node cases', () => {
     });
 
     it('should not be able to get tag for text node', () => {
-        const HelloWorld = () => {
+        const HelloWorld = () : string => {
             return 'Hello World';
         };
 
@@ -134,6 +136,7 @@ describe('basic node cases', () => {
 
     it('should not be able to check tag for fragment node', () => {
         const jsxNode = (
+            // $FlowFixMe
             <>
                 <div />
             </>
@@ -153,7 +156,7 @@ describe('basic node cases', () => {
     });
 
     it('should not be able to check tag for text node', () => {
-        const HelloWorld = () => {
+        const HelloWorld = () : string => {
             return 'Hello World';
         };
 
@@ -175,7 +178,7 @@ describe('basic node cases', () => {
     });
 
     it('should be able to get text for text node', () => {
-        const HelloWorld = () => {
+        const HelloWorld = () : string => {
             return 'Hello World';
         };
 
@@ -190,6 +193,7 @@ describe('basic node cases', () => {
 
     it('should not be able to get text for fragment node', () => {
         const jsxNode = (
+            // $FlowFixMe
             <>
                 <div />
             </>
@@ -244,7 +248,7 @@ describe('node render cases', () => {
             }
 
             if (props.foo !== 'bar') {
-                throw new Error(`Expected props.foo to be bar, got ${ props.foo }`);
+                throw new Error(`Expected props.foo to be bar, got ${ typeof props.foo === 'string' ? props.foo : typeof props.foo }`);
             }
 
             if (!children || children.length !== 1) {
@@ -293,6 +297,7 @@ describe('node render cases', () => {
 
     it('should not be able to render fragment node', () => {
         const jsxNode = (
+            // $FlowFixMe
             <>
                 <div />
             </>
@@ -314,7 +319,7 @@ describe('node render cases', () => {
     });
 
     it('should not be able to render text node', () => {
-        const HelloWorld = () => {
+        const HelloWorld = () : string => {
             return 'Hello World';
         };
 
@@ -339,7 +344,7 @@ describe('node render cases', () => {
 
     it('should be able to render a function returning an element node', () => {
         
-        const Button = () => {
+        const Button = () : ElementNode => {
             return (
                 <button />
             );
@@ -358,7 +363,7 @@ describe('node render cases', () => {
 
     it('should be able to render a function returning a list of element nodes', () => {
         
-        const Button = () => {
+        const Button = () : $ReadOnlyArray<ElementNode> => {
             return [
                 <button />,
                 <p />,
@@ -393,7 +398,7 @@ describe('node render cases', () => {
 
     it('should be able to render a function returning undefined', () => {
         
-        const Nothing = () => {
+        const Nothing = () : void => {
             // pass
         };
 
@@ -416,7 +421,7 @@ describe('node render cases', () => {
 
     it('should be able to render a function returning null', () => {
         
-        const Nothing = () => {
+        const Nothing = () : null => {
             return null;
         };
 
@@ -446,6 +451,7 @@ describe('node render cases', () => {
         let error;
 
         try {
+            // $FlowFixMe
             const a = <Bad />; // eslint-disable-line no-unused-vars
         } catch (err) {
             error = err;
@@ -477,6 +483,7 @@ describe('node render cases', () => {
         let error;
 
         try {
+            // $FlowFixMe
             const a = <Bad />; // eslint-disable-line no-unused-vars
         } catch (err) {
             error = err;
