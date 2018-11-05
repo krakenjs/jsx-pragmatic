@@ -1,3 +1,386 @@
-!function(e,n){"object"==typeof exports&&"object"==typeof module?module.exports=n():"function"==typeof define&&define.amd?define("pragmatic",[],n):"object"==typeof exports?exports.pragmatic=n():e.pragmatic=n()}(window,function(){return function(t){var r={};function o(e){if(r[e])return r[e].exports;var n=r[e]={i:e,l:!1,exports:{}};return t[e].call(n.exports,n,n.exports,o),n.l=!0,n.exports}return o.m=t,o.c=r,o.d=function(e,n,t){o.o(e,n)||Object.defineProperty(e,n,{enumerable:!0,get:t})},o.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},o.t=function(n,e){if(1&e&&(n=o(n)),8&e)return n;if(4&e&&"object"==typeof n&&n&&n.__esModule)return n;var t=Object.create(null);if(o.r(t),Object.defineProperty(t,"default",{enumerable:!0,value:n}),2&e&&"string"!=typeof n)for(var r in n)o.d(t,r,function(e){return n[e]}.bind(null,r));return t},o.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return o.d(n,"a",n),n},o.o=function(e,n){return Object.prototype.hasOwnProperty.call(e,n)},o.p="",o(o.s=0)}([function(e,n,t){"use strict";function r(e,n){e.prototype=Object.create(n.prototype),(e.prototype.constructor=e).__proto__=n}t.r(n);var o=function(){function e(){}var n=e.prototype;return n.isElementNode=function(){return!1},n.isTextNode=function(){return!1},n.isFragmentNode=function(){return!1},e}(),i=function(o){function e(e,n,t){var r;return(r=o.call(this)||this).name=void 0,r.props=void 0,r.children=void 0,r.name=e,r.props=n,r.children=t,r}r(e,o);var n=e.prototype;return n.getTag=function(){return this.name},n.isTag=function(e){return e===this.name},n.isElementNode=function(){return!0},n.render=function(e){return e(this.name,this.props,this.children)},n.getText=function(){throw new Error("Can not get text of an element node")},e}(o),a=function(t){function e(e){var n;return(n=t.call(this)||this).text=void 0,n.text=e,n}r(e,t);var n=e.prototype;return n.getTag=function(){throw new Error("Can not get tag of text node")},n.isTag=function(e){throw new Error("Can not check tag of text node")},n.isTextNode=function(){return!0},n.render=function(e){throw new Error("Can not render a text node")},n.getText=function(){return this.text},e}(o),u=function(t){function e(e){var n;return(n=t.call(this)||this).children=void 0,n.children=e,n}r(e,t);var n=e.prototype;return n.getTag=function(){throw new Error("Can not get tag of fragment node")},n.isTag=function(e){throw new Error("Can not check tag of fragment node")},n.isFragmentNode=function(){return!0},n.render=function(e){throw new Error("Can not render a fragment node")},n.getText=function(){throw new Error("Can not get text of a fragment node")},e}(o);function c(e){if("string"==typeof e)return new a(e);if(e instanceof i||e instanceof a||e instanceof u)return e;if(Array.isArray(e))return new u(d(e));if(null!=e)throw new Error("Child node must be string or instance of jsx-pragmatic node; got "+typeof e)}function d(e){for(var n=[],t=0;t<e.length;t++){var r=c(e[t]);if(r)if(r instanceof u)for(var o=0,i=r.children;o<i.length;o++){var a=i[o];n.push(a)}else n.push(r)}return n}var f,l=function(e,n){for(var t=arguments.length,r=new Array(2<t?t-2:0),o=2;o<t;o++)r[o-2]=arguments[o];if("string"==typeof e)return new i(e,n||{},d(r));if("function"==typeof e)return c(e(n||{},d(r)));throw new TypeError("Expected jsx Element to be a string or a function")};function p(e){if(e&&Object.keys(e).length)throw new Error("Do not pass props to Fragment");for(var n=arguments.length,t=new Array(1<n?n-1:0),r=1;r<n;r++)t[r-1]=arguments[r];return new u(d(t))}var s={onBlur:"blur",onCancel:"cancel",onClick:"click",onClose:"close",onContextMenu:"contextMenu",onCopy:"copy",onCut:"cut",onAuxClick:"auxClick",onDoubleClick:"doubleClick",onDragEnd:"dragEnd",onDragStart:"dragStart",onDrop:"drop",onFocus:"focus",onInput:"input",onInvalid:"invalid",onKeyDown:"keyDown",onKeyPress:"keyPress",onKeyUp:"keyUp",onMouseDown:"mouseDown",onMouseUp:"mouseUp",onPaste:"paste",onPause:"pause",onPlay:"play",onPointerCancel:"pointerCancel",onPointerDown:"pointerDown",onPointerUp:"pointerUp",onRateChange:"rateChange",onReset:"reset",onSeeked:"seeked",onSubmit:"submit",onTouchCancel:"touchCancel",onTouchEnd:"touchEnd",onTouchStart:"touchStart",onVolumeChange:"volumeChange",onAbort:"abort",onAnimationEnd:"animationEnd",onAnimationIteration:"animationIteration",onAnimationStart:"animationStart",onCanPlay:"canPlay",onCanPlayThrough:"canPlayThrough",onDrag:"drag",onDragEnter:"dragEnter",onDragExit:"dragExit",onDragLeave:"dragLeave",onDragOver:"dragOver",onDurationChange:"durationChange",onEmptied:"emptied",onEncrypted:"encrypted",onEnded:"ended",onError:"error",onGotPointerCapture:"gotPointerCapture",onLoad:"load",onLoadedData:"loadedData",onLoadedMetadata:"loadedMetadata",onLoadStart:"loadStart",onLostPointerCapture:"lostPointerCapture",onMouseMove:"mouseMove",onMouseOut:"mouseOut",onMouseOver:"mouseOver",onPlaying:"playing",onPointerMove:"pointerMove",onPointerOut:"pointerOut",onPointerOver:"pointerOver",onProgress:"progress",onScroll:"scroll",onSeeking:"seeking",onStalled:"stalled",onSuspend:"suspend",onTimeUpdate:"timeUpdate",onToggle:"toggle",onTouchMove:"touchMove",onTransitionEnd:"transitionEnd",onWaiting:"waiting",onWheel:"wheel"};function g(e,n){void 0===n&&(n=window.document);for(var t=0,r=e.querySelectorAll("script");t<r.length;t++){var o=r[t],i=o.parentNode;if(i){var a=n.createElement("script");a.text=o.textContent,i.replaceChild(a,o)}}}var h=((f={}).iframe=function(e){var r=e.el,n=e.children,o=e.domRenderer,i=n[0];if(1<n.length||!i.isElementNode())throw new Error("Expected only single element node as child of iframe element");if(!i.isTag("html"))throw new Error("Expected element to be inserted into frame to be html, got "+i.getTag());r.addEventListener("load",function(){var e=r.contentWindow;if(!e)throw new Error("Expected frame to have contentWindow");for(var n=e.document.documentElement;n.children&&n.children.length;)n.removeChild(n.children[0]);for(var t=i.render(o);t.children.length;)n.appendChild(t.children[0])})},f.script=function(e){var n=e.el,t=e.children,r=t[0];if(1!==t.length||!r.isTextNode())throw new Error("Expected only single text node as child of script element");n.text=r.getText()},f.default=function(e){for(var n=e.el,t=e.children,r=e.doc,o=e.domRenderer,i=0;i<t.length;i++){var a=t[i];a.isTextNode()?n.appendChild(r.createTextNode(a.getText())):n.appendChild(a.render(o))}},f),m=function(e){var n=(void 0===e?{}:e).doc,a=void 0===n?document:n;return function e(n,t,r){var o=a.createElement(n),i=h[n]||h.default;return function(e){var n=e.el,t=e.props,r=e.doc;for(var o in t)if(t.hasOwnProperty(o)){var i=t[o];if(null!=i)if(s.hasOwnProperty(o)){if("function"!=typeof i)throw new TypeError("Prop "+o+" must be function");n.addEventListener(s[o],i)}else{if("string"!=typeof i&&"number"!=typeof i)throw new TypeError("Can not render prop "+o+" of type "+typeof i);"innerHTML"===o?(n.innerHTML=i.toString(),g(n,r)):n.setAttribute(o,i.toString())}}}({el:o,props:t,doc:a}),i({el:o,children:r,doc:a,domRenderer:e}),o}},v=function(e){var i=(void 0===e?{}:e).React;if(!i)throw new Error("Must pass React library to react renderer");return function n(e,t,r){var o=r.map(function(e){return e.isTextNode()?e.getText():e.render(n)});return i.createElement.apply(i,[e,t].concat(o))}};function y(e){return e.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/\//g,"&#x2F;")}var w=function(){return function n(e,t,r){var o,i,a=r.map(function(e){return e.isTextNode()?y(e.getText()):e.render(n)});return"<"+e+(o=t,(i=Object.keys(o)).length?" "+(i=i.filter(function(e){var n=o[e];return"innerHTML"!==e&&!!n&&("string"==typeof n||"number"==typeof n||!0===n)})).map(function(e){var n=o[e];if(!0===n)return""+y(e);if("string"!=typeof n&&"number"!=typeof n)throw new TypeError("Unexpected prop type: "+typeof n);return y(e)+'="'+y(n.toString())+'"'}).join(" "):"")+">"+a.join("")+"</"+e+">"}};t.d(n,"ElementNode",function(){return i}),t.d(n,"TextNode",function(){return a}),t.d(n,"FragmentNode",function(){return u}),t.d(n,"node",function(){return l}),t.d(n,"Fragment",function(){return p}),t.d(n,"dom",function(){return m}),t.d(n,"react",function(){return v}),t.d(n,"html",function(){return w})}])});
+!function(root, factory) {
+    "object" == typeof exports && "object" == typeof module ? module.exports = factory() : "function" == typeof define && define.amd ? define("pragmatic", [], factory) : "object" == typeof exports ? exports.pragmatic = factory() : root.pragmatic = factory();
+}(window, function() {
+    return function(modules) {
+        var installedModules = {};
+        function __webpack_require__(moduleId) {
+            if (installedModules[moduleId]) return installedModules[moduleId].exports;
+            var module = installedModules[moduleId] = {
+                i: moduleId,
+                l: !1,
+                exports: {}
+            };
+            modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+            module.l = !0;
+            return module.exports;
+        }
+        __webpack_require__.m = modules;
+        __webpack_require__.c = installedModules;
+        __webpack_require__.d = function(exports, name, getter) {
+            __webpack_require__.o(exports, name) || Object.defineProperty(exports, name, {
+                enumerable: !0,
+                get: getter
+            });
+        };
+        __webpack_require__.r = function(exports) {
+            "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(exports, Symbol.toStringTag, {
+                value: "Module"
+            });
+            Object.defineProperty(exports, "__esModule", {
+                value: !0
+            });
+        };
+        __webpack_require__.t = function(value, mode) {
+            1 & mode && (value = __webpack_require__(value));
+            if (8 & mode) return value;
+            if (4 & mode && "object" == typeof value && value && value.__esModule) return value;
+            var ns = Object.create(null);
+            __webpack_require__.r(ns);
+            Object.defineProperty(ns, "default", {
+                enumerable: !0,
+                value: value
+            });
+            if (2 & mode && "string" != typeof value) for (var key in value) __webpack_require__.d(ns, key, function(key) {
+                return value[key];
+            }.bind(null, key));
+            return ns;
+        };
+        __webpack_require__.n = function(module) {
+            var getter = module && module.__esModule ? function() {
+                return module.default;
+            } : function() {
+                return module;
+            };
+            __webpack_require__.d(getter, "a", getter);
+            return getter;
+        };
+        __webpack_require__.o = function(object, property) {
+            return Object.prototype.hasOwnProperty.call(object, property);
+        };
+        __webpack_require__.p = "";
+        return __webpack_require__(__webpack_require__.s = 0);
+    }([ function(module, __webpack_exports__, __webpack_require__) {
+        "use strict";
+        __webpack_require__.r(__webpack_exports__);
+        function _inheritsLoose(subClass, superClass) {
+            subClass.prototype = Object.create(superClass.prototype);
+            (subClass.prototype.constructor = subClass).__proto__ = superClass;
+        }
+        var Node = function() {
+            function Node() {}
+            var _proto = Node.prototype;
+            _proto.isElementNode = function() {
+                return !1;
+            };
+            _proto.isTextNode = function() {
+                return !1;
+            };
+            _proto.isFragmentNode = function() {
+                return !1;
+            };
+            return Node;
+        }(), node_ElementNode = function(_Node) {
+            _inheritsLoose(ElementNode, _Node);
+            function ElementNode(name, props, children) {
+                var _this;
+                (_this = _Node.call(this) || this).name = void 0;
+                _this.props = void 0;
+                _this.children = void 0;
+                _this.name = name;
+                _this.props = props;
+                _this.children = children;
+                return _this;
+            }
+            var _proto2 = ElementNode.prototype;
+            _proto2.getTag = function() {
+                return this.name;
+            };
+            _proto2.isTag = function(name) {
+                return name === this.name;
+            };
+            _proto2.isElementNode = function() {
+                return !0;
+            };
+            _proto2.render = function(renderer) {
+                return renderer(this.name, this.props, this.children);
+            };
+            _proto2.getText = function() {
+                throw new Error("Can not get text of an element node");
+            };
+            return ElementNode;
+        }(Node), node_TextNode = function(_Node2) {
+            _inheritsLoose(TextNode, _Node2);
+            function TextNode(text) {
+                var _this2;
+                (_this2 = _Node2.call(this) || this).text = void 0;
+                _this2.text = text;
+                return _this2;
+            }
+            var _proto3 = TextNode.prototype;
+            _proto3.getTag = function() {
+                throw new Error("Can not get tag of text node");
+            };
+            _proto3.isTag = function(name) {
+                throw new Error("Can not check tag of text node");
+            };
+            _proto3.isTextNode = function() {
+                return !0;
+            };
+            _proto3.render = function(renderer) {
+                throw new Error("Can not render a text node");
+            };
+            _proto3.getText = function() {
+                return this.text;
+            };
+            return TextNode;
+        }(Node), node_FragmentNode = function(_Node3) {
+            _inheritsLoose(FragmentNode, _Node3);
+            function FragmentNode(children) {
+                var _this3;
+                (_this3 = _Node3.call(this) || this).children = void 0;
+                _this3.children = children;
+                return _this3;
+            }
+            var _proto4 = FragmentNode.prototype;
+            _proto4.getTag = function() {
+                throw new Error("Can not get tag of fragment node");
+            };
+            _proto4.isTag = function(name) {
+                throw new Error("Can not check tag of fragment node");
+            };
+            _proto4.isFragmentNode = function() {
+                return !0;
+            };
+            _proto4.render = function(renderer) {
+                throw new Error("Can not render a fragment node");
+            };
+            _proto4.getText = function() {
+                throw new Error("Can not get text of a fragment node");
+            };
+            return FragmentNode;
+        }(Node);
+        function normalizeChild(child) {
+            if ("string" == typeof child) return new node_TextNode(child);
+            if (child instanceof node_ElementNode || child instanceof node_TextNode || child instanceof node_FragmentNode) return child;
+            if (Array.isArray(child)) return new node_FragmentNode(normalizeChildren(child));
+            if (null != child) throw new Error("Child node must be string or instance of jsx-pragmatic node; got " + typeof child);
+        }
+        function normalizeChildren(children) {
+            for (var result = [], _i2 = 0; _i2 < children.length; _i2++) {
+                var normalizedChild = normalizeChild(children[_i2]);
+                if (normalizedChild) if (normalizedChild instanceof node_FragmentNode) for (var _i4 = 0, _normalizedChild$chil2 = normalizedChild.children; _i4 < _normalizedChild$chil2.length; _i4++) {
+                    var subchild = _normalizedChild$chil2[_i4];
+                    result.push(subchild);
+                } else result.push(normalizedChild);
+            }
+            return result;
+        }
+        var _ADD_CHILDREN, node = function(element, props) {
+            for (var _len = arguments.length, children = new Array(2 < _len ? _len - 2 : 0), _key = 2; _key < _len; _key++) children[_key - 2] = arguments[_key];
+            if ("string" == typeof element) return new node_ElementNode(element, props || {}, normalizeChildren(children));
+            if ("function" == typeof element) return normalizeChild(element(props || {}, normalizeChildren(children)));
+            throw new TypeError("Expected jsx Element to be a string or a function");
+        };
+        function Fragment(props) {
+            if (props && Object.keys(props).length) throw new Error("Do not pass props to Fragment");
+            for (var _len2 = arguments.length, children = new Array(1 < _len2 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) children[_key2 - 1] = arguments[_key2];
+            return new node_FragmentNode(normalizeChildren(children));
+        }
+        var DOM_EVENT = {
+            onBlur: "blur",
+            onCancel: "cancel",
+            onClick: "click",
+            onClose: "close",
+            onContextMenu: "contextMenu",
+            onCopy: "copy",
+            onCut: "cut",
+            onAuxClick: "auxClick",
+            onDoubleClick: "doubleClick",
+            onDragEnd: "dragEnd",
+            onDragStart: "dragStart",
+            onDrop: "drop",
+            onFocus: "focus",
+            onInput: "input",
+            onInvalid: "invalid",
+            onKeyDown: "keyDown",
+            onKeyPress: "keyPress",
+            onKeyUp: "keyUp",
+            onMouseDown: "mouseDown",
+            onMouseUp: "mouseUp",
+            onPaste: "paste",
+            onPause: "pause",
+            onPlay: "play",
+            onPointerCancel: "pointerCancel",
+            onPointerDown: "pointerDown",
+            onPointerUp: "pointerUp",
+            onRateChange: "rateChange",
+            onReset: "reset",
+            onSeeked: "seeked",
+            onSubmit: "submit",
+            onTouchCancel: "touchCancel",
+            onTouchEnd: "touchEnd",
+            onTouchStart: "touchStart",
+            onVolumeChange: "volumeChange",
+            onAbort: "abort",
+            onAnimationEnd: "animationEnd",
+            onAnimationIteration: "animationIteration",
+            onAnimationStart: "animationStart",
+            onCanPlay: "canPlay",
+            onCanPlayThrough: "canPlayThrough",
+            onDrag: "drag",
+            onDragEnter: "dragEnter",
+            onDragExit: "dragExit",
+            onDragLeave: "dragLeave",
+            onDragOver: "dragOver",
+            onDurationChange: "durationChange",
+            onEmptied: "emptied",
+            onEncrypted: "encrypted",
+            onEnded: "ended",
+            onError: "error",
+            onGotPointerCapture: "gotPointerCapture",
+            onLoad: "load",
+            onLoadedData: "loadedData",
+            onLoadedMetadata: "loadedMetadata",
+            onLoadStart: "loadStart",
+            onLostPointerCapture: "lostPointerCapture",
+            onMouseMove: "mouseMove",
+            onMouseOut: "mouseOut",
+            onMouseOver: "mouseOver",
+            onPlaying: "playing",
+            onPointerMove: "pointerMove",
+            onPointerOut: "pointerOut",
+            onPointerOver: "pointerOver",
+            onProgress: "progress",
+            onScroll: "scroll",
+            onSeeking: "seeking",
+            onStalled: "stalled",
+            onSuspend: "suspend",
+            onTimeUpdate: "timeUpdate",
+            onToggle: "toggle",
+            onTouchMove: "touchMove",
+            onTransitionEnd: "transitionEnd",
+            onWaiting: "waiting",
+            onWheel: "wheel"
+        };
+        function fixScripts(el, doc) {
+            void 0 === doc && (doc = window.document);
+            for (var _i2 = 0, _el$querySelectorAll2 = el.querySelectorAll("script"); _i2 < _el$querySelectorAll2.length; _i2++) {
+                var script = _el$querySelectorAll2[_i2], parentNode = script.parentNode;
+                if (parentNode) {
+                    var newScript = doc.createElement("script");
+                    newScript.text = script.textContent;
+                    parentNode.replaceChild(newScript, script);
+                }
+            }
+        }
+        var ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(_ref2) {
+            var el = _ref2.el, children = _ref2.children, domRenderer = _ref2.domRenderer, firstChild = children[0];
+            if (1 < children.length || !firstChild.isElementNode()) throw new Error("Expected only single element node as child of iframe element");
+            if (!firstChild.isTag("html")) throw new Error("Expected element to be inserted into frame to be html, got " + firstChild.getTag());
+            el.addEventListener("load", function() {
+                var win = el.contentWindow;
+                if (!win) throw new Error("Expected frame to have contentWindow");
+                for (var documentElement = win.document.documentElement; documentElement.children && documentElement.children.length; ) documentElement.removeChild(documentElement.children[0]);
+                for (var child = firstChild.render(domRenderer); child.children.length; ) documentElement.appendChild(child.children[0]);
+            });
+        }, _ADD_CHILDREN.script = function(_ref3) {
+            var el = _ref3.el, children = _ref3.children, firstChild = children[0];
+            if (1 !== children.length || !firstChild.isTextNode()) throw new Error("Expected only single text node as child of script element");
+            el.text = firstChild.getText();
+        }, _ADD_CHILDREN.default = function(_ref4) {
+            for (var el = _ref4.el, children = _ref4.children, doc = _ref4.doc, domRenderer = _ref4.domRenderer, _i4 = 0; _i4 < children.length; _i4++) {
+                var child = children[_i4];
+                child.isTextNode() ? el.appendChild(doc.createTextNode(child.getText())) : el.appendChild(child.render(domRenderer));
+            }
+        }, _ADD_CHILDREN), dom = function(_temp) {
+            var _ref5$doc = (void 0 === _temp ? {} : _temp).doc, doc = void 0 === _ref5$doc ? document : _ref5$doc;
+            return function domRenderer(name, props, children) {
+                var el = doc.createElement(name), addChildren = ADD_CHILDREN[name] || ADD_CHILDREN.default;
+                !function(_ref) {
+                    var el = _ref.el, props = _ref.props, doc = _ref.doc;
+                    for (var prop in props) if (props.hasOwnProperty(prop)) {
+                        var val = props[prop];
+                        if (null != val) if (DOM_EVENT.hasOwnProperty(prop)) {
+                            if ("function" != typeof val) throw new TypeError("Prop " + prop + " must be function");
+                            el.addEventListener(DOM_EVENT[prop], val);
+                        } else {
+                            if ("string" != typeof val && "number" != typeof val) throw new TypeError("Can not render prop " + prop + " of type " + typeof val);
+                            if ("innerHTML" === prop) {
+                                el.innerHTML = val.toString();
+                                fixScripts(el, doc);
+                            } else el.setAttribute(prop, val.toString());
+                        }
+                    }
+                }({
+                    el: el,
+                    props: props,
+                    doc: doc
+                });
+                addChildren({
+                    el: el,
+                    children: children,
+                    doc: doc,
+                    domRenderer: domRenderer
+                });
+                return el;
+            };
+        }, react = function(_temp) {
+            var React = (void 0 === _temp ? {} : _temp).React;
+            if (!React) throw new Error("Must pass React library to react renderer");
+            return function reactRenderer(name, props, children) {
+                var renderedChildren = children.map(function(child) {
+                    return child.isTextNode() ? child.getText() : child.render(reactRenderer);
+                });
+                return React.createElement.apply(React, [ name, props ].concat(renderedChildren));
+            };
+        };
+        function htmlEncode(html) {
+            return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\//g, "&#x2F;");
+        }
+        var html = function() {
+            return function htmlRenderer(name, props, children) {
+                var renderedChildren = children.map(function(child) {
+                    return child.isTextNode() ? htmlEncode(child.getText()) : child.render(htmlRenderer);
+                });
+                return "<" + name + function(props) {
+                    var keys = Object.keys(props);
+                    return keys.length ? " " + (keys = keys.filter(function(key) {
+                        var val = props[key];
+                        return "innerHTML" !== key && !!val && ("string" == typeof val || "number" == typeof val || !0 === val);
+                    })).map(function(key) {
+                        var val = props[key];
+                        if (!0 === val) return "" + htmlEncode(key);
+                        if ("string" != typeof val && "number" != typeof val) throw new TypeError("Unexpected prop type: " + typeof val);
+                        return htmlEncode(key) + '="' + htmlEncode(val.toString()) + '"';
+                    }).join(" ") : "";
+                }(props) + ">" + renderedChildren.join("") + "</" + name + ">";
+            };
+        };
+        __webpack_require__.d(__webpack_exports__, "ElementNode", function() {
+            return node_ElementNode;
+        });
+        __webpack_require__.d(__webpack_exports__, "TextNode", function() {
+            return node_TextNode;
+        });
+        __webpack_require__.d(__webpack_exports__, "FragmentNode", function() {
+            return node_FragmentNode;
+        });
+        __webpack_require__.d(__webpack_exports__, "node", function() {
+            return node;
+        });
+        __webpack_require__.d(__webpack_exports__, "Fragment", function() {
+            return Fragment;
+        });
+        __webpack_require__.d(__webpack_exports__, "dom", function() {
+            return dom;
+        });
+        __webpack_require__.d(__webpack_exports__, "react", function() {
+            return react;
+        });
+        __webpack_require__.d(__webpack_exports__, "html", function() {
+            return html;
+        });
+    } ]);
+});
 //# sourceMappingURL=jsx-pragmatic.js.map
 //# sourceMappingURL=jsx-pragmatic.js.map
