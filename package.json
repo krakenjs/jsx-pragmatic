@@ -1,0 +1,53 @@
+{
+  "name": "grumbler",
+  "version": "1.0.3",
+  "description": "Javascript module template.",
+  "main": "index.js",
+  "scripts": {
+    "setup": "npm install && npm run flow-typed",
+    "lint": "eslint src/ test/ *.js",
+    "flow-typed": "rm -rf ./flow-typed && flow-typed install && flow-typed install mocha@4",
+    "flow": "flow",
+    "karma": "cross-env NODE_ENV=test babel-node --plugins=transform-es2015-modules-commonjs ./node_modules/.bin/karma start",
+    "babel": "babel src/ --out-dir dist/module",
+    "webpack": "babel-node --plugins=transform-es2015-modules-commonjs ./node_modules/.bin/webpack --progress",
+    "test": "npm run lint && npm run flow-typed && npm run flow && npm run karma",
+    "build": "npm run test && npm run babel && npm run webpack",
+    "release": "./publish.sh",
+    "release:patch": "./publish.sh patch",
+    "release:minor": "./publish.sh minor",
+    "release:major": "./publish.sh major",
+    "clean": "rimraf dist coverage",
+    "reinstall": "rimraf flow-typed && rimraf node_modules && npm install && flow-typed install",
+    "debug": "cross-env NODE_ENV=debug"
+  },
+  "files": [
+    "dist/",
+    "src/"
+  ],
+  "browserslist": [
+    "IE >= 11",
+    "chrome >= 27",
+    "firefox >= 30",
+    "safari >= 7",
+    "opera >= 23"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/krakenjs/grumbler.git"
+  },
+  "keywords": [
+    "template"
+  ],
+  "licenses": [
+    {
+      "type": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  ],
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "flow-bin": "^0.85",
+    "grumbler-scripts": "^3"
+  }
+}
