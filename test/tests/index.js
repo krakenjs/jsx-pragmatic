@@ -1,3 +1,3 @@
 /* @flow */
 
-import './button';
+import './dom';

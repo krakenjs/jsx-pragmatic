@@ -89,7 +89,7 @@ function customDom({ removeScriptTags = false } = {}) {
 
     for (let child of children) {
       if (child.isTextNode()) {
-        el.appendChild(document.createTextNode(child.text()));
+        el.appendChild(document.createTextNode(child.getText()));
       } else {
         el.appendChild(child.render(domRenderer));
       }
