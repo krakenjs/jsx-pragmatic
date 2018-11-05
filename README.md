@@ -1,7 +1,11 @@
 JSX Pragmatic
 -------------
 
-Build JSX structures, then decide at runtime which pragma you want to use to render them.
+- Build JSX templates
+- Decide at runtime how you want to render them
+- Easily build custom renderers - render to HTML, DOM, or anything else!
+
+Because JSX is pretty usefuls, even without React!
 
 #### Build an abstract jsx component
 
