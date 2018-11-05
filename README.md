@@ -115,7 +115,7 @@ function render() {
 /* @jsx node */
 /* @jsxFrag Fragment */
 
-import { node, Fragmennt } from 'jsx-pragmatic';
+import { node, Fragment } from 'jsx-pragmatic';
 
 function Login({ prefilledEmail }) {
   return (
@@ -134,7 +134,7 @@ or
 /* @jsx node */
 /* @jsxFrag Fragment */
 
-import { node, Fragmennt } from 'jsx-pragmatic';
+import { node, Fragment } from 'jsx-pragmatic';
 
 function Login({ prefilledEmail }) {
   return (
@@ -169,6 +169,7 @@ The only problem with that is, the decision of which pragma to use is made entir
 
 `jsx-pragmatic` helps you achieve that by allowing you decide when you render what your jsx should be transformed into.
 
+It also abstracts away some of the stuff in jsx that's a little tricky to deal with; like nested children arrays, dealing with basic element vs function components, and fragments -- leaving you to focus on the renderer logic.
 
 Quick Start
 -----------
