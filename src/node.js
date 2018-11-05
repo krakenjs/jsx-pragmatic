@@ -6,7 +6,7 @@ export type NodeType = ElementNode | TextNode | FragmentNode;
 // eslint-disable-next-line no-use-before-define
 export type NodeChildrenType = $ReadOnlyArray<ElementNode | TextNode>;
 export type NodeRenderer<T> = (string, NodePropsType, NodeChildrenType) => T;
-export type NodeRendererFactory<T> = () => NodeRenderer<T>;
+export type NodeRendererFactory<T, O = Object> = (O | void) => NodeRenderer<T>;
 
 class Node {
     isElementNode() : boolean {

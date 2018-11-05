@@ -5,7 +5,7 @@ import { node, html } from '../../src';
 
 describe('html renderer cases', () => {
 
-    it('should render a basic element as a dom element with a tag name, dynamic attribute, and inner text', () => {
+    it('should render a basic element as a htmls element with a tag name, dynamic attribute, and inner text', () => {
 
         const bar = 'baz';
 
