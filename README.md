@@ -109,6 +109,44 @@ function render() {
 }
 ```
 
+### Use Fragments
+
+```javascript
+/* @jsx node */
+/* @jsxFrag Fragment */
+
+import { node, Fragmennt } from 'jsx-pragmatic';
+
+function Login({ prefilledEmail }) {
+  return (
+    <Fragment>
+      <input type="text" placeholder="email" value={prefilledEmail} />
+      <input type="password" placeholder="password" />
+      <button>Log In</button>
+    </Fragment>
+  );
+}
+```
+
+or
+
+```javascript
+/* @jsx node */
+/* @jsxFrag Fragment */
+
+import { node, Fragmennt } from 'jsx-pragmatic';
+
+function Login({ prefilledEmail }) {
+  return (
+    <>
+      <input type="text" placeholder="email" value={prefilledEmail} />
+      <input type="password" placeholder="password" />
+      <button>Log In</button>
+    </>
+  );
+}
+```
+
 ### Why?
 
 [JSX](https://reactjs.org/docs/introducing-jsx.html) is a neat way of parsing and compiling templates to vanilla javascript. Right now most people use JSX with [React](https://reactjs.org/). But in reality, the technology is decoupled enough from React that it can be used to render anything:

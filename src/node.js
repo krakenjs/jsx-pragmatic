@@ -164,15 +164,20 @@ export const node : JSXBuilder = (element, props, ...children) => {
     if (typeof element === 'string') {
         return new ElementNode(element, props || {}, normalizeChildren(children));
     }
-
+    
     if (typeof element === 'function') {
         // $FlowFixMe
         return normalizeChild(element(props || {}, normalizeChildren(children)));
     }
-
-    if (element === FragmentNode) {
-        return new FragmentNode(normalizeChildren(children));
-    }
     
     throw new TypeError(`Expected jsx Element to be a string or a function`);
 };
+
+export function Fragment(props : NodePropsType, ...children : $ReadOnlyArray<JsxChildType>) : FragmentNode {
+    
+    if (props && Object.keys(props).length) {
+        throw new Error(`Do not pass props to Fragment`);
+    }
+
+    return new FragmentNode(children);
+}
