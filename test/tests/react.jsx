@@ -39,4 +39,58 @@ describe('react renderer cases', () => {
             throw new Error(`Expected React.createElement to be called`);
         }
     });
+
+    it('should render a basic element as a React element with a child node', () => {
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            <section>
+                <button>click me</button>
+            </section>
+        );
+
+        let createElementCalled = false;
+
+        const React = {
+            createElement: (name, props, ...children) => {
+                createElementCalled = true;
+
+                if (name !== 'button' && name !== 'section') {
+                    throw new Error(`Expected React tag name to be button or section, got ${ name }`);
+                }
+
+                if (name === 'section' && children.length !== 1) {
+                    throw new Error(`Expected a single child, got ${ children.length }`);
+                }
+
+                if (name === 'section' && children[0].name !== 'button') {
+                    throw new Error(`Expected a child to be button, got ${ children[0].name }`);
+                }
+
+                return { name };
+            }
+        };
+
+        jsxNode.render(react({ React }));
+
+        if (!createElementCalled) {
+            throw new Error(`Expected React.createElement to be called`);
+        }
+    });
+
+    it('should error out if not passed React', () => {
+
+        let error;
+
+        try {
+            react();
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
+        }
+    });
 });

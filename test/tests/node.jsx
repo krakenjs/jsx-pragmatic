@@ -2,7 +2,7 @@
 /** @jsx node */
 /** @jsxFrag Fragment */
 
-import { node, dom, Fragment, type ElementNode } from '../../src';
+import { node, dom, Fragment, type ElementNode, FragmentNode } from '../../src';
 
 describe('basic node cases', () => {
 
@@ -369,6 +369,43 @@ describe('node render cases', () => {
                 <p />,
                 <section />
             ];
+        };
+
+        const jsxNode = (
+            <div>
+                <Button />
+            </div>
+        );
+
+        jsxNode.render((name, props, children) => {
+            if (name !== 'div') {
+                throw new Error(`Expected name to be div, got ${ name }`);
+            }
+
+            if (children[0].getTag() !== 'button') {
+                throw new Error(`Expected first child to be button, got ${ children[0].getTag() }`);
+            }
+
+            if (children[1].getTag() !== 'p') {
+                throw new Error(`Expected second child to be p, got ${ children[0].getTag() }`);
+            }
+
+            if (children[2].getTag() !== 'section') {
+                throw new Error(`Expected third child to be section, got ${ children[0].getTag() }`);
+            }
+        });
+    });
+
+    it('should be able to render a function returning a fragment containing element nodes', () => {
+        
+        const Button = () : FragmentNode => {
+            return (
+                <Fragment>
+                    <button />
+                    <p />
+                    <section />
+                </Fragment>
+            );
         };
 
         const jsxNode = (
