@@ -111,11 +111,8 @@ function addProps(_ref) {
       props = _ref.props,
       doc = _ref.doc;
 
-  for (var prop in props) {
-    if (!props.hasOwnProperty(prop)) {
-      continue;
-    }
-
+  for (var _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
+    var prop = _Object$keys2[_i4];
     var val = props[prop];
 
     if (val === null || typeof val === 'undefined') {
@@ -135,6 +132,10 @@ function addProps(_ref) {
       } else {
         el.setAttribute(prop, val.toString());
       }
+    } else if (typeof val === 'boolean') {
+      if (val === true) {
+        el.setAttribute(prop, '');
+      }
     } else {
       throw new TypeError("Can not render prop " + prop + " of type " + typeof val);
     }
@@ -143,8 +144,7 @@ function addProps(_ref) {
 
 var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = function (_ref2) {
   var el = _ref2.el,
-      children = _ref2.children,
-      domRenderer = _ref2.domRenderer;
+      children = _ref2.children;
   var firstChild = children[0];
 
   if (children.length > 1 || !firstChild.isElementNode()) {
@@ -163,16 +163,20 @@ var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = func
       throw new Error("Expected frame to have contentWindow");
     }
 
-    var documentElement = win.document.documentElement;
+    var doc = win.document;
+    var docElement = doc.documentElement;
 
-    while (documentElement.children && documentElement.children.length) {
-      documentElement.removeChild(documentElement.children[0]);
-    }
+    while (docElement.children && docElement.children.length) {
+      docElement.removeChild(docElement.children[0]);
+    } // eslint-disable-next-line no-use-before-define
 
-    var child = firstChild.render(domRenderer);
+
+    var child = firstChild.render(dom({
+      doc: doc
+    }));
 
     while (child.children.length) {
-      documentElement.appendChild(child.children[0]);
+      docElement.appendChild(child.children[0]);
     }
   });
 }, _ADD_CHILDREN[ELEMENT_TAG.SCRIPT] = function (_ref3) {
@@ -192,8 +196,8 @@ var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = func
       doc = _ref4.doc,
       domRenderer = _ref4.domRenderer;
 
-  for (var _i4 = 0; _i4 < children.length; _i4++) {
-    var child = children[_i4];
+  for (var _i6 = 0; _i6 < children.length; _i6++) {
+    var child = children[_i6];
 
     if (child.isTextNode()) {
       el.appendChild(doc.createTextNode(child.getText()));

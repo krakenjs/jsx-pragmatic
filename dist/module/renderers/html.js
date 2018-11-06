@@ -7,13 +7,7 @@ function htmlEncode(html) {
 }
 
 function propsToHTML(props) {
-  var keys = Object.keys(props);
-
-  if (!keys.length) {
-    return '';
-  }
-
-  keys = keys.filter(function (key) {
+  var keys = Object.keys(props).filter(function (key) {
     var val = props[key];
 
     if (key === ELEMENT_PROP.INNER_HTML) {
@@ -30,6 +24,11 @@ function propsToHTML(props) {
 
     return false;
   });
+
+  if (!keys.length) {
+    return '';
+  }
+
   var pairs = keys.map(function (key) {
     var val = props[key];
 

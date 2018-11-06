@@ -274,22 +274,24 @@
             }
         }
         var ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(_ref2) {
-            var el = _ref2.el, children = _ref2.children, domRenderer = _ref2.domRenderer, firstChild = children[0];
+            var el = _ref2.el, children = _ref2.children, firstChild = children[0];
             if (1 < children.length || !firstChild.isElementNode()) throw new Error("Expected only single element node as child of iframe element");
             if (!firstChild.isTag("html")) throw new Error("Expected element to be inserted into frame to be html, got " + firstChild.getTag());
             el.addEventListener("load", function() {
                 var win = el.contentWindow;
                 if (!win) throw new Error("Expected frame to have contentWindow");
-                for (var documentElement = win.document.documentElement; documentElement.children && documentElement.children.length; ) documentElement.removeChild(documentElement.children[0]);
-                for (var child = firstChild.render(domRenderer); child.children.length; ) documentElement.appendChild(child.children[0]);
+                for (var doc = win.document, docElement = doc.documentElement; docElement.children && docElement.children.length; ) docElement.removeChild(docElement.children[0]);
+                for (var child = firstChild.render(dom({
+                    doc: doc
+                })); child.children.length; ) docElement.appendChild(child.children[0]);
             });
         }, _ADD_CHILDREN.script = function(_ref3) {
             var el = _ref3.el, children = _ref3.children, firstChild = children[0];
             if (1 !== children.length || !firstChild.isTextNode()) throw new Error("Expected only single text node as child of script element");
             el.text = firstChild.getText();
         }, _ADD_CHILDREN.default = function(_ref4) {
-            for (var el = _ref4.el, children = _ref4.children, doc = _ref4.doc, domRenderer = _ref4.domRenderer, _i4 = 0; _i4 < children.length; _i4++) {
-                var child = children[_i4];
+            for (var el = _ref4.el, children = _ref4.children, doc = _ref4.doc, domRenderer = _ref4.domRenderer, _i6 = 0; _i6 < children.length; _i6++) {
+                var child = children[_i6];
                 child.isTextNode() ? el.appendChild(doc.createTextNode(child.getText())) : el.appendChild(child.render(domRenderer));
             }
         }, _ADD_CHILDREN), dom = function(_temp) {
@@ -297,18 +299,17 @@
             return function domRenderer(name, props, children) {
                 var el = doc.createElement(name), addChildren = ADD_CHILDREN[name] || ADD_CHILDREN.default;
                 !function(_ref) {
-                    var el = _ref.el, props = _ref.props, doc = _ref.doc;
-                    for (var prop in props) if (props.hasOwnProperty(prop)) {
-                        var val = props[prop];
+                    for (var el = _ref.el, props = _ref.props, doc = _ref.doc, _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
+                        var prop = _Object$keys2[_i4], val = props[prop];
                         if (null != val) if (DOM_EVENT.hasOwnProperty(prop)) {
                             if ("function" != typeof val) throw new TypeError("Prop " + prop + " must be function");
                             el.addEventListener(DOM_EVENT[prop], val);
-                        } else {
-                            if ("string" != typeof val && "number" != typeof val) throw new TypeError("Can not render prop " + prop + " of type " + typeof val);
-                            if ("innerHTML" === prop) {
-                                el.innerHTML = val.toString();
-                                fixScripts(el, doc);
-                            } else el.setAttribute(prop, val.toString());
+                        } else if ("string" == typeof val || "number" == typeof val) if ("innerHTML" === prop) {
+                            el.innerHTML = val.toString();
+                            fixScripts(el, doc);
+                        } else el.setAttribute(prop, val.toString()); else {
+                            if ("boolean" != typeof val) throw new TypeError("Can not render prop " + prop + " of type " + typeof val);
+                            !0 === val && el.setAttribute(prop, "");
                         }
                     }
                 }({
@@ -343,11 +344,11 @@
                     return child.isTextNode() ? htmlEncode(child.getText()) : child.render(htmlRenderer);
                 });
                 return "<" + name + function(props) {
-                    var keys = Object.keys(props);
-                    return keys.length ? " " + (keys = keys.filter(function(key) {
+                    var keys = Object.keys(props).filter(function(key) {
                         var val = props[key];
                         return "innerHTML" !== key && !!val && ("string" == typeof val || "number" == typeof val || !0 === val);
-                    })).map(function(key) {
+                    });
+                    return keys.length ? " " + keys.map(function(key) {
                         var val = props[key];
                         if (!0 === val) return "" + htmlEncode(key);
                         if ("string" != typeof val && "number" != typeof val) throw new TypeError("Unexpected prop type: " + typeof val);
