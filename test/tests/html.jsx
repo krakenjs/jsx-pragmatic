@@ -40,4 +40,18 @@ describe('html renderer cases', () => {
             throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
         }
     });
+
+    it('should escape special characters', () => {
+        
+        const jsxNode = (
+            <button foo={ `&"'$%<>` } { ...{ '$"\'': '<><>%$&' } }>${ `a&<<b>c"<d'''/` }</button>
+        );
+
+        const htmlString = jsxNode.render(html());
+        const htmlExpected = `<button foo="&amp;&quot;&#39;$%&lt;&gt;" $&quot;&#39;="&lt;&gt;&lt;&gt;%$&amp;">$a&amp;&lt;&lt;b&gt;c&quot;&lt;d&#39;&#39;&#39;&#x2F;</button>`;
+
+        if (htmlString !== htmlExpected) {
+            throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
+        }
+    });
 });
