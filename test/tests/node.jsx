@@ -1,8 +1,9 @@
 /* @flow */
 /** @jsx node */
 /** @jsxFrag Fragment */
+/* eslint max-lines: off */
 
-import { node, dom, Fragment, type ElementNode, FragmentNode } from '../../src';
+import { node, Fragment, type ElementNode, FragmentNode } from '../../src';
 
 describe('basic node cases', () => {
 

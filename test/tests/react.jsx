@@ -42,8 +42,6 @@ describe('react renderer cases', () => {
 
     it('should render a basic element as a React element with a child node', () => {
 
-        const bar = 'baz';
-
         const jsxNode = (
             <section>
                 <button>click me</button>

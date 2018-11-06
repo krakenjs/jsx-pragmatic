@@ -17,13 +17,8 @@ function htmlEncode(html : string) : string {
 }
 
 function propsToHTML(props : NodePropsType) : string {
-    let keys = Object.keys(props);
 
-    if (!keys.length) {
-        return '';
-    }
-
-    keys = keys.filter(key => {
+    const keys = Object.keys(props).filter(key => {
         const val = props[key];
 
         if (key === ELEMENT_PROP.INNER_HTML) {
@@ -40,6 +35,10 @@ function propsToHTML(props : NodePropsType) : string {
 
         return false;
     });
+
+    if (!keys.length) {
+        return '';
+    }
 
     const pairs = keys.map(key => {
         const val = props[key];

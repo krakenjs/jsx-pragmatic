@@ -3,6 +3,45 @@
 
 import { node, dom } from '../../src';
 
+type ExpectedNode = {|
+    name : string,
+    attrs? : { [string] : string },
+    text? : string,
+    children? : $ReadOnlyArray<ExpectedNode>
+|};
+
+function validateDOM(domNode : HTMLElement, expected : ExpectedNode) {
+    if (domNode.tagName.toLowerCase() !== expected.name) {
+        throw new Error(`Expected dom domNode tag name to be ${ expected.name }, got ${ domNode.tagName.toLowerCase() }`);
+    }
+
+    if (expected.text && domNode.innerText !== expected.text) {
+        throw new Error(`Expected dom domNode inner text to be '${ expected.text }', got ${ domNode.innerText || 'undefined' }`);
+    }
+
+    const attrs = expected.attrs;
+    if (attrs) {
+        for (const key of Object.keys(attrs)) {
+            if (domNode.getAttribute(key) !== attrs[key]) {
+                throw new Error(`Expected dom domNode attribute '${ key }' to be '${ attrs[key] }', got ${ domNode.getAttribute(key) || 'undefined' }`);
+            }
+        }
+    }
+
+    if (expected.children) {
+        if (expected.children.length !== domNode.children.length) {
+            throw new Error(`Expected ${ expected.children.length } children for ${ expected.name }, found ${ domNode.children.length }`);
+        }
+
+        for (let i = 0; i < expected.children.length; i++) {
+            validateDOM(domNode.children[i], expected.children[i]);
+        }
+
+    } else if (domNode.children.length) {
+        throw new Error(`Expected no children for ${ expected.name }, found ${ domNode.children.length }`);
+    }
+}
+
 describe('dom renderer cases', () => {
 
     it('should render a basic element as a dom element with a tag name, dynamic attribute, and inner text', () => {
@@ -15,16 +54,393 @@ describe('dom renderer cases', () => {
 
         const domNode = jsxNode.render(dom());
 
-        if (domNode.tagName.toLowerCase() !== 'button') {
-            throw new Error(`Expected dom node tag name to be button, got ${ domNode.tagName.toLowerCase() }`);
+        validateDOM(domNode, {
+            name:  'button',
+            attrs: {
+                foo: bar
+            },
+            text: 'click me'
+        });
+    });
+
+    it('should render an advanced element as a dom element ', () => {
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            <section foo={ null } bar={ undefined }>
+                <p hello={ true } />
+                <button foo={ bar }>click me</button>
+            </section>
+        );
+
+        const domNode = jsxNode.render(dom());
+
+        validateDOM(domNode, {
+            name:     'section',
+            children: [
+                {
+                    name:  'p',
+                    attrs: {
+                        hello: ''
+                    }
+                },
+                {
+                    name:  'button',
+                    attrs: {
+                        foo: bar
+                    },
+                    text: 'click me'
+                }
+            ]
+        });
+    });
+
+    it('should render an element with an event listener', () => {
+
+        let clicked = false;
+
+        const jsxNode = (
+            <button onClick={ () => { clicked = true; } }>click me</button>
+        );
+
+        const domNode = jsxNode.render(dom());
+
+        domNode.click();
+
+        if (!clicked) {
+            throw new Error(`Expected button to be clicked`);
+        }
+    });
+
+    it('should render an element with innerHTML', () => {
+
+        const jsxNode = (
+            <section innerHTML={ `<p id="foo">hello world</p>` } />
+        );
+
+        const domNode = jsxNode.render(dom());
+
+        validateDOM(domNode, {
+            name:     'section',
+            children: [
+                {
+                    name:  'p',
+                    attrs: {
+                        id: 'foo'
+                    },
+                    text: 'hello world'
+                }
+            ]
+        });
+    });
+
+    it('should render an element with innerHTML and a script tag', () => {
+
+        window.scriptTagRun = false;
+        
+        const jsxNode = (
+            <section innerHTML={ `<p id="foo"><script>window.scriptTagRun=true</script></p>` } />
+        );
+
+        const domNode = jsxNode.render(dom());
+
+        const body = document.body;
+
+        if (!body) {
+            throw new Error(`document.body not found`);
         }
 
-        if (domNode.innerText !== 'click me') {
-            throw new Error(`Expected dom node inner text to be 'click me', got ${ domNode.innerText || 'undefined' }`);
+        body.appendChild(domNode);
+
+        if (!window.scriptTagRun) {
+            throw new Error(`Expected script tag to run`);
+        }
+    });
+
+    it('should error when a non-function is passed to an event listener', () => {
+
+        const jsxNode = (
+            <button onClick={ 'meep' }>click me</button>
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
         }
 
-        if (domNode.getAttribute('foo') !== bar) {
-            throw new Error(`Expected dom node attribute 'foo' to be '${ bar }', got ${ domNode.getAttribute('foo') || 'undefined' }`);
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
+        }
+    });
+
+    it('should error when a object is passed as a prop', () => {
+
+        const jsxNode = (
+            <button beep={ { hello: 'world' } }>click me</button>
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
+        }
+    });
+
+    it('should render an element with a script tag', () => {
+
+        window.scriptTagRun = false;
+        
+        const jsxNode = (
+            <section>
+                <p id="foo">
+                    <script>
+                        window.scriptTagRun = true;
+                    </script>
+                </p>
+            </section>
+        );
+
+        const domNode = jsxNode.render(dom());
+
+        const body = document.body;
+
+        if (!body) {
+            throw new Error(`document.body not found`);
+        }
+
+        body.appendChild(domNode);
+
+        if (!window.scriptTagRun) {
+            throw new Error(`Expected script tag to run`);
+        }
+    });
+
+    it('should render an element with multiple script tags', () => {
+
+        window.scriptTagRunCount = 0;
+        
+        const jsxNode = (
+            <section>
+                <p id="foo">
+                    <script>
+                        window.scriptTagRunCount += 1;
+                    </script>
+                </p>
+                <script>
+                        window.scriptTagRunCount += 1;
+                </script>
+            </section>
+        );
+
+        const domNode = jsxNode.render(dom());
+
+        const body = document.body;
+
+        if (!body) {
+            throw new Error(`document.body not found`);
+        }
+
+        body.appendChild(domNode);
+
+        if (window.scriptTagRunCount !== 2) {
+            throw new Error(`Expected both script tags to run`);
+        }
+    });
+
+    it('should error when an element node is passed as a child to a script tag', () => {
+
+        const jsxNode = (
+            <section>
+                <script>
+                    <p>hello world</p>
+                </script>
+            </section>
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
+        }
+    });
+
+    it('should error when multiple nodes are passed as a child to a script tag', () => {
+
+        const jsxNode = (
+            <section>
+                <script>
+                    window.foo();
+                    <p>hello world</p>
+                </script>
+            </section>
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
+        }
+    });
+
+    it('should render an advanced element as a dom element inside an iframe', () => {
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            <iframe>
+                <html>
+                    <body>
+                        <section foo={ null } bar={ undefined }>
+                            <p hello={ true } />
+                            <button foo={ bar }>click me</button>
+                        </section>
+                    </body>
+                </html>
+            </iframe>
+        );
+
+        const domNode = jsxNode.render(dom());
+
+        // eslint-disable-next-line compat/compat, no-restricted-globals, promise/no-native
+        const promise = new Promise((resolve, reject) => {
+            domNode.addEventListener('load', () => {
+                try {
+                    // $FlowFixMe
+                    validateDOM(domNode.contentWindow.document.documentElement, {
+                        name:     'html',
+                        children: [
+                            {
+                                name:     'body',
+                                children: [
+                                    {
+                                        name:     'section',
+                                        children: [
+                                            {
+                                                name:  'p',
+                                                attrs: {
+                                                    hello: ''
+                                                }
+                                            },
+                                            {
+                                                name:  'button',
+                                                attrs: {
+                                                    foo: bar
+                                                },
+                                                text: 'click me'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    });
+                    resolve();
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        });
+
+        const body = document.body;
+
+        if (!body) {
+            throw new Error(`document.body not found`);
+        }
+
+        body.appendChild(domNode);
+
+        return promise;
+    });
+
+    it('should error when multiple nodes are passed as a child to an iframe tag', () => {
+
+        const jsxNode = (
+            <section>
+                <iframe>
+                    <p>hello world</p>
+                    <p>foo bar</p>
+                </iframe>
+            </section>
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
+        }
+    });
+
+    it('should error when a text node is passed as a child to an iframe tag', () => {
+
+        const jsxNode = (
+            <section>
+                <iframe>
+                    hello world
+                </iframe>
+            </section>
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
+        }
+    });
+
+    it('should error when a non-html node is passed as a child to an iframe tag', () => {
+
+        const jsxNode = (
+            <section>
+                <iframe>
+                    <p>what what</p>
+                </iframe>
+            </section>
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
         }
     });
 });

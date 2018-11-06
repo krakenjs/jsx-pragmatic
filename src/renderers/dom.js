@@ -112,11 +112,7 @@ type AddPropsOptions = {|
 |};
 
 function addProps({ el, props, doc } : AddPropsOptions) {
-    for (const prop in props) {
-        if (!props.hasOwnProperty(prop)) {
-            continue;
-        }
-
+    for (const prop of Object.keys(props)) {
         const val = props[prop];
 
         if (val === null || typeof val === 'undefined') {
@@ -138,6 +134,11 @@ function addProps({ el, props, doc } : AddPropsOptions) {
                 el.setAttribute(prop, val.toString());
             }
 
+        } else if (typeof val === 'boolean') {
+            if (val === true) {
+                el.setAttribute(prop, '');
+            }
+
         } else {
             throw new TypeError(`Can not render prop ${ prop } of type ${ typeof val }`);
         }
@@ -153,7 +154,7 @@ type AddChildrenOptions = {|
 
 const ADD_CHILDREN : { [string] : (AddChildrenOptions) => void }  = {
 
-    [ ELEMENT_TAG.IFRAME ]: ({ el, children, domRenderer } : AddChildrenOptions) => {
+    [ ELEMENT_TAG.IFRAME ]: ({ el, children } : AddChildrenOptions) => {
         const firstChild = children[0];
 
         if (children.length > 1 || !firstChild.isElementNode()) {
@@ -173,16 +174,18 @@ const ADD_CHILDREN : { [string] : (AddChildrenOptions) => void }  = {
                 throw new Error(`Expected frame to have contentWindow`);
             }
 
-            const documentElement = win.document.documentElement;
+            const doc = win.document;
+            const docElement = doc.documentElement;
 
-            while (documentElement.children && documentElement.children.length) {
-                documentElement.removeChild(documentElement.children[0]);
+            while (docElement.children && docElement.children.length) {
+                docElement.removeChild(docElement.children[0]);
             }
 
-            const child = firstChild.render(domRenderer);
+            // eslint-disable-next-line no-use-before-define
+            const child = firstChild.render(dom({ doc }));
         
             while (child.children.length) {
-                documentElement.appendChild(child.children[0]);
+                docElement.appendChild(child.children[0]);
             }
         });
     },
