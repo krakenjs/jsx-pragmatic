@@ -29,6 +29,7 @@ export var ElementNode =
 function (_Node) {
   _inheritsLoose(ElementNode, _Node);
 
+  // eslint-disable-line no-undef
   function ElementNode(name, props, children) {
     var _this;
 
@@ -36,9 +37,16 @@ function (_Node) {
     _this.name = void 0;
     _this.props = void 0;
     _this.children = void 0;
+    _this.onRender = void 0;
     _this.name = name;
     _this.props = props;
     _this.children = children;
+
+    if (typeof props.onRender === 'function') {
+      _this.onRender = props.onRender;
+      delete props.onRender;
+    }
+
     return _this;
   }
 
@@ -57,7 +65,13 @@ function (_Node) {
   };
 
   _proto2.render = function render(renderer) {
-    return renderer(this.name, this.props, this.children);
+    var element = renderer(this.name, this.props, this.children);
+
+    if (this.onRender) {
+      this.onRender(element);
+    }
+
+    return element;
   };
 
   _proto2.getText = function getText() {

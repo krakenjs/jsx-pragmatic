@@ -86,9 +86,14 @@
                 (_this = _Node.call(this) || this).name = void 0;
                 _this.props = void 0;
                 _this.children = void 0;
+                _this.onRender = void 0;
                 _this.name = name;
                 _this.props = props;
                 _this.children = children;
+                if ("function" == typeof props.onRender) {
+                    _this.onRender = props.onRender;
+                    delete props.onRender;
+                }
                 return _this;
             }
             var _proto2 = ElementNode.prototype;
@@ -102,7 +107,9 @@
                 return !0;
             };
             _proto2.render = function(renderer) {
-                return renderer(this.name, this.props, this.children);
+                var element = renderer(this.name, this.props, this.children);
+                this.onRender && this.onRender(element);
+                return element;
             };
             _proto2.getText = function() {
                 throw new Error("Can not get text of an element node");
