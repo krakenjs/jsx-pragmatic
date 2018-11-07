@@ -166,39 +166,39 @@ function normalizeChildren(children : $ReadOnlyArray<NullableJsxChildType>) : No
     return result;
 }
 
-type JSXElementBuilder = (
+type JSXElementBuilder<P : NodePropsType> = (
     element : string,
-    props : NodePropsType | null,
+    props : P | null,
     ...children : $ReadOnlyArray<NullableJsxChildType>
 ) => ElementNode;
 
-type JSXElementFunctionBuilder = (
-    element : (NodePropsType, $ReadOnlyArray<JsxChildType>) => ElementNode,
-    props : NodePropsType | null,
+type JSXElementFunctionBuilder<P : NodePropsType> = (
+    element : (P, $ReadOnlyArray<JsxChildType>) => ElementNode,
+    props : P | null,
     ...children : $ReadOnlyArray<NullableJsxChildType>
 ) => ElementNode;
 
-type JSXTextFunctionBuilder = (
-    element : (NodePropsType, $ReadOnlyArray<JsxChildType>) => string | TextNode,
-    props : NodePropsType | null,
+type JSXTextFunctionBuilder<P : NodePropsType> = (
+    element : (P, $ReadOnlyArray<JsxChildType>) => string | TextNode,
+    props : P | null,
     ...children : $ReadOnlyArray<NullableJsxChildType>
 ) => TextNode;
 
-type JSXFragmentFunctionBuilder = (
-    element : (NodePropsType, $ReadOnlyArray<JsxChildType>) => FragmentNode | $ReadOnlyArray<JsxChildType>,
-    props : NodePropsType | null,
+type JSXFragmentFunctionBuilder<P : NodePropsType> = (
+    element : (P, $ReadOnlyArray<JsxChildType>) => FragmentNode | $ReadOnlyArray<NullableJsxChildType>,
+    props : P | null,
     ...children : $ReadOnlyArray<NullableJsxChildType>
 ) => FragmentNode;
 
-type JSXEmptyFunctionBuilder = (
-    element : (NodePropsType, $ReadOnlyArray<JsxChildType>) => null | void,
-    props : NodePropsType | null,
+type JSXEmptyFunctionBuilder<P : NodePropsType> = (
+    element : (P, $ReadOnlyArray<JsxChildType>) => null | void,
+    props : P | null,
     ...children : $ReadOnlyArray<NullableJsxChildType>
 ) => void;
 
-type JSXBuilder = JSXElementBuilder & JSXElementFunctionBuilder & JSXTextFunctionBuilder & JSXFragmentFunctionBuilder & JSXEmptyFunctionBuilder;
+type JSXBuilder<P : NodePropsType> = JSXElementBuilder<P> & JSXElementFunctionBuilder<P> & JSXTextFunctionBuilder<P> & JSXFragmentFunctionBuilder<P> & JSXEmptyFunctionBuilder<P>;
 
-export const node : JSXBuilder = (element, props, ...children) => {
+export const node : JSXBuilder<*> = <P : NodePropsType>(element, props : P | null, ...children) => {
     if (typeof element === 'string') {
         return new ElementNode(element, props || {}, normalizeChildren(children));
     }
