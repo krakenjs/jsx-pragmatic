@@ -54,4 +54,19 @@ describe('html renderer cases', () => {
             throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
         }
     });
+
+    it('should call onRender when the element is rendered', () => {
+
+        let onRenderResult;
+
+        const jsxNode = (
+            <div onRender={ (el) => { onRenderResult = el; } } />
+        );
+
+        const renderResult = jsxNode.render(html());
+
+        if (onRenderResult !== renderResult) {
+            throw new Error(`Expected onRender to be passed correct element`);
+        }
+    });
 });

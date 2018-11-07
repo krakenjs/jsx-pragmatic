@@ -91,4 +91,25 @@ describe('react renderer cases', () => {
             throw new Error(`Expected error to be thrown`);
         }
     });
+
+    it('should call onRender when the element is rendered', () => {
+
+        let onRenderResult;
+
+        const jsxNode = (
+            <div onRender={ (el) => { onRenderResult = el; } } />
+        );
+
+        const React = {
+            createElement: () => {
+                return {};
+            }
+        };
+
+        const renderResult = jsxNode.render(react({ React }));
+
+        if (onRenderResult !== renderResult) {
+            throw new Error(`Expected onRender to be passed correct element`);
+        }
+    });
 });

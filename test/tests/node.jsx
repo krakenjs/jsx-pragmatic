@@ -531,4 +531,26 @@ describe('node render cases', () => {
             throw new Error(`Expected error to be thrown`);
         }
     });
+
+    it('should call onRender when the element is rendered', () => {
+        
+        const element = {};
+        let onRenderResult;
+
+        const jsxNode = (
+            <div onRender={ (el) => { onRenderResult = el; }  } />
+        );
+        
+        const renderResult = jsxNode.render(() => {
+            return element;
+        });
+
+        if (renderResult !== element) {
+            throw new Error(`Expected render to return correct element`);
+        }
+
+        if (onRenderResult !== element) {
+            throw new Error(`Expected onRender to be passed correct element`);
+        }
+    });
 });

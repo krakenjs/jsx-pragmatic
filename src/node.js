@@ -26,12 +26,18 @@ export class ElementNode extends Node {
     name : string
     props : NodePropsType
     children : NodeChildrenType
+    onRender : ?<T>(T) => void // eslint-disable-line no-undef
 
     constructor(name : string, props : NodePropsType, children : NodeChildrenType) {
         super();
         this.name = name;
         this.props = props;
         this.children = children;
+
+        if (typeof props.onRender === 'function') {
+            this.onRender = props.onRender;
+            delete props.onRender;
+        }
     }
 
     getTag() : string {
@@ -47,7 +53,11 @@ export class ElementNode extends Node {
     }
 
     render<T>(renderer : NodeRenderer<T>) : T {
-        return renderer(this.name, this.props, this.children);
+        const element = renderer(this.name, this.props, this.children);
+        if (this.onRender) {
+            this.onRender(element);
+        }
+        return element;
     }
 
     getText() : string {
