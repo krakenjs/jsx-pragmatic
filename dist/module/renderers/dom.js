@@ -1,13 +1,15 @@
-var _ADD_CHILDREN;
+var _CREATE_ELEMENT, _ADD_CHILDREN;
 
 var ELEMENT_TAG = {
   HTML: 'html',
   IFRAME: 'iframe',
   SCRIPT: 'script',
+  NODE: 'node',
   DEFAULT: 'default'
 };
 var ELEMENT_PROP = {
-  INNER_HTML: 'innerHTML'
+  INNER_HTML: 'innerHTML',
+  EL: 'el'
 };
 var DOM_EVENT = {
   onBlur: 'blur',
@@ -106,16 +108,35 @@ function fixScripts(el, doc) {
   }
 }
 
-function addProps(_ref) {
-  var el = _ref.el,
-      props = _ref.props,
-      doc = _ref.doc;
+var CREATE_ELEMENT = (_CREATE_ELEMENT = {}, _CREATE_ELEMENT[ELEMENT_TAG.NODE] = function (_ref) {
+  var props = _ref.props;
+
+  if (!props[ELEMENT_PROP.EL]) {
+    throw new Error("Must pass " + ELEMENT_PROP.EL + " prop to " + ELEMENT_TAG.NODE + " element");
+  }
+
+  if (Object.keys(props).length > 1) {
+    throw new Error("Must not pass any prop other than " + ELEMENT_PROP.EL + " to " + ELEMENT_TAG.NODE + " element");
+  } // $FlowFixMe
+
+
+  return props[ELEMENT_PROP.EL];
+}, _CREATE_ELEMENT[ELEMENT_TAG.DEFAULT] = function (_ref2) {
+  var name = _ref2.name,
+      doc = _ref2.doc;
+  return doc.createElement(name);
+}, _CREATE_ELEMENT);
+
+function addProps(_ref3) {
+  var el = _ref3.el,
+      props = _ref3.props,
+      doc = _ref3.doc;
 
   for (var _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
     var prop = _Object$keys2[_i4];
     var val = props[prop];
 
-    if (val === null || typeof val === 'undefined') {
+    if (val === null || typeof val === 'undefined' || prop === ELEMENT_PROP.EL) {
       continue;
     }
 
@@ -142,9 +163,9 @@ function addProps(_ref) {
   }
 }
 
-var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = function (_ref2) {
-  var el = _ref2.el,
-      children = _ref2.children;
+var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = function (_ref4) {
+  var el = _ref4.el,
+      children = _ref4.children;
   var firstChild = children[0];
 
   if (children.length > 1 || !firstChild.isElementNode()) {
@@ -179,9 +200,9 @@ var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = func
       docElement.appendChild(child.children[0]);
     }
   });
-}, _ADD_CHILDREN[ELEMENT_TAG.SCRIPT] = function (_ref3) {
-  var el = _ref3.el,
-      children = _ref3.children;
+}, _ADD_CHILDREN[ELEMENT_TAG.SCRIPT] = function (_ref5) {
+  var el = _ref5.el,
+      children = _ref5.children;
   var firstChild = children[0];
 
   if (children.length !== 1 || !firstChild.isTextNode()) {
@@ -190,11 +211,11 @@ var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = func
 
 
   el.text = firstChild.getText();
-}, _ADD_CHILDREN[ELEMENT_TAG.DEFAULT] = function (_ref4) {
-  var el = _ref4.el,
-      children = _ref4.children,
-      doc = _ref4.doc,
-      domRenderer = _ref4.domRenderer;
+}, _ADD_CHILDREN[ELEMENT_TAG.DEFAULT] = function (_ref6) {
+  var el = _ref6.el,
+      children = _ref6.children,
+      doc = _ref6.doc,
+      domRenderer = _ref6.domRenderer;
 
   for (var _i6 = 0; _i6 < children.length; _i6++) {
     var child = children[_i6];
@@ -207,13 +228,18 @@ var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = func
   }
 }, _ADD_CHILDREN);
 export var dom = function dom(_temp) {
-  var _ref5 = _temp === void 0 ? {} : _temp,
-      _ref5$doc = _ref5.doc,
-      doc = _ref5$doc === void 0 ? document : _ref5$doc;
+  var _ref7 = _temp === void 0 ? {} : _temp,
+      _ref7$doc = _ref7.doc,
+      doc = _ref7$doc === void 0 ? document : _ref7$doc;
 
   var domRenderer = function domRenderer(name, props, children) {
-    var el = doc.createElement(name);
+    var createElement = CREATE_ELEMENT[name] || CREATE_ELEMENT[ELEMENT_TAG.DEFAULT];
     var addChildren = ADD_CHILDREN[name] || ADD_CHILDREN[ELEMENT_TAG.DEFAULT];
+    var el = createElement({
+      name: name,
+      props: props,
+      doc: doc
+    });
     addProps({
       el: el,
       props: props,

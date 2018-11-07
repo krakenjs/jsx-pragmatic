@@ -1,6 +1,6 @@
 !function(root, factory) {
     "object" == typeof exports && "object" == typeof module ? module.exports = factory() : "function" == typeof define && define.amd ? define("pragmatic", [], factory) : "object" == typeof exports ? exports.pragmatic = factory() : root.pragmatic = factory();
-}(window, function() {
+}("undefined" != typeof self ? self : this, function() {
     return function(modules) {
         var installedModules = {};
         function __webpack_require__(moduleId) {
@@ -182,7 +182,7 @@
             }
             return result;
         }
-        var _ADD_CHILDREN, node = function(element, props) {
+        var _CREATE_ELEMENT, _ADD_CHILDREN, node = function(element, props) {
             for (var _len = arguments.length, children = new Array(2 < _len ? _len - 2 : 0), _key = 2; _key < _len; _key++) children[_key - 2] = arguments[_key];
             if ("string" == typeof element) return new node_ElementNode(element, props || {}, normalizeChildren(children));
             if ("function" == typeof element) return normalizeChild(element(props || {}, normalizeChildren(children)));
@@ -280,8 +280,16 @@
                 }
             }
         }
-        var ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(_ref2) {
-            var el = _ref2.el, children = _ref2.children, firstChild = children[0];
+        var CREATE_ELEMENT = ((_CREATE_ELEMENT = {}).node = function(_ref) {
+            var props = _ref.props;
+            if (!props.el) throw new Error("Must pass el prop to node element");
+            if (1 < Object.keys(props).length) throw new Error("Must not pass any prop other than el to node element");
+            return props.el;
+        }, _CREATE_ELEMENT.default = function(_ref2) {
+            var name = _ref2.name;
+            return _ref2.doc.createElement(name);
+        }, _CREATE_ELEMENT), ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(_ref4) {
+            var el = _ref4.el, children = _ref4.children, firstChild = children[0];
             if (1 < children.length || !firstChild.isElementNode()) throw new Error("Expected only single element node as child of iframe element");
             if (!firstChild.isTag("html")) throw new Error("Expected element to be inserted into frame to be html, got " + firstChild.getTag());
             el.addEventListener("load", function() {
@@ -292,23 +300,27 @@
                     doc: doc
                 })); child.children.length; ) docElement.appendChild(child.children[0]);
             });
-        }, _ADD_CHILDREN.script = function(_ref3) {
-            var el = _ref3.el, children = _ref3.children, firstChild = children[0];
+        }, _ADD_CHILDREN.script = function(_ref5) {
+            var el = _ref5.el, children = _ref5.children, firstChild = children[0];
             if (1 !== children.length || !firstChild.isTextNode()) throw new Error("Expected only single text node as child of script element");
             el.text = firstChild.getText();
-        }, _ADD_CHILDREN.default = function(_ref4) {
-            for (var el = _ref4.el, children = _ref4.children, doc = _ref4.doc, domRenderer = _ref4.domRenderer, _i6 = 0; _i6 < children.length; _i6++) {
+        }, _ADD_CHILDREN.default = function(_ref6) {
+            for (var el = _ref6.el, children = _ref6.children, doc = _ref6.doc, domRenderer = _ref6.domRenderer, _i6 = 0; _i6 < children.length; _i6++) {
                 var child = children[_i6];
                 child.isTextNode() ? el.appendChild(doc.createTextNode(child.getText())) : el.appendChild(child.render(domRenderer));
             }
         }, _ADD_CHILDREN), dom = function(_temp) {
-            var _ref5$doc = (void 0 === _temp ? {} : _temp).doc, doc = void 0 === _ref5$doc ? document : _ref5$doc;
+            var _ref7$doc = (void 0 === _temp ? {} : _temp).doc, doc = void 0 === _ref7$doc ? document : _ref7$doc;
             return function domRenderer(name, props, children) {
-                var el = doc.createElement(name), addChildren = ADD_CHILDREN[name] || ADD_CHILDREN.default;
-                !function(_ref) {
-                    for (var el = _ref.el, props = _ref.props, doc = _ref.doc, _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
+                var createElement = CREATE_ELEMENT[name] || CREATE_ELEMENT.default, addChildren = ADD_CHILDREN[name] || ADD_CHILDREN.default, el = createElement({
+                    name: name,
+                    props: props,
+                    doc: doc
+                });
+                !function(_ref3) {
+                    for (var el = _ref3.el, props = _ref3.props, doc = _ref3.doc, _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
                         var prop = _Object$keys2[_i4], val = props[prop];
-                        if (null != val) if (DOM_EVENT.hasOwnProperty(prop)) {
+                        if (null != val && "el" !== prop) if (DOM_EVENT.hasOwnProperty(prop)) {
                             if ("function" != typeof val) throw new TypeError("Prop " + prop + " must be function");
                             el.addEventListener(DOM_EVENT[prop], val);
                         } else if ("string" == typeof val || "number" == typeof val) if ("innerHTML" === prop) {
