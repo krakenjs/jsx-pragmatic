@@ -6,11 +6,13 @@ const ELEMENT_TAG = {
     HTML:    'html',
     IFRAME:  'iframe',
     SCRIPT:  'script',
+    NODE:    'node',
     DEFAULT: 'default'
 };
 
 const ELEMENT_PROP = {
-    INNER_HTML: 'innerHTML'
+    INNER_HTML: 'innerHTML',
+    EL:         'el'
 };
 
 const DOM_EVENT = {
@@ -105,6 +107,32 @@ function fixScripts(el : HTMLElement, doc : Document = window.document) {
     }
 }
 
+type CreateElementOptions = {|
+    doc : Document,
+    name : string,
+    props : NodePropsType
+|};
+
+const CREATE_ELEMENT : { [string] : (CreateElementOptions) => HTMLElement } = {
+
+    [ ELEMENT_TAG.NODE ]: ({ props } : CreateElementOptions) => {
+        if (!props[ELEMENT_PROP.EL]) {
+            throw new Error(`Must pass ${ ELEMENT_PROP.EL } prop to ${ ELEMENT_TAG.NODE } element`);
+        }
+
+        if (Object.keys(props).length > 1) {
+            throw new Error(`Must not pass any prop other than ${ ELEMENT_PROP.EL } to ${ ELEMENT_TAG.NODE } element`);
+        }
+
+        // $FlowFixMe
+        return props[ELEMENT_PROP.EL];
+    },
+
+    [ ELEMENT_TAG.DEFAULT ]: ({ name, doc } : CreateElementOptions) => {
+        return doc.createElement(name);
+    }
+};
+
 type AddPropsOptions = {|
     el : HTMLElement,
     props : NodePropsType,
@@ -115,7 +143,7 @@ function addProps({ el, props, doc } : AddPropsOptions) {
     for (const prop of Object.keys(props)) {
         const val = props[prop];
 
-        if (val === null || typeof val === 'undefined') {
+        if (val === null || typeof val === 'undefined' || prop === ELEMENT_PROP.EL) {
             continue;
         }
 
@@ -152,7 +180,7 @@ type AddChildrenOptions = {|
     domRenderer : NodeRenderer<HTMLElement>
 |};
 
-const ADD_CHILDREN : { [string] : (AddChildrenOptions) => void }  = {
+const ADD_CHILDREN : { [string] : (AddChildrenOptions) => void } = {
 
     [ ELEMENT_TAG.IFRAME ]: ({ el, children } : AddChildrenOptions) => {
         const firstChild = children[0];
@@ -215,8 +243,10 @@ const ADD_CHILDREN : { [string] : (AddChildrenOptions) => void }  = {
 
 export const dom : NodeRendererFactory<HTMLElement> = ({ doc = document } : { doc? : Document } = {}) => {
     const domRenderer = (name, props, children) => {
-        const el = doc.createElement(name);
+        const createElement = CREATE_ELEMENT[name] || CREATE_ELEMENT[ELEMENT_TAG.DEFAULT];
         const addChildren = ADD_CHILDREN[name] || ADD_CHILDREN[ELEMENT_TAG.DEFAULT];
+
+        const el = createElement({ name, props, doc });
 
         addProps({ el, props, doc });
         addChildren({ el, children, doc, domRenderer });

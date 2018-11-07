@@ -1,5 +1,6 @@
 /* @flow */
 /** @jsx node */
+/* eslint max-lines: off */
 
 import { node, dom } from '../../src';
 
@@ -456,6 +457,93 @@ describe('dom renderer cases', () => {
 
         if (onRenderResult !== renderResult) {
             throw new Error(`Expected onRender to be passed correct element`);
+        }
+    });
+
+    it('should render an advanced element as a dom element with a node child', () => {
+
+        const myNode = document.createElement('span');
+        myNode.setAttribute('aaa', 'bbb');
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            <section foo={ null } bar={ undefined }>
+                <p hello={ true } />
+                <node el={ myNode } />
+                <button foo={ bar }>click me</button>
+            </section>
+        );
+
+        const domNode = jsxNode.render(dom());
+
+        validateDOM(domNode, {
+            name:     'section',
+            children: [
+                {
+                    name:  'p',
+                    attrs: {
+                        hello: ''
+                    }
+                },
+                {
+                    name:  'span',
+                    attrs: {
+                        'aaa': 'bbb'
+                    }
+                },
+                {
+                    name:  'button',
+                    attrs: {
+                        foo: bar
+                    },
+                    text: 'click me'
+                }
+            ]
+        });
+    });
+
+    it('should error when a node element is passed without an el prop', () => {
+
+        const jsxNode = (
+            <section>
+                <node />
+            </section>
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
+        }
+    });
+
+    it('should error when a node element is passed with any other props than el', () => {
+
+        const myNode = document.createElement('p');
+
+        const jsxNode = (
+            <section>
+                <node el={ myNode } foo="bar" />
+            </section>
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
         }
     });
 });
