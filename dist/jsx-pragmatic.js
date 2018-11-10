@@ -359,9 +359,9 @@
         }
         var html = function() {
             return function htmlRenderer(name, props, children) {
-                var renderedChildren = children.map(function(child) {
+                var renderedChildren = "string" == typeof props.innerHTML ? props.innerHTML : children.map(function(child) {
                     return child.isTextNode() ? htmlEncode(child.getText()) : child.render(htmlRenderer);
-                });
+                }).join("");
                 return "<" + name + function(props) {
                     var keys = Object.keys(props).filter(function(key) {
                         var val = props[key];
@@ -373,7 +373,7 @@
                         if ("string" != typeof val && "number" != typeof val) throw new TypeError("Unexpected prop type: " + typeof val);
                         return htmlEncode(key) + '="' + htmlEncode(val.toString()) + '"';
                     }).join(" ") : "";
-                }(props) + ">" + renderedChildren.join("") + "</" + name + ">";
+                }(props) + ">" + renderedChildren + "</" + name + ">";
             };
         };
         __webpack_require__.d(__webpack_exports__, "ElementNode", function() {

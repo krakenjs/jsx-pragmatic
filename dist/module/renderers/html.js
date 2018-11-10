@@ -47,10 +47,10 @@ function propsToHTML(props) {
 
 export var html = function html() {
   var htmlRenderer = function htmlRenderer(name, props, children) {
-    var renderedChildren = children.map(function (child) {
+    var renderedChildren = typeof props[ELEMENT_PROP.INNER_HTML] === 'string' ? props[ELEMENT_PROP.INNER_HTML] : children.map(function (child) {
       return child.isTextNode() ? htmlEncode(child.getText()) : child.render(htmlRenderer);
-    });
-    return "<" + name + propsToHTML(props) + ">" + renderedChildren.join('') + "</" + name + ">";
+    }).join('');
+    return "<" + name + propsToHTML(props) + ">" + renderedChildren + "</" + name + ">";
   };
 
   return htmlRenderer;
