@@ -60,11 +60,14 @@ function propsToHTML(props : NodePropsType) : string {
 export const html : NodeRendererFactory<string> = () => {
 
     const htmlRenderer = (name, props, children) => {
-        const renderedChildren = children.map(child => {
-            return child.isTextNode() ? htmlEncode(child.getText()) : child.render(htmlRenderer);
-        });
 
-        return `<${ name }${ propsToHTML(props) }>${ renderedChildren.join('') }</${ name }>`;
+        const renderedChildren = (typeof props[ELEMENT_PROP.INNER_HTML] === 'string')
+            ? props[ELEMENT_PROP.INNER_HTML]
+            : children.map(child => {
+                return child.isTextNode() ? htmlEncode(child.getText()) : child.render(htmlRenderer);
+            }).join('');
+
+        return `<${ name }${ propsToHTML(props) }>${ renderedChildren }</${ name }>`;
     };
 
     return htmlRenderer;

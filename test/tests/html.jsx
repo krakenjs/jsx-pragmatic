@@ -26,7 +26,7 @@ describe('html renderer cases', () => {
         const bar = 'baz';
 
         const jsxNode = (
-            <section innerHTML="meepmoop">
+            <section>
                 This is some text
                 <p n={ 1 } hello={ true } />
                 <button foo={ bar } baz='' zomg={ { hello: 'world' } }>click me</button>
@@ -67,6 +67,22 @@ describe('html renderer cases', () => {
 
         if (onRenderResult !== renderResult) {
             throw new Error(`Expected onRender to be passed correct element`);
+        }
+    });
+
+    it('should render a basic element as html with innerHTML', () => {
+        
+        const jsxNode = (
+            <section>
+                <p foo="bar" innerHTML={ `<span>hello world</span>` } />
+            </section>
+        );
+
+        const htmlString = jsxNode.render(html());
+        const htmlExpected = `<section><p foo="bar"><span>hello world</span></p></section>`;
+
+        if (htmlString !== htmlExpected) {
+            throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
         }
     });
 });
