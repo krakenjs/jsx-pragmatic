@@ -268,19 +268,7 @@
             onTransitionEnd: "transitionEnd",
             onWaiting: "waiting",
             onWheel: "wheel"
-        };
-        function fixScripts(el, doc) {
-            void 0 === doc && (doc = window.document);
-            for (var _i2 = 0, _el$querySelectorAll2 = el.querySelectorAll("script"); _i2 < _el$querySelectorAll2.length; _i2++) {
-                var script = _el$querySelectorAll2[_i2], parentNode = script.parentNode;
-                if (parentNode) {
-                    var newScript = doc.createElement("script");
-                    newScript.text = script.textContent;
-                    parentNode.replaceChild(newScript, script);
-                }
-            }
-        }
-        var CREATE_ELEMENT = ((_CREATE_ELEMENT = {}).node = function(_ref) {
+        }, CREATE_ELEMENT = ((_CREATE_ELEMENT = {}).node = function(_ref) {
             var props = _ref.props;
             if (!props.el) throw new Error("Must pass el prop to node element");
             if (1 < Object.keys(props).length) throw new Error("Must not pass any prop other than el to node element");
@@ -288,8 +276,8 @@
         }, _CREATE_ELEMENT.default = function(_ref2) {
             var name = _ref2.name;
             return _ref2.doc.createElement(name);
-        }, _CREATE_ELEMENT), ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(_ref4) {
-            var el = _ref4.el, children = _ref4.children, firstChild = children[0];
+        }, _CREATE_ELEMENT), ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(_ref5) {
+            var el = _ref5.el, children = _ref5.children, firstChild = children[0];
             if (1 < children.length || !firstChild.isElementNode()) throw new Error("Expected only single element node as child of iframe element");
             if (!firstChild.isTag("html")) throw new Error("Expected element to be inserted into frame to be html, got " + firstChild.getTag());
             el.addEventListener("load", function() {
@@ -300,44 +288,77 @@
                     doc: doc
                 })); child.children.length; ) docElement.appendChild(child.children[0]);
             });
-        }, _ADD_CHILDREN.script = function(_ref5) {
-            var el = _ref5.el, children = _ref5.children, firstChild = children[0];
+        }, _ADD_CHILDREN.script = function(_ref6) {
+            var el = _ref6.el, children = _ref6.children, firstChild = children[0];
             if (1 !== children.length || !firstChild.isTextNode()) throw new Error("Expected only single text node as child of script element");
             el.text = firstChild.getText();
-        }, _ADD_CHILDREN.default = function(_ref6) {
-            for (var el = _ref6.el, children = _ref6.children, doc = _ref6.doc, domRenderer = _ref6.domRenderer, _i6 = 0; _i6 < children.length; _i6++) {
+        }, _ADD_CHILDREN.default = function(_ref7) {
+            for (var el = _ref7.el, children = _ref7.children, doc = _ref7.doc, domRenderer = _ref7.domRenderer, _i6 = 0; _i6 < children.length; _i6++) {
                 var child = children[_i6];
                 child.isTextNode() ? el.appendChild(doc.createTextNode(child.getText())) : el.appendChild(child.render(domRenderer));
             }
         }, _ADD_CHILDREN), dom = function(_temp) {
-            var _ref7$doc = (void 0 === _temp ? {} : _temp).doc, doc = void 0 === _ref7$doc ? document : _ref7$doc;
+            var _ref9$doc = (void 0 === _temp ? {} : _temp).doc, doc = void 0 === _ref9$doc ? document : _ref9$doc;
             return function domRenderer(name, props, children) {
-                var createElement = CREATE_ELEMENT[name] || CREATE_ELEMENT.default, addChildren = ADD_CHILDREN[name] || ADD_CHILDREN.default, el = createElement({
+                var el = function(_ref3) {
+                    var doc = _ref3.doc, name = _ref3.name, props = _ref3.props;
+                    return (CREATE_ELEMENT[name] || CREATE_ELEMENT.default)({
+                        name: name,
+                        props: props,
+                        doc: doc
+                    });
+                }({
                     name: name,
                     props: props,
                     doc: doc
                 });
-                !function(_ref3) {
-                    for (var el = _ref3.el, props = _ref3.props, doc = _ref3.doc, _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
+                !function(_ref4) {
+                    for (var el = _ref4.el, props = _ref4.props, _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
                         var prop = _Object$keys2[_i4], val = props[prop];
-                        if (null != val && "el" !== prop) if (DOM_EVENT.hasOwnProperty(prop)) {
+                        if (null != val && "el" !== prop && "innerHTML" !== prop) if (DOM_EVENT.hasOwnProperty(prop)) {
                             if ("function" != typeof val) throw new TypeError("Prop " + prop + " must be function");
                             el.addEventListener(DOM_EVENT[prop], val);
-                        } else if ("string" == typeof val || "number" == typeof val) if ("innerHTML" === prop) {
-                            el.innerHTML = val.toString();
-                            fixScripts(el, doc);
-                        } else el.setAttribute(prop, val.toString()); else {
+                        } else if ("string" == typeof val || "number" == typeof val) el.setAttribute(prop, val.toString()); else {
                             if ("boolean" != typeof val) throw new TypeError("Can not render prop " + prop + " of type " + typeof val);
                             !0 === val && el.setAttribute(prop, "");
                         }
                     }
                 }({
                     el: el,
-                    props: props,
-                    doc: doc
+                    props: props
                 });
-                addChildren({
+                !function(_ref8) {
+                    var el = _ref8.el, name = _ref8.name, props = _ref8.props, children = _ref8.children, doc = _ref8.doc, domRenderer = _ref8.domRenderer;
+                    if (props.hasOwnProperty("innerHTML")) {
+                        if (1 <= children.length) throw new Error("Expected no children to be passed when innerHTML prop is set");
+                        var html = props.innerHTML;
+                        if ("string" != typeof html) throw new TypeError("innerHTML prop must be string");
+                        if ("script" === name) el.text = html; else {
+                            el.innerHTML = html;
+                            !function(el, doc) {
+                                void 0 === doc && (doc = window.document);
+                                for (var _i2 = 0, _el$querySelectorAll2 = el.querySelectorAll("script"); _i2 < _el$querySelectorAll2.length; _i2++) {
+                                    var script = _el$querySelectorAll2[_i2], parentNode = script.parentNode;
+                                    if (parentNode) {
+                                        var newScript = doc.createElement("script");
+                                        newScript.text = script.textContent;
+                                        parentNode.replaceChild(newScript, script);
+                                    }
+                                }
+                            }(el, doc);
+                        }
+                    } else (ADD_CHILDREN[name] || ADD_CHILDREN.default)({
+                        el: el,
+                        name: name,
+                        props: props,
+                        children: children,
+                        doc: doc,
+                        domRenderer: domRenderer
+                    });
+                }({
                     el: el,
+                    name: name,
+                    props: props,
                     children: children,
                     doc: doc,
                     domRenderer: domRenderer
