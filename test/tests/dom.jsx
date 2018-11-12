@@ -141,7 +141,7 @@ describe('dom renderer cases', () => {
         window.scriptTagRun = false;
         
         const jsxNode = (
-            <section innerHTML={ `<p id="foo"><script>window.scriptTagRun=true</script></p>` } />
+            <section innerHTML={ `<p id="foo"><script>window.scriptTagRun = true;</script></p>` } />
         );
 
         const domNode = jsxNode.render(dom());
@@ -156,6 +156,67 @@ describe('dom renderer cases', () => {
 
         if (!window.scriptTagRun) {
             throw new Error(`Expected script tag to run`);
+        }
+    });
+
+    it('should render an element with innerHTML as a script tag', () => {
+
+        window.scriptTagRun = false;
+
+        const jsxNode = (
+            <script innerHTML={ `window.scriptTagRun = true;` } />
+        );
+
+        const domNode = jsxNode.render(dom());
+
+        const body = document.body;
+
+        if (!body) {
+            throw new Error(`document.body not found`);
+        }
+
+        body.appendChild(domNode);
+
+        if (!window.scriptTagRun) {
+            throw new Error(`Expected script tag to run`);
+        }
+    });
+
+    it('should error when a non-string is passed as innerHTML to a script tag', () => {
+
+        const jsxNode = (
+            <script innerHTML={ 1 } />
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
+        }
+    });
+
+    it('should error when both innerHTML and children are passed to an element', () => {
+
+        const jsxNode = (
+            <div innerHTML={ 'hello' }><p /></div>
+        );
+
+        let error;
+
+        try {
+            jsxNode.render(dom());
+        } catch (err) {
+            error = err;
+        }
+
+        if (!error) {
+            throw new Error(`Expected error to be thrown`);
         }
     });
 

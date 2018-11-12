@@ -133,17 +133,21 @@ const CREATE_ELEMENT : { [string] : (CreateElementOptions) => HTMLElement } = {
     }
 };
 
+function createElement({ doc, name, props } : CreateElementOptions) : HTMLElement {
+    const elementCreator = CREATE_ELEMENT[name] || CREATE_ELEMENT[ELEMENT_TAG.DEFAULT];
+    return elementCreator({ name, props, doc });
+}
+
 type AddPropsOptions = {|
     el : HTMLElement,
-    props : NodePropsType,
-    doc : Document
+    props : NodePropsType
 |};
 
-function addProps({ el, props, doc } : AddPropsOptions) {
+function addProps({ el, props } : AddPropsOptions) {
     for (const prop of Object.keys(props)) {
         const val = props[prop];
 
-        if (val === null || typeof val === 'undefined' || prop === ELEMENT_PROP.EL) {
+        if (val === null || typeof val === 'undefined' || prop === ELEMENT_PROP.EL || prop === ELEMENT_PROP.INNER_HTML) {
             continue;
         }
 
@@ -155,12 +159,7 @@ function addProps({ el, props, doc } : AddPropsOptions) {
             el.addEventListener(DOM_EVENT[prop], val);
 
         } else if (typeof val === 'string' || typeof val === 'number') {
-            if (prop === ELEMENT_PROP.INNER_HTML) {
-                el.innerHTML = val.toString();
-                fixScripts(el, doc);
-            } else {
-                el.setAttribute(prop, val.toString());
-            }
+            el.setAttribute(prop, val.toString());
 
         } else if (typeof val === 'boolean') {
             if (val === true) {
@@ -175,8 +174,10 @@ function addProps({ el, props, doc } : AddPropsOptions) {
 
 type AddChildrenOptions = {|
     el : HTMLElement,
+    name : string,
     children : NodeChildrenType,
     doc : Document,
+    props : NodePropsType,
     domRenderer : NodeRenderer<HTMLElement>
 |};
 
@@ -240,17 +241,39 @@ const ADD_CHILDREN : { [string] : (AddChildrenOptions) => void } = {
     }
 };
 
+function addChildren({ el, name, props, children, doc, domRenderer } : AddChildrenOptions) {
+    if (props.hasOwnProperty(ELEMENT_PROP.INNER_HTML)) {
+
+        if (children.length >= 1) {
+            throw new Error(`Expected no children to be passed when ${ ELEMENT_PROP.INNER_HTML } prop is set`);
+        }
+
+        const html = props[ELEMENT_PROP.INNER_HTML];
+
+        if (typeof html !== 'string') {
+            throw new TypeError(`${ ELEMENT_PROP.INNER_HTML } prop must be string`);
+        }
+
+        if (name === ELEMENT_TAG.SCRIPT) {
+            // $FlowFixMe
+            el.text = html;
+        } else {
+            el.innerHTML = html;
+            fixScripts(el, doc);
+        }
+
+    } else {
+        const addChildrenToElement = ADD_CHILDREN[name] || ADD_CHILDREN[ELEMENT_TAG.DEFAULT];
+        addChildrenToElement({ el, name, props, children, doc, domRenderer });
+    }
+}
+
 
 export const dom : NodeRendererFactory<HTMLElement> = ({ doc = document } : { doc? : Document } = {}) => {
     const domRenderer = (name, props, children) => {
-        const createElement = CREATE_ELEMENT[name] || CREATE_ELEMENT[ELEMENT_TAG.DEFAULT];
-        const addChildren = ADD_CHILDREN[name] || ADD_CHILDREN[ELEMENT_TAG.DEFAULT];
-
         const el = createElement({ name, props, doc });
-
-        addProps({ el, props, doc });
-        addChildren({ el, children, doc, domRenderer });
-
+        addProps({ el, props });
+        addChildren({ el, name, props, children, doc, domRenderer });
         return el;
     };
 
