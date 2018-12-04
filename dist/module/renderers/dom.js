@@ -152,7 +152,7 @@ function addProps(_ref4) {
     }
 
     if (DOM_EVENT.hasOwnProperty(prop)) {
-      if (typeof val !== 'function') {
+      if (typeof val !== 'undefined' && typeof val !== 'function') {
         throw new TypeError("Prop " + prop + " must be function");
       }
 

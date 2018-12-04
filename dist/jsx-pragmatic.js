@@ -316,7 +316,7 @@
                     for (var el = _ref4.el, props = _ref4.props, _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
                         var prop = _Object$keys2[_i4], val = props[prop];
                         if (null != val && "el" !== prop && "innerHTML" !== prop) if (DOM_EVENT.hasOwnProperty(prop)) {
-                            if ("function" != typeof val) throw new TypeError("Prop " + prop + " must be function");
+                            if (void 0 !== val && "function" != typeof val) throw new TypeError("Prop " + prop + " must be function");
                             el.addEventListener(DOM_EVENT[prop], val);
                         } else if ("string" == typeof val || "number" == typeof val) el.setAttribute(prop, val.toString()); else {
                             if ("boolean" != typeof val) throw new TypeError("Can not render prop " + prop + " of type " + typeof val);
