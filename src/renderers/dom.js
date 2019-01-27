@@ -15,83 +15,6 @@ const ELEMENT_PROP = {
     EL:         'el'
 };
 
-const DOM_EVENT = {
-    onBlur:               'blur',
-    onCancel:             'cancel',
-    onClick:              'click',
-    onClose:              'close',
-    onContextMenu:        'contextMenu',
-    onCopy:               'copy',
-    onCut:                'cut',
-    onAuxClick:           'auxClick',
-    onDoubleClick:        'doubleClick',
-    onDragEnd:            'dragEnd',
-    onDragStart:          'dragStart',
-    onDrop:               'drop',
-    onFocus:              'focus',
-    onInput:              'input',
-    onInvalid:            'invalid',
-    onKeyDown:            'keyDown',
-    onKeyPress:           'keyPress',
-    onKeyUp:              'keyUp',
-    onMouseDown:          'mouseDown',
-    onMouseUp:            'mouseUp',
-    onPaste:              'paste',
-    onPause:              'pause',
-    onPlay:               'play',
-    onPointerCancel:      'pointerCancel',
-    onPointerDown:        'pointerDown',
-    onPointerUp:          'pointerUp',
-    onRateChange:         'rateChange',
-    onReset:              'reset',
-    onSeeked:             'seeked',
-    onSubmit:             'submit',
-    onTouchCancel:        'touchCancel',
-    onTouchEnd:           'touchEnd',
-    onTouchStart:         'touchStart',
-    onVolumeChange:       'volumeChange',
-    onAbort:              'abort',
-    onAnimationEnd:       'animationEnd',
-    onAnimationIteration: 'animationIteration',
-    onAnimationStart:     'animationStart',
-    onCanPlay:            'canPlay',
-    onCanPlayThrough:     'canPlayThrough',
-    onDrag:               'drag',
-    onDragEnter:          'dragEnter',
-    onDragExit:           'dragExit',
-    onDragLeave:          'dragLeave',
-    onDragOver:           'dragOver',
-    onDurationChange:     'durationChange',
-    onEmptied:            'emptied',
-    onEncrypted:          'encrypted',
-    onEnded:              'ended',
-    onError:              'error',
-    onGotPointerCapture:  'gotPointerCapture',
-    onLoad:               'load',
-    onLoadedData:         'loadedData',
-    onLoadedMetadata:     'loadedMetadata',
-    onLoadStart:          'loadStart',
-    onLostPointerCapture: 'lostPointerCapture',
-    onMouseMove:          'mouseMove',
-    onMouseOut:           'mouseOut',
-    onMouseOver:          'mouseOver',
-    onPlaying:            'playing',
-    onPointerMove:        'pointerMove',
-    onPointerOut:         'pointerOut',
-    onPointerOver:        'pointerOver',
-    onProgress:           'progress',
-    onScroll:             'scroll',
-    onSeeking:            'seeking',
-    onStalled:            'stalled',
-    onSuspend:            'suspend',
-    onTimeUpdate:         'timeUpdate',
-    onToggle:             'toggle',
-    onTouchMove:          'touchMove',
-    onTransitionEnd:      'transitionEnd',
-    onWaiting:            'waiting',
-    onWheel:              'wheel'
-};
-
 function fixScripts(el : HTMLElement, doc : Document = window.document) {
     for (const script of el.querySelectorAll('script')) {
         const parentNode = script.parentNode;
@@ -151,13 +74,8 @@ function addProps({ el, props } : AddPropsOptions) {
             continue;
         }
 
-        if (DOM_EVENT.hasOwnProperty(prop)) {
-            if (typeof val !== 'undefined' && typeof val !== 'function') {
-                throw new TypeError(`Prop ${ prop } must be function`);
-            }
-
-            el.addEventListener(DOM_EVENT[prop], val);
-
+        if (prop.match(/^on[A-Z][a-z]/) && typeof val === 'function') {
+            el.addEventListener(prop.slice(2).toLowerCase(), val);
         } else if (typeof val === 'string' || typeof val === 'number') {
             el.setAttribute(prop, val.toString());
 

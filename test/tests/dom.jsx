@@ -220,25 +220,6 @@ describe('dom renderer cases', () => {
         }
     });
 
-    it('should error when a non-function is passed to an event listener', () => {
-
-        const jsxNode = (
-            <button onClick={ 'meep' }>click me</button>
-        );
-
-        let error;
-
-        try {
-            jsxNode.render(dom());
-        } catch (err) {
-            error = err;
-        }
-
-        if (!error) {
-            throw new Error(`Expected error to be thrown`);
-        }
-    });
-
     it('should error when a object is passed as a prop', () => {
 
         const jsxNode = (
