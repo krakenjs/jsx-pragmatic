@@ -193,82 +193,7 @@
             for (var _len2 = arguments.length, children = new Array(1 < _len2 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) children[_key2 - 1] = arguments[_key2];
             return new node_FragmentNode(normalizeChildren(children));
         }
-        var DOM_EVENT = {
-            onBlur: "blur",
-            onCancel: "cancel",
-            onClick: "click",
-            onClose: "close",
-            onContextMenu: "contextMenu",
-            onCopy: "copy",
-            onCut: "cut",
-            onAuxClick: "auxClick",
-            onDoubleClick: "doubleClick",
-            onDragEnd: "dragEnd",
-            onDragStart: "dragStart",
-            onDrop: "drop",
-            onFocus: "focus",
-            onInput: "input",
-            onInvalid: "invalid",
-            onKeyDown: "keyDown",
-            onKeyPress: "keyPress",
-            onKeyUp: "keyUp",
-            onMouseDown: "mouseDown",
-            onMouseUp: "mouseUp",
-            onPaste: "paste",
-            onPause: "pause",
-            onPlay: "play",
-            onPointerCancel: "pointerCancel",
-            onPointerDown: "pointerDown",
-            onPointerUp: "pointerUp",
-            onRateChange: "rateChange",
-            onReset: "reset",
-            onSeeked: "seeked",
-            onSubmit: "submit",
-            onTouchCancel: "touchCancel",
-            onTouchEnd: "touchEnd",
-            onTouchStart: "touchStart",
-            onVolumeChange: "volumeChange",
-            onAbort: "abort",
-            onAnimationEnd: "animationEnd",
-            onAnimationIteration: "animationIteration",
-            onAnimationStart: "animationStart",
-            onCanPlay: "canPlay",
-            onCanPlayThrough: "canPlayThrough",
-            onDrag: "drag",
-            onDragEnter: "dragEnter",
-            onDragExit: "dragExit",
-            onDragLeave: "dragLeave",
-            onDragOver: "dragOver",
-            onDurationChange: "durationChange",
-            onEmptied: "emptied",
-            onEncrypted: "encrypted",
-            onEnded: "ended",
-            onError: "error",
-            onGotPointerCapture: "gotPointerCapture",
-            onLoad: "load",
-            onLoadedData: "loadedData",
-            onLoadedMetadata: "loadedMetadata",
-            onLoadStart: "loadStart",
-            onLostPointerCapture: "lostPointerCapture",
-            onMouseMove: "mouseMove",
-            onMouseOut: "mouseOut",
-            onMouseOver: "mouseOver",
-            onPlaying: "playing",
-            onPointerMove: "pointerMove",
-            onPointerOut: "pointerOut",
-            onPointerOver: "pointerOver",
-            onProgress: "progress",
-            onScroll: "scroll",
-            onSeeking: "seeking",
-            onStalled: "stalled",
-            onSuspend: "suspend",
-            onTimeUpdate: "timeUpdate",
-            onToggle: "toggle",
-            onTouchMove: "touchMove",
-            onTransitionEnd: "transitionEnd",
-            onWaiting: "waiting",
-            onWheel: "wheel"
-        }, CREATE_ELEMENT = ((_CREATE_ELEMENT = {}).node = function(_ref) {
+        var CREATE_ELEMENT = ((_CREATE_ELEMENT = {}).node = function(_ref) {
             var props = _ref.props;
             if (!props.el) throw new Error("Must pass el prop to node element");
             if (1 < Object.keys(props).length) throw new Error("Must not pass any prop other than el to node element");
@@ -315,10 +240,7 @@
                 !function(_ref4) {
                     for (var el = _ref4.el, props = _ref4.props, _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
                         var prop = _Object$keys2[_i4], val = props[prop];
-                        if (null != val && "el" !== prop && "innerHTML" !== prop) if (DOM_EVENT.hasOwnProperty(prop)) {
-                            if (void 0 !== val && "function" != typeof val) throw new TypeError("Prop " + prop + " must be function");
-                            el.addEventListener(DOM_EVENT[prop], val);
-                        } else if ("string" == typeof val || "number" == typeof val) el.setAttribute(prop, val.toString()); else {
+                        if (null != val && "el" !== prop && "innerHTML" !== prop) if (prop.match(/^on[A-Z][a-z]/) && "function" == typeof val) el.addEventListener(prop.slice(2).toLowerCase(), val); else if ("string" == typeof val || "number" == typeof val) el.setAttribute(prop, val.toString()); else {
                             if ("boolean" != typeof val) throw new TypeError("Can not render prop " + prop + " of type " + typeof val);
                             !0 === val && el.setAttribute(prop, "");
                         }
