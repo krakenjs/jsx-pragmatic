@@ -64,7 +64,8 @@
         __webpack_require__.r(__webpack_exports__);
         function _inheritsLoose(subClass, superClass) {
             subClass.prototype = Object.create(superClass.prototype);
-            (subClass.prototype.constructor = subClass).__proto__ = superClass;
+            subClass.prototype.constructor = subClass;
+            subClass.__proto__ = superClass;
         }
         var Node = function() {
             function Node() {}
@@ -183,28 +184,28 @@
             return result;
         }
         var _CREATE_ELEMENT, _ADD_CHILDREN, node = function(element, props) {
-            for (var _len = arguments.length, children = new Array(2 < _len ? _len - 2 : 0), _key = 2; _key < _len; _key++) children[_key - 2] = arguments[_key];
+            for (var _len = arguments.length, children = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) children[_key - 2] = arguments[_key];
             if ("string" == typeof element) return new node_ElementNode(element, props || {}, normalizeChildren(children));
             if ("function" == typeof element) return normalizeChild(element(props || {}, normalizeChildren(children)));
             throw new TypeError("Expected jsx Element to be a string or a function");
         };
         function Fragment(props) {
             if (props && Object.keys(props).length) throw new Error("Do not pass props to Fragment");
-            for (var _len2 = arguments.length, children = new Array(1 < _len2 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) children[_key2 - 1] = arguments[_key2];
+            for (var _len2 = arguments.length, children = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) children[_key2 - 1] = arguments[_key2];
             return new node_FragmentNode(normalizeChildren(children));
         }
-        var CREATE_ELEMENT = ((_CREATE_ELEMENT = {}).node = function(_ref) {
+        var ELEMENT_TAG_HTML = "html", ELEMENT_TAG_IFRAME = "iframe", ELEMENT_TAG_SCRIPT = "script", ELEMENT_TAG_NODE = "node", ELEMENT_TAG_DEFAULT = "default", ELEMENT_PROP_INNER_HTML = "innerHTML", ELEMENT_PROP_EL = "el", CREATE_ELEMENT = ((_CREATE_ELEMENT = {})[ELEMENT_TAG_NODE] = function(_ref) {
             var props = _ref.props;
-            if (!props.el) throw new Error("Must pass el prop to node element");
-            if (1 < Object.keys(props).length) throw new Error("Must not pass any prop other than el to node element");
-            return props.el;
-        }, _CREATE_ELEMENT.default = function(_ref2) {
+            if (!props[ELEMENT_PROP_EL]) throw new Error("Must pass " + ELEMENT_PROP_EL + " prop to " + ELEMENT_TAG_NODE + " element");
+            if (Object.keys(props).length > 1) throw new Error("Must not pass any prop other than " + ELEMENT_PROP_EL + " to " + ELEMENT_TAG_NODE + " element");
+            return props[ELEMENT_PROP_EL];
+        }, _CREATE_ELEMENT[ELEMENT_TAG_DEFAULT] = function(_ref2) {
             var name = _ref2.name;
             return _ref2.doc.createElement(name);
-        }, _CREATE_ELEMENT), ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(_ref5) {
+        }, _CREATE_ELEMENT), ADD_CHILDREN = ((_ADD_CHILDREN = {})[ELEMENT_TAG_IFRAME] = function(_ref5) {
             var el = _ref5.el, children = _ref5.children, firstChild = children[0];
-            if (1 < children.length || !firstChild.isElementNode()) throw new Error("Expected only single element node as child of iframe element");
-            if (!firstChild.isTag("html")) throw new Error("Expected element to be inserted into frame to be html, got " + firstChild.getTag());
+            if (children.length > 1 || !firstChild.isElementNode()) throw new Error("Expected only single element node as child of " + ELEMENT_TAG_IFRAME + " element");
+            if (!firstChild.isTag(ELEMENT_TAG_HTML)) throw new Error("Expected element to be inserted into frame to be html, got " + firstChild.getTag());
             el.addEventListener("load", function() {
                 var win = el.contentWindow;
                 if (!win) throw new Error("Expected frame to have contentWindow");
@@ -213,11 +214,11 @@
                     doc: doc
                 })); child.children.length; ) docElement.appendChild(child.children[0]);
             });
-        }, _ADD_CHILDREN.script = function(_ref6) {
+        }, _ADD_CHILDREN[ELEMENT_TAG_SCRIPT] = function(_ref6) {
             var el = _ref6.el, children = _ref6.children, firstChild = children[0];
-            if (1 !== children.length || !firstChild.isTextNode()) throw new Error("Expected only single text node as child of script element");
+            if (1 !== children.length || !firstChild.isTextNode()) throw new Error("Expected only single text node as child of " + ELEMENT_TAG_SCRIPT + " element");
             el.text = firstChild.getText();
-        }, _ADD_CHILDREN.default = function(_ref7) {
+        }, _ADD_CHILDREN[ELEMENT_TAG_DEFAULT] = function(_ref7) {
             for (var el = _ref7.el, children = _ref7.children, doc = _ref7.doc, domRenderer = _ref7.domRenderer, _i6 = 0; _i6 < children.length; _i6++) {
                 var child = children[_i6];
                 child.isTextNode() ? el.appendChild(doc.createTextNode(child.getText())) : el.appendChild(child.render(domRenderer));
@@ -227,7 +228,7 @@
             return function domRenderer(name, props, children) {
                 var el = function(_ref3) {
                     var doc = _ref3.doc, name = _ref3.name, props = _ref3.props;
-                    return (CREATE_ELEMENT[name] || CREATE_ELEMENT.default)({
+                    return (CREATE_ELEMENT[name] || CREATE_ELEMENT[ELEMENT_TAG_DEFAULT])({
                         name: name,
                         props: props,
                         doc: doc
@@ -240,7 +241,7 @@
                 !function(_ref4) {
                     for (var el = _ref4.el, props = _ref4.props, _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
                         var prop = _Object$keys2[_i4], val = props[prop];
-                        if (null != val && "el" !== prop && "innerHTML" !== prop) if (prop.match(/^on[A-Z][a-z]/) && "function" == typeof val) el.addEventListener(prop.slice(2).toLowerCase(), val); else if ("string" == typeof val || "number" == typeof val) el.setAttribute(prop, val.toString()); else {
+                        if (null != val && prop !== ELEMENT_PROP_EL && prop !== ELEMENT_PROP_INNER_HTML) if (prop.match(/^on[A-Z][a-z]/) && "function" == typeof val) el.addEventListener(prop.slice(2).toLowerCase(), val); else if ("string" == typeof val || "number" == typeof val) el.setAttribute(prop, val.toString()); else {
                             if ("boolean" != typeof val) throw new TypeError("Can not render prop " + prop + " of type " + typeof val);
                             !0 === val && el.setAttribute(prop, "");
                         }
@@ -251,11 +252,11 @@
                 });
                 !function(_ref8) {
                     var el = _ref8.el, name = _ref8.name, props = _ref8.props, children = _ref8.children, doc = _ref8.doc, domRenderer = _ref8.domRenderer;
-                    if (props.hasOwnProperty("innerHTML")) {
-                        if (1 <= children.length) throw new Error("Expected no children to be passed when innerHTML prop is set");
-                        var html = props.innerHTML;
-                        if ("string" != typeof html) throw new TypeError("innerHTML prop must be string");
-                        if ("script" === name) el.text = html; else {
+                    if (props.hasOwnProperty(ELEMENT_PROP_INNER_HTML)) {
+                        if (children.length >= 1) throw new Error("Expected no children to be passed when " + ELEMENT_PROP_INNER_HTML + " prop is set");
+                        var html = props[ELEMENT_PROP_INNER_HTML];
+                        if ("string" != typeof html) throw new TypeError(ELEMENT_PROP_INNER_HTML + " prop must be string");
+                        if (name === ELEMENT_TAG_SCRIPT) el.text = html; else {
                             el.innerHTML = html;
                             !function(el, doc) {
                                 void 0 === doc && (doc = window.document);
@@ -269,7 +270,7 @@
                                 }
                             }(el, doc);
                         }
-                    } else (ADD_CHILDREN[name] || ADD_CHILDREN.default)({
+                    } else (ADD_CHILDREN[name] || ADD_CHILDREN[ELEMENT_TAG_DEFAULT])({
                         el: el,
                         name: name,
                         props: props,
