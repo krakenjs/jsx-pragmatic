@@ -10,162 +10,118 @@
                 l: !1,
                 exports: {}
             };
-            modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-            module.l = !0;
-            return module.exports;
+            return modules[moduleId].call(module.exports, module, module.exports, __webpack_require__), 
+            module.l = !0, module.exports;
         }
-        __webpack_require__.m = modules;
-        __webpack_require__.c = installedModules;
+        return __webpack_require__.m = modules, __webpack_require__.c = installedModules, 
         __webpack_require__.d = function(exports, name, getter) {
             __webpack_require__.o(exports, name) || Object.defineProperty(exports, name, {
                 enumerable: !0,
                 get: getter
             });
-        };
-        __webpack_require__.r = function(exports) {
+        }, __webpack_require__.r = function(exports) {
             "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(exports, Symbol.toStringTag, {
                 value: "Module"
-            });
-            Object.defineProperty(exports, "__esModule", {
+            }), Object.defineProperty(exports, "__esModule", {
                 value: !0
             });
-        };
-        __webpack_require__.t = function(value, mode) {
-            1 & mode && (value = __webpack_require__(value));
-            if (8 & mode) return value;
+        }, __webpack_require__.t = function(value, mode) {
+            if (1 & mode && (value = __webpack_require__(value)), 8 & mode) return value;
             if (4 & mode && "object" == typeof value && value && value.__esModule) return value;
             var ns = Object.create(null);
-            __webpack_require__.r(ns);
-            Object.defineProperty(ns, "default", {
+            if (__webpack_require__.r(ns), Object.defineProperty(ns, "default", {
                 enumerable: !0,
                 value: value
-            });
-            if (2 & mode && "string" != typeof value) for (var key in value) __webpack_require__.d(ns, key, function(key) {
+            }), 2 & mode && "string" != typeof value) for (var key in value) __webpack_require__.d(ns, key, function(key) {
                 return value[key];
             }.bind(null, key));
             return ns;
-        };
-        __webpack_require__.n = function(module) {
+        }, __webpack_require__.n = function(module) {
             var getter = module && module.__esModule ? function() {
                 return module.default;
             } : function() {
                 return module;
             };
-            __webpack_require__.d(getter, "a", getter);
-            return getter;
-        };
-        __webpack_require__.o = function(object, property) {
-            return Object.prototype.hasOwnProperty.call(object, property);
-        };
-        __webpack_require__.p = "";
-        return __webpack_require__(__webpack_require__.s = 0);
+            return __webpack_require__.d(getter, "a", getter), getter;
+        }, __webpack_require__.o = function(object, property) {
+            return {}.hasOwnProperty.call(object, property);
+        }, __webpack_require__.p = "", __webpack_require__(__webpack_require__.s = 0);
     }([ function(module, __webpack_exports__, __webpack_require__) {
         "use strict";
-        __webpack_require__.r(__webpack_exports__);
         function _inheritsLoose(subClass, superClass) {
-            subClass.prototype = Object.create(superClass.prototype);
-            subClass.prototype.constructor = subClass;
+            subClass.prototype = Object.create(superClass.prototype), subClass.prototype.constructor = subClass, 
             subClass.__proto__ = superClass;
         }
+        __webpack_require__.r(__webpack_exports__);
         var Node = function() {
             function Node() {}
             var _proto = Node.prototype;
-            _proto.isElementNode = function() {
+            return _proto.isElementNode = function() {
                 return !1;
-            };
-            _proto.isTextNode = function() {
+            }, _proto.isTextNode = function() {
                 return !1;
-            };
-            _proto.isFragmentNode = function() {
+            }, _proto.isFragmentNode = function() {
                 return !1;
-            };
-            return Node;
+            }, Node;
         }(), node_ElementNode = function(_Node) {
-            _inheritsLoose(ElementNode, _Node);
             function ElementNode(name, props, children) {
                 var _this;
-                (_this = _Node.call(this) || this).name = void 0;
-                _this.props = void 0;
-                _this.children = void 0;
-                _this.onRender = void 0;
-                _this.name = name;
-                _this.props = props;
-                _this.children = children;
-                if ("function" == typeof props.onRender) {
-                    _this.onRender = props.onRender;
-                    delete props.onRender;
-                }
-                return _this;
+                return (_this = _Node.call(this) || this).name = void 0, _this.props = void 0, _this.children = void 0, 
+                _this.onRender = void 0, _this.name = name, _this.props = props, _this.children = children, 
+                "function" == typeof props.onRender && (_this.onRender = props.onRender, delete props.onRender), 
+                _this;
             }
+            _inheritsLoose(ElementNode, _Node);
             var _proto2 = ElementNode.prototype;
-            _proto2.getTag = function() {
+            return _proto2.getTag = function() {
                 return this.name;
-            };
-            _proto2.isTag = function(name) {
+            }, _proto2.isTag = function(name) {
                 return name === this.name;
-            };
-            _proto2.isElementNode = function() {
+            }, _proto2.isElementNode = function() {
                 return !0;
-            };
-            _proto2.render = function(renderer) {
+            }, _proto2.render = function(renderer) {
                 var element = renderer(this.name, this.props, this.children);
-                this.onRender && this.onRender(element);
-                return element;
-            };
-            _proto2.getText = function() {
+                return this.onRender && this.onRender(element), element;
+            }, _proto2.getText = function() {
                 throw new Error("Can not get text of an element node");
-            };
-            return ElementNode;
+            }, ElementNode;
         }(Node), node_TextNode = function(_Node2) {
-            _inheritsLoose(TextNode, _Node2);
             function TextNode(text) {
                 var _this2;
-                (_this2 = _Node2.call(this) || this).text = void 0;
-                _this2.text = text;
-                return _this2;
+                return (_this2 = _Node2.call(this) || this).text = void 0, _this2.text = text, _this2;
             }
+            _inheritsLoose(TextNode, _Node2);
             var _proto3 = TextNode.prototype;
-            _proto3.getTag = function() {
+            return _proto3.getTag = function() {
                 throw new Error("Can not get tag of text node");
-            };
-            _proto3.isTag = function(name) {
+            }, _proto3.isTag = function(name) {
                 throw new Error("Can not check tag of text node");
-            };
-            _proto3.isTextNode = function() {
+            }, _proto3.isTextNode = function() {
                 return !0;
-            };
-            _proto3.render = function(renderer) {
+            }, _proto3.render = function(renderer) {
                 throw new Error("Can not render a text node");
-            };
-            _proto3.getText = function() {
+            }, _proto3.getText = function() {
                 return this.text;
-            };
-            return TextNode;
+            }, TextNode;
         }(Node), node_FragmentNode = function(_Node3) {
-            _inheritsLoose(FragmentNode, _Node3);
             function FragmentNode(children) {
                 var _this3;
-                (_this3 = _Node3.call(this) || this).children = void 0;
-                _this3.children = children;
-                return _this3;
+                return (_this3 = _Node3.call(this) || this).children = void 0, _this3.children = children, 
+                _this3;
             }
+            _inheritsLoose(FragmentNode, _Node3);
             var _proto4 = FragmentNode.prototype;
-            _proto4.getTag = function() {
+            return _proto4.getTag = function() {
                 throw new Error("Can not get tag of fragment node");
-            };
-            _proto4.isTag = function(name) {
+            }, _proto4.isTag = function(name) {
                 throw new Error("Can not check tag of fragment node");
-            };
-            _proto4.isFragmentNode = function() {
+            }, _proto4.isFragmentNode = function() {
                 return !0;
-            };
-            _proto4.render = function(renderer) {
+            }, _proto4.render = function(renderer) {
                 throw new Error("Can not render a fragment node");
-            };
-            _proto4.getText = function() {
+            }, _proto4.getText = function() {
                 throw new Error("Can not get text of a fragment node");
-            };
-            return FragmentNode;
+            }, FragmentNode;
         }(Node);
         function normalizeChild(child) {
             if ("string" == typeof child) return new node_TextNode(child);
@@ -176,14 +132,11 @@
         function normalizeChildren(children) {
             for (var result = [], _i2 = 0; _i2 < children.length; _i2++) {
                 var normalizedChild = normalizeChild(children[_i2]);
-                if (normalizedChild) if (normalizedChild instanceof node_FragmentNode) for (var _i4 = 0, _normalizedChild$chil2 = normalizedChild.children; _i4 < _normalizedChild$chil2.length; _i4++) {
-                    var subchild = _normalizedChild$chil2[_i4];
-                    result.push(subchild);
-                } else result.push(normalizedChild);
+                if (normalizedChild) if (normalizedChild instanceof node_FragmentNode) for (var _i4 = 0, _normalizedChild$chil2 = normalizedChild.children; _i4 < _normalizedChild$chil2.length; _i4++) result.push(_normalizedChild$chil2[_i4]); else result.push(normalizedChild);
             }
             return result;
         }
-        var _CREATE_ELEMENT, _ADD_CHILDREN, node = function(element, props) {
+        var node = function(element, props) {
             for (var _len = arguments.length, children = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) children[_key - 2] = arguments[_key];
             if ("string" == typeof element) return new node_ElementNode(element, props || {}, normalizeChildren(children));
             if ("function" == typeof element) return normalizeChild(element(props || {}, normalizeChildren(children)));
@@ -194,14 +147,13 @@
             for (var _len2 = arguments.length, children = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) children[_key2 - 1] = arguments[_key2];
             return new node_FragmentNode(normalizeChildren(children));
         }
-        var ELEMENT_TAG_HTML = "html", ELEMENT_TAG_IFRAME = "iframe", ELEMENT_TAG_SCRIPT = "script", ELEMENT_TAG_NODE = "node", ELEMENT_TAG_DEFAULT = "default", ELEMENT_PROP_INNER_HTML = "innerHTML", ELEMENT_PROP_EL = "el", CREATE_ELEMENT = ((_CREATE_ELEMENT = {})[ELEMENT_TAG_NODE] = function(_ref) {
+        var _CREATE_ELEMENT, _ADD_CHILDREN, ELEMENT_TAG_HTML = "html", ELEMENT_TAG_IFRAME = "iframe", ELEMENT_TAG_SCRIPT = "script", ELEMENT_TAG_NODE = "node", ELEMENT_TAG_DEFAULT = "default", ELEMENT_PROP_ID = "id", ELEMENT_PROP_INNER_HTML = "innerHTML", ELEMENT_PROP_EL = "el", CREATE_ELEMENT = ((_CREATE_ELEMENT = {})[ELEMENT_TAG_NODE] = function(_ref) {
             var props = _ref.props;
             if (!props[ELEMENT_PROP_EL]) throw new Error("Must pass " + ELEMENT_PROP_EL + " prop to " + ELEMENT_TAG_NODE + " element");
             if (Object.keys(props).length > 1) throw new Error("Must not pass any prop other than " + ELEMENT_PROP_EL + " to " + ELEMENT_TAG_NODE + " element");
             return props[ELEMENT_PROP_EL];
         }, _CREATE_ELEMENT[ELEMENT_TAG_DEFAULT] = function(_ref2) {
-            var name = _ref2.name;
-            return _ref2.doc.createElement(name);
+            return _ref2.doc.createElement(_ref2.name);
         }, _CREATE_ELEMENT), ADD_CHILDREN = ((_ADD_CHILDREN = {})[ELEMENT_TAG_IFRAME] = function(_ref5) {
             var el = _ref5.el, children = _ref5.children, firstChild = children[0];
             if (children.length > 1 || !firstChild.isElementNode()) throw new Error("Expected only single element node as child of " + ELEMENT_TAG_IFRAME + " element");
@@ -227,18 +179,18 @@
             var _ref9$doc = (void 0 === _temp ? {} : _temp).doc, doc = void 0 === _ref9$doc ? document : _ref9$doc;
             return function domRenderer(name, props, children) {
                 var el = function(_ref3) {
-                    var doc = _ref3.doc, name = _ref3.name, props = _ref3.props;
+                    var name = _ref3.name;
                     return (CREATE_ELEMENT[name] || CREATE_ELEMENT[ELEMENT_TAG_DEFAULT])({
                         name: name,
-                        props: props,
-                        doc: doc
+                        props: _ref3.props,
+                        doc: _ref3.doc
                     });
                 }({
                     name: name,
                     props: props,
                     doc: doc
                 });
-                !function(_ref4) {
+                return function(_ref4) {
                     for (var el = _ref4.el, props = _ref4.props, _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
                         var prop = _Object$keys2[_i4], val = props[prop];
                         if (null != val && prop !== ELEMENT_PROP_EL && prop !== ELEMENT_PROP_INNER_HTML) if (prop.match(/^on[A-Z][a-z]/) && "function" == typeof val) el.addEventListener(prop.slice(2).toLowerCase(), val); else if ("string" == typeof val || "number" == typeof val) el.setAttribute(prop, val.toString()); else {
@@ -246,30 +198,28 @@
                             !0 === val && el.setAttribute(prop, "");
                         }
                     }
+                    el.tagName.toLowerCase() !== ELEMENT_TAG_IFRAME || props.id || el.setAttribute(ELEMENT_PROP_ID, "jsx-iframe-" + "xxxxxxxxxx".replace(/./g, function() {
+                        return "0123456789abcdef".charAt(Math.floor(Math.random() * "0123456789abcdef".length));
+                    }));
                 }({
                     el: el,
                     props: props
-                });
-                !function(_ref8) {
+                }), function(_ref8) {
                     var el = _ref8.el, name = _ref8.name, props = _ref8.props, children = _ref8.children, doc = _ref8.doc, domRenderer = _ref8.domRenderer;
                     if (props.hasOwnProperty(ELEMENT_PROP_INNER_HTML)) {
                         if (children.length >= 1) throw new Error("Expected no children to be passed when " + ELEMENT_PROP_INNER_HTML + " prop is set");
                         var html = props[ELEMENT_PROP_INNER_HTML];
                         if ("string" != typeof html) throw new TypeError(ELEMENT_PROP_INNER_HTML + " prop must be string");
-                        if (name === ELEMENT_TAG_SCRIPT) el.text = html; else {
-                            el.innerHTML = html;
-                            !function(el, doc) {
-                                void 0 === doc && (doc = window.document);
-                                for (var _i2 = 0, _el$querySelectorAll2 = el.querySelectorAll("script"); _i2 < _el$querySelectorAll2.length; _i2++) {
-                                    var script = _el$querySelectorAll2[_i2], parentNode = script.parentNode;
-                                    if (parentNode) {
-                                        var newScript = doc.createElement("script");
-                                        newScript.text = script.textContent;
-                                        parentNode.replaceChild(newScript, script);
-                                    }
+                        name === ELEMENT_TAG_SCRIPT ? el.text = html : (el.innerHTML = html, function(el, doc) {
+                            void 0 === doc && (doc = window.document);
+                            for (var _i2 = 0, _el$querySelectorAll2 = el.querySelectorAll("script"); _i2 < _el$querySelectorAll2.length; _i2++) {
+                                var script = _el$querySelectorAll2[_i2], parentNode = script.parentNode;
+                                if (parentNode) {
+                                    var newScript = doc.createElement("script");
+                                    newScript.text = script.textContent, parentNode.replaceChild(newScript, script);
                                 }
-                            }(el, doc);
-                        }
+                            }
+                        }(el, doc));
                     } else (ADD_CHILDREN[name] || ADD_CHILDREN[ELEMENT_TAG_DEFAULT])({
                         el: el,
                         name: name,
@@ -285,8 +235,7 @@
                     children: children,
                     doc: doc,
                     domRenderer: domRenderer
-                });
-                return el;
+                }), el;
             };
         }, react = function(_temp) {
             var React = (void 0 === _temp ? {} : _temp).React;
@@ -322,26 +271,19 @@
         };
         __webpack_require__.d(__webpack_exports__, "ElementNode", function() {
             return node_ElementNode;
-        });
-        __webpack_require__.d(__webpack_exports__, "TextNode", function() {
+        }), __webpack_require__.d(__webpack_exports__, "TextNode", function() {
             return node_TextNode;
-        });
-        __webpack_require__.d(__webpack_exports__, "FragmentNode", function() {
+        }), __webpack_require__.d(__webpack_exports__, "FragmentNode", function() {
             return node_FragmentNode;
-        });
-        __webpack_require__.d(__webpack_exports__, "node", function() {
+        }), __webpack_require__.d(__webpack_exports__, "node", function() {
             return node;
-        });
-        __webpack_require__.d(__webpack_exports__, "Fragment", function() {
+        }), __webpack_require__.d(__webpack_exports__, "Fragment", function() {
             return Fragment;
-        });
-        __webpack_require__.d(__webpack_exports__, "dom", function() {
+        }), __webpack_require__.d(__webpack_exports__, "dom", function() {
             return dom;
-        });
-        __webpack_require__.d(__webpack_exports__, "react", function() {
+        }), __webpack_require__.d(__webpack_exports__, "react", function() {
             return react;
-        });
-        __webpack_require__.d(__webpack_exports__, "html", function() {
+        }), __webpack_require__.d(__webpack_exports__, "html", function() {
             return html;
         });
     } ]);

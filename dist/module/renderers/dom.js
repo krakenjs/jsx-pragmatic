@@ -1,5 +1,6 @@
 var _CREATE_ELEMENT, _ADD_CHILDREN;
 
+import { uniqueID } from '../util';
 var ELEMENT_TAG = {
   HTML: 'html',
   IFRAME: 'iframe',
@@ -8,6 +9,7 @@ var ELEMENT_TAG = {
   DEFAULT: 'default'
 };
 var ELEMENT_PROP = {
+  ID: 'id',
   INNER_HTML: 'innerHTML',
   EL: 'el'
 };
@@ -86,6 +88,10 @@ function addProps(_ref4) {
     } else {
       throw new TypeError("Can not render prop " + prop + " of type " + typeof val);
     }
+  }
+
+  if (el.tagName.toLowerCase() === ELEMENT_TAG.IFRAME && !props.id) {
+    el.setAttribute(ELEMENT_PROP.ID, "jsx-iframe-" + uniqueID());
   }
 }
 
