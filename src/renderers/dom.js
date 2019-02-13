@@ -1,6 +1,7 @@
 /* @flow */
 
 import type { NodeChildrenType, NodePropsType, NodeRendererFactory, NodeRenderer } from '../node';
+import { uniqueID } from '../util';
 
 const ELEMENT_TAG = {
     HTML:    'html',
@@ -11,6 +12,7 @@ const ELEMENT_TAG = {
 };
 
 const ELEMENT_PROP = {
+    ID:         'id',
     INNER_HTML: 'innerHTML',
     EL:         'el'
 };
@@ -87,6 +89,10 @@ function addProps({ el, props } : AddPropsOptions) {
         } else {
             throw new TypeError(`Can not render prop ${ prop } of type ${ typeof val }`);
         }
+    }
+
+    if (el.tagName.toLowerCase() === ELEMENT_TAG.IFRAME && !props.id) {
+        el.setAttribute(ELEMENT_PROP.ID, `jsx-iframe-${ uniqueID() }`);
     }
 }
 
