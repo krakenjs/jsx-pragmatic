@@ -1,7 +1,13 @@
 /* @flow */
 
-import type { NodeChildrenType, NodePropsType, NodeRendererFactory, NodeRenderer } from '../node';
+import { ComponentNode, TextNode, type NodeRenderer, ElementNode } from '../node';
+import { NODE_TYPE } from '../constants';
 import { uniqueID } from '../util';
+
+type DomNodeRenderer = NodeRenderer<ElementNode, HTMLElement>;
+type DomTextRenderer = NodeRenderer<TextNode, Text>;
+type DomComponentRenderer = NodeRenderer<ComponentNode<*>, HTMLElement | TextNode | $ReadOnlyArray<HTMLElement | TextNode> | void>;
+type DomRenderer = DomComponentRenderer & DomNodeRenderer & DomTextRenderer;
 
 const ELEMENT_TAG = {
     HTML:    'html',
@@ -32,43 +38,22 @@ function fixScripts(el : HTMLElement, doc : Document = window.document) {
     }
 }
 
-type CreateElementOptions = {|
-    doc : Document,
-    name : string,
-    props : NodePropsType
-|};
-
-const CREATE_ELEMENT : { [string] : (CreateElementOptions) => HTMLElement } = {
-
-    [ ELEMENT_TAG.NODE ]: ({ props } : CreateElementOptions) => {
-        if (!props[ELEMENT_PROP.EL]) {
-            throw new Error(`Must pass ${ ELEMENT_PROP.EL } prop to ${ ELEMENT_TAG.NODE } element`);
-        }
-
-        if (Object.keys(props).length > 1) {
-            throw new Error(`Must not pass any prop other than ${ ELEMENT_PROP.EL } to ${ ELEMENT_TAG.NODE } element`);
-        }
-
+function createElement(doc : Document, node : ElementNode) : HTMLElement {
+    if (node.props[ELEMENT_PROP.EL]) {
         // $FlowFixMe
-        return props[ELEMENT_PROP.EL];
-    },
-
-    [ ELEMENT_TAG.DEFAULT ]: ({ name, doc } : CreateElementOptions) => {
-        return doc.createElement(name);
+        return node.props[ELEMENT_PROP.EL];
     }
-};
 
-function createElement({ doc, name, props } : CreateElementOptions) : HTMLElement {
-    const elementCreator = CREATE_ELEMENT[name] || CREATE_ELEMENT[ELEMENT_TAG.DEFAULT];
-    return elementCreator({ name, props, doc });
+    return doc.createElement(node.name);
 }
 
-type AddPropsOptions = {|
-    el : HTMLElement,
-    props : NodePropsType
-|};
+function createTextElement(doc : Document, node : TextNode) : Text {
+    return doc.createTextNode(node.text);
+}
 
-function addProps({ el, props } : AddPropsOptions) {
+function addProps(el : HTMLElement, node) {
+    const props = node.props;
+
     for (const prop of Object.keys(props)) {
         const val = props[prop];
 
@@ -95,27 +80,13 @@ function addProps({ el, props } : AddPropsOptions) {
         el.setAttribute(ELEMENT_PROP.ID, `jsx-iframe-${ uniqueID() }`);
     }
 }
+const ADD_CHILDREN : { [string] : (HTMLElement, ElementNode, DomNodeRenderer) => void } = {
 
-type AddChildrenOptions = {|
-    el : HTMLElement,
-    name : string,
-    children : NodeChildrenType,
-    doc : Document,
-    props : NodePropsType,
-    domRenderer : NodeRenderer<HTMLElement>
-|};
+    [ ELEMENT_TAG.IFRAME ]: (el, node) => {
+        const firstChild = node.children[0];
 
-const ADD_CHILDREN : { [string] : (AddChildrenOptions) => void } = {
-
-    [ ELEMENT_TAG.IFRAME ]: ({ el, children } : AddChildrenOptions) => {
-        const firstChild = children[0];
-
-        if (children.length > 1 || !firstChild.isElementNode()) {
-            throw new Error(`Expected only single element node as child of ${ ELEMENT_TAG.IFRAME } element`);
-        }
-
-        if (!firstChild.isTag(ELEMENT_TAG.HTML)) {
-            throw new Error(`Expected element to be inserted into frame to be html, got ${ firstChild.getTag() }`);
+        if (node.children.length !== 1 || !(firstChild instanceof ElementNode) || firstChild.name !== ELEMENT_TAG.HTML) {
+            throw new Error(`Expected only single html element node as child of ${ ELEMENT_TAG.IFRAME } element`);
         }
     
         el.addEventListener('load', () => {
@@ -135,7 +106,7 @@ const ADD_CHILDREN : { [string] : (AddChildrenOptions) => void } = {
             }
 
             // eslint-disable-next-line no-use-before-define
-            const child = firstChild.render(dom({ doc }));
+            const child : HTMLElement = firstChild.render(dom({ doc }));
         
             while (child.children.length) {
                 docElement.appendChild(child.children[0]);
@@ -143,42 +114,38 @@ const ADD_CHILDREN : { [string] : (AddChildrenOptions) => void } = {
         });
     },
 
-    [ ELEMENT_TAG.SCRIPT ]: ({ el, children } : AddChildrenOptions) => {
-        const firstChild = children[0];
+    [ ELEMENT_TAG.SCRIPT ]: (el, node) => {
+        const firstChild = node.children[0];
 
-        if (children.length !== 1 || !firstChild.isTextNode()) {
+        if (node.children.length !== 1 || !(firstChild instanceof TextNode)) {
             throw new Error(`Expected only single text node as child of ${ ELEMENT_TAG.SCRIPT } element`);
         }
         
         // $FlowFixMe
-        el.text = firstChild.getText();
+        el.text = firstChild.text;
     },
 
-    [ ELEMENT_TAG.DEFAULT ]: ({ el, children, doc, domRenderer } : AddChildrenOptions) => {
-        for (const child of children) {
-            if (child.isTextNode()) {
-                el.appendChild(doc.createTextNode(child.getText()));
-            } else {
-                el.appendChild(child.render(domRenderer));
-            }
+    [ ELEMENT_TAG.DEFAULT ]: (el, node, renderer) => {
+        for (const child of node.renderChildren(renderer)) {
+            el.appendChild(child);
         }
     }
 };
 
-function addChildren({ el, name, props, children, doc, domRenderer } : AddChildrenOptions) {
-    if (props.hasOwnProperty(ELEMENT_PROP.INNER_HTML)) {
+function addChildren(el : HTMLElement, node : ElementNode, doc : Document, renderer : DomNodeRenderer) {
+    if (node.props.hasOwnProperty(ELEMENT_PROP.INNER_HTML)) {
 
-        if (children.length >= 1) {
+        if (node.children.length) {
             throw new Error(`Expected no children to be passed when ${ ELEMENT_PROP.INNER_HTML } prop is set`);
         }
 
-        const html = props[ELEMENT_PROP.INNER_HTML];
+        const html = node.props[ELEMENT_PROP.INNER_HTML];
 
         if (typeof html !== 'string') {
             throw new TypeError(`${ ELEMENT_PROP.INNER_HTML } prop must be string`);
         }
 
-        if (name === ELEMENT_TAG.SCRIPT) {
+        if (node.name === ELEMENT_TAG.SCRIPT) {
             // $FlowFixMe
             el.text = html;
         } else {
@@ -187,19 +154,34 @@ function addChildren({ el, name, props, children, doc, domRenderer } : AddChildr
         }
 
     } else {
-        const addChildrenToElement = ADD_CHILDREN[name] || ADD_CHILDREN[ELEMENT_TAG.DEFAULT];
-        addChildrenToElement({ el, name, props, children, doc, domRenderer });
+        const addChildrenToElement = ADD_CHILDREN[node.name] || ADD_CHILDREN[ELEMENT_TAG.DEFAULT];
+        addChildrenToElement(el, node, renderer);
     }
 }
 
+export function dom(opts? : { doc? : Document } = {}) : DomRenderer {
+    const { doc = document } = opts;
+    
+    const domRenderer : DomRenderer = (node) => {
+        if (node.type === NODE_TYPE.COMPONENT) {
+            return node.renderComponent(domRenderer);
+        }
+        
+        if (node.type === NODE_TYPE.TEXT) {
+            // $FlowFixMe
+            return createTextElement(doc, node);
+        }
+        
+        if (node.type === NODE_TYPE.ELEMENT) {
+            const el = createElement(doc, node);
+            addProps(el, node);
+            addChildren(el, node, doc, domRenderer);
+            // $FlowFixMe
+            return el;
+        }
 
-export const dom : NodeRendererFactory<HTMLElement> = ({ doc = document } : { doc? : Document } = {}) => {
-    const domRenderer = (name, props, children) => {
-        const el = createElement({ name, props, doc });
-        addProps({ el, props });
-        addChildren({ el, name, props, children, doc, domRenderer });
-        return el;
+        throw new TypeError(`Unhandleable node`);
     };
 
     return domRenderer;
-};
+}

@@ -1,13 +1,16 @@
 /* @flow */
 
-import type { NodePropsType, NodeRendererFactory } from '../node';
+import { ComponentNode, TextNode, ElementNode, type NodePropsType, type NodeRenderer } from '../node';
+import { NODE_TYPE } from '../constants';
+
+type HTMLRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<*>, string>;
 
 const ELEMENT_PROP = {
     INNER_HTML: 'innerHTML'
 };
 
-function htmlEncode(html : string) : string {
-    return html
+function htmlEncode(text : string) : string {
+    return text
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -57,18 +60,27 @@ function propsToHTML(props : NodePropsType) : string {
     return ` ${ pairs.join(' ') }`;
 }
 
-export const html : NodeRendererFactory<string> = () => {
+export function html() : HTMLRenderer {
 
-    const htmlRenderer = (name, props, children) => {
+    const htmlRenderer = (node) => {
+        if (node.type === NODE_TYPE.COMPONENT) {
+            return [].concat(node.renderComponent(htmlRenderer)).join('');
+        }
+        
+        if (node.type === NODE_TYPE.ELEMENT) {
+            const renderedProps = propsToHTML(node.props);
+            const renderedChildren = (typeof node.props[ELEMENT_PROP.INNER_HTML] === 'string')
+                ? node.props[ELEMENT_PROP.INNER_HTML]
+                : node.renderChildren(htmlRenderer).join('');
+            return `<${ node.name }${ renderedProps }>${ renderedChildren }</${ node.name }>`;
+        }
+        
+        if (node.type === NODE_TYPE.TEXT) {
+            return htmlEncode(node.text);
+        }
 
-        const renderedChildren = (typeof props[ELEMENT_PROP.INNER_HTML] === 'string')
-            ? props[ELEMENT_PROP.INNER_HTML]
-            : children.map(child => {
-                return child.isTextNode() ? htmlEncode(child.getText()) : child.render(htmlRenderer);
-            }).join('');
-
-        return `<${ name }${ propsToHTML(props) }>${ renderedChildren }</${ name }>`;
+        throw new TypeError(`Unhandleable node: ${ node.type }`);
     };
 
     return htmlRenderer;
-};
+}

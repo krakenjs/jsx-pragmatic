@@ -90,31 +90,37 @@ This example renders the jsx directly to DOM elements:
 ```javascript
 /* @jsx node */
 
-import { node } from 'jsx-pragmatic';
+import { node, NODE_TYPE } from 'jsx-pragmatic';
 import { Login } from './components'
 
 function customDom({ removeScriptTags = false } = {}) {
 
-  let domRenderer = (name, props, children) => {
-    if (removeScriptTags && name === 'script') {
-      return;
+  let domRenderer = (node) => {
+    if (node.type === NODE_TYPE.COMPONENT) {
+      return node.renderComponent(domRenderer);
     }
 
-    let el = document.createElement(name);
-
-    for (let [ key, val ] of Object.entries(props)) {
-      el.setAttribute(key, val);
+    if (node.type === NODE_TYPE.TEXT) {
+      return document.createTextNode(node.text);
     }
 
-    for (let child of children) {
-      if (child.isTextNode()) {
-        el.appendChild(document.createTextNode(child.getText()));
-      } else {
+    if (node.type === NODE_TYPE.ELEMENT) {
+      if (removeScriptTags && name === 'script') {
+        return;
+      }
+
+      let el = document.createElement(node.name);
+
+      for (let [ key, val ] of Object.entries(node.props)) {
+        el.setAttribute(key, val);
+      }
+
+      for (let child of node.children) {
         el.appendChild(child.render(domRenderer));
       }
-    }
 
-    return el;
+      return el;
+    }
   }
 
   return domRenderer;

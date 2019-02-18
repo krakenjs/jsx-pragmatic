@@ -1,23 +1,28 @@
 /* @flow */
 /** @jsx node */
+/** @jsxFrag Fragment */
 /* eslint max-lines: off */
 
-import { node, dom } from '../../src';
+import { node, dom, Fragment } from '../../src';  // eslint-disable-line no-unused-vars
 
 type ExpectedNode = {|
-    name : string,
+    name? : string,
     attrs? : { [string] : string },
     text? : string,
     children? : $ReadOnlyArray<ExpectedNode>
 |};
 
-function validateDOM(domNode : HTMLElement, expected : ExpectedNode) {
-    if (domNode.tagName.toLowerCase() !== expected.name) {
-        throw new Error(`Expected dom domNode tag name to be ${ expected.name }, got ${ domNode.tagName.toLowerCase() }`);
+function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
+    if (expected.text && domNode.textContent !== expected.text) {
+        throw new Error(`Expected dom domNode inner text to be '${ expected.text }', got ${ domNode.textContent || 'undefined' }`);
     }
 
-    if (expected.text && domNode.innerText !== expected.text) {
-        throw new Error(`Expected dom domNode inner text to be '${ expected.text }', got ${ domNode.innerText || 'undefined' }`);
+    if (domNode.nodeType === Node.TEXT_NODE || domNode instanceof Text) {
+        return;
+    }
+
+    if (expected.name && domNode.tagName.toLowerCase() !== expected.name) {
+        throw new Error(`Expected dom domNode tag name to be ${ expected.name }, got ${ domNode.tagName.toLowerCase() }`);
     }
 
     const attrs = expected.attrs;
@@ -29,17 +34,22 @@ function validateDOM(domNode : HTMLElement, expected : ExpectedNode) {
         }
     }
 
+    // $FlowFixMe
+    const children : $ReadOnlyArray<HTMLElement | Text> = Array.from(domNode.childNodes).filter(child => { // eslint-disable-line unicorn/prefer-spread
+        return child.nodeType === Node.ELEMENT_NODE || child.nodeType === Node.TEXT_NODE;
+    });
+
     if (expected.children) {
-        if (expected.children.length !== domNode.children.length) {
-            throw new Error(`Expected ${ expected.children.length } children for ${ expected.name }, found ${ domNode.children.length }`);
+        if (expected.children.length !== children.length) {
+            throw new Error(`Expected ${ expected.children.length } children for ${ expected.name || 'element' }, found ${ children.length.toString() }`);
         }
 
         for (let i = 0; i < expected.children.length; i++) {
-            validateDOM(domNode.children[i], expected.children[i]);
+            validateDOM(children[i], expected.children[i]);
         }
 
-    } else if (domNode.children.length) {
-        throw new Error(`Expected no children for ${ expected.name }, found ${ domNode.children.length }`);
+    } else if (children.length) {
+        throw new Error(`Expected no children for ${ expected.name || 'element' }, found ${ children.length.toString() }`);
     }
 }
 
@@ -60,7 +70,11 @@ describe('dom renderer cases', () => {
             attrs: {
                 foo: bar
             },
-            text: 'click me'
+            children: [
+                {
+                    text: 'click me'
+                }
+            ]
         });
     });
 
@@ -91,7 +105,11 @@ describe('dom renderer cases', () => {
                     attrs: {
                         foo: bar
                     },
-                    text: 'click me'
+                    children: [
+                        {
+                            text: 'click me'
+                        }
+                    ]
                 }
             ]
         });
@@ -130,7 +148,11 @@ describe('dom renderer cases', () => {
                     attrs: {
                         id: 'foo'
                     },
-                    text: 'hello world'
+                    children: [
+                        {
+                            text: 'hello world'
+                        }
+                    ]
                 }
             ]
         });
@@ -391,7 +413,11 @@ describe('dom renderer cases', () => {
                                                 attrs: {
                                                     foo: bar
                                                 },
-                                                text: 'click me'
+                                                children: [
+                                                    {
+                                                        text: 'click me'
+                                                    }
+                                                ]
                                             }
                                         ]
                                     }
@@ -539,53 +565,275 @@ describe('dom renderer cases', () => {
                     attrs: {
                         foo: bar
                     },
+                    children: [
+                        {
+                            text: 'click me'
+                        }
+                    ]
+                }
+            ]
+        });
+    });
+
+    it('should render a component element as a dom element with a tag name, dynamic attribute, and inner text', () => {
+
+        const MyButton = ({ foo }) => {
+            return (
+                <button foo={ foo }>click me</button>
+            );
+        };
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            <MyButton foo={ bar } />
+        );
+
+        const domNode = jsxNode.render(dom());
+
+        validateDOM(domNode, {
+            name:  'button',
+            attrs: {
+                foo: bar
+            },
+            children: [
+                {
                     text: 'click me'
                 }
             ]
         });
     });
 
-    it('should error when a node element is passed without an el prop', () => {
+    it('should render a component element with children as a dom element with a tag name, dynamic attribute, and inner text', () => {
+
+        const MyButton = ({ foo }, children) => {
+            return (
+                <button foo={ foo }>{ children}</button>
+            );
+        };
+
+        const bar = 'baz';
 
         const jsxNode = (
-            <section>
-                <node />
-            </section>
+            <MyButton foo={ bar }>click me</MyButton>
         );
 
-        let error;
+        const domNode = jsxNode.render(dom());
 
-        try {
-            jsxNode.render(dom());
-        } catch (err) {
-            error = err;
-        }
-
-        if (!error) {
-            throw new Error(`Expected error to be thrown`);
-        }
+        validateDOM(domNode, {
+            name:  'button',
+            attrs: {
+                foo: bar
+            },
+            children: [
+                {
+                    text: 'click me'
+                }
+            ]
+        });
     });
 
-    it('should error when a node element is passed with any other props than el', () => {
+    it('should render a component element with multiple children as a dom element with a tag name, dynamic attribute, and inner text', () => {
 
-        const myNode = document.createElement('p');
+        const MyButton = ({ foo }, children) => {
+            return (
+                <button foo={ foo }>{ children}</button>
+            );
+        };
+
+        const bar = 'baz';
 
         const jsxNode = (
-            <section>
-                <node el={ myNode } foo="bar" />
-            </section>
+            <MyButton foo={ bar }><span>please</span> click me</MyButton>
         );
 
-        let error;
+        const domNode = jsxNode.render(dom());
 
-        try {
-            jsxNode.render(dom());
-        } catch (err) {
-            error = err;
-        }
+        validateDOM(domNode, {
+            name:  'button',
+            attrs: {
+                foo: bar
+            },
+            children: [
+                {
+                    name:     'span',
+                    children: [
+                        {
+                            text: 'please'
+                        }
+                    ]
+                },
+                {
+                    text: ' click me'
+                }
+            ]
+        });
+    });
 
-        if (!error) {
-            throw new Error(`Expected error to be thrown`);
-        }
+    it('should render a fragment as a dom element with a tag name, dynamic attribute, and inner text', () => {
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            // $FlowFixMe
+            <>
+                <button foo={ bar }>click me</button>
+                <span>meep</span>
+                <p><div zomg="womg">way</div></p>
+            </>
+        );
+
+        const [ node1, node2, node3 ] = jsxNode.render(dom());
+
+        validateDOM(node1, {
+            name:  'button',
+            attrs: {
+                foo: bar
+            },
+            children: [
+                {
+                    text: 'click me'
+                }
+            ]
+        });
+
+        validateDOM(node2, {
+            name:     'span',
+            children: [
+                {
+                    text: 'meep'
+                }
+            ]
+        });
+
+        validateDOM(node3, {
+            name:     'p',
+            children: [
+                {
+                    name:  'div',
+                    attrs: {
+                        zomg: 'womg'
+                    },
+                    children: [
+                        {
+                            text: 'way'
+                        }
+                    ]
+                }
+            ]
+        });
+    });
+
+    it('should render a fragment as a dom element with a tag name, dynamic attribute, and inner text', () => {
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            // $FlowFixMe
+            <>
+                <button foo={ bar }>click me</button>
+                { false }
+                <span>meep</span>
+                { null }
+                <p><div zomg="womg">way</div></p>
+            </>
+        );
+
+        const [ node1, node2, node3 ] = jsxNode.render(dom());
+
+        validateDOM(node1, {
+            name:  'button',
+            attrs: {
+                foo: bar
+            },
+            children: [
+                {
+                    text: 'click me'
+                }
+            ]
+        });
+
+        validateDOM(node2, {
+            name:     'span',
+            children: [
+                {
+                    text: 'meep'
+                }
+            ]
+        });
+
+        validateDOM(node3, {
+            name:     'p',
+            children: [
+                {
+                    name:  'div',
+                    attrs: {
+                        zomg: 'womg'
+                    },
+                    children: [
+                        {
+                            text: 'way'
+                        }
+                    ]
+                }
+            ]
+        });
+    });
+
+    it('should render a list as a dom element with a tag name, dynamic attribute, and inner text', () => {
+
+        const bar = 'baz';
+
+        const Foo = () => {
+            return [
+                <button foo={ bar }>click me</button>,
+                <span>meep</span>,
+                <p><div zomg="womg">way</div></p>
+            ];
+        };
+
+        const jsxNode = (
+            <Foo />
+        );
+
+        const [ node1, node2, node3 ] = jsxNode.render(dom());
+
+        validateDOM(node1, {
+            name:  'button',
+            attrs: {
+                foo: bar
+            },
+            children: [
+                {
+                    text: 'click me'
+                }
+            ]
+        });
+
+        validateDOM(node2, {
+            name:     'span',
+            children: [
+                {
+                    text: 'meep'
+                }
+            ]
+        });
+
+        validateDOM(node3, {
+            name:     'p',
+            children: [
+                {
+                    name:  'div',
+                    attrs: {
+                        zomg: 'womg'
+                    },
+                    children: [
+                        {
+                            text: 'way'
+                        }
+                    ]
+                }
+            ]
+        });
     });
 });

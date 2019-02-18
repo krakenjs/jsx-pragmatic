@@ -1,7 +1,8 @@
 /* @flow */
 /** @jsx node */
+/** @jsxFrag Fragment */
 
-import { node, html } from '../../src';
+import { node, html, Fragment } from '../../src'; // eslint-disable-line no-unused-vars
 
 describe('html renderer cases', () => {
 
@@ -80,6 +81,146 @@ describe('html renderer cases', () => {
 
         const htmlString = jsxNode.render(html());
         const htmlExpected = `<section><p foo="bar"><span>hello world</span></p></section>`;
+
+        if (htmlString !== htmlExpected) {
+            throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
+        }
+    });
+
+    it('should render a basic component as html with a tag name, dynamic attribute, and inner text', () => {
+
+        const MyButton = ({ foo }) => {
+            return (
+                <button foo={ foo }>click me</button>
+            );
+        };
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            <MyButton foo={ bar } />
+        );
+
+        const htmlString = jsxNode.render(html());
+        const htmlExpected = `<button foo="baz">click me</button>`;
+
+        if (htmlString !== htmlExpected) {
+            throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
+        }
+    });
+
+    it('should render a basic component with children as html with a tag name, dynamic attribute, and inner text', () => {
+
+        const MyButton = ({ foo }, children) => {
+            return (
+                <button foo={ foo }>{ children }</button>
+            );
+        };
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            <MyButton foo={ bar }>click me</MyButton>
+        );
+
+        const htmlString = jsxNode.render(html());
+        const htmlExpected = `<button foo="baz">click me</button>`;
+
+        if (htmlString !== htmlExpected) {
+            throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
+        }
+    });
+
+    it('should render a basic component with multiple children as html with a tag name, dynamic attribute, and inner text', () => {
+
+        const MyButton = ({ foo }, children) => {
+            return (
+                <button foo={ foo }>{ children }</button>
+            );
+        };
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            <MyButton foo={ bar }><b>please</b> click me</MyButton>
+        );
+
+        const htmlString = jsxNode.render(html());
+        const htmlExpected = `<button foo="baz"><b>please</b> click me</button>`;
+
+        if (htmlString !== htmlExpected) {
+            throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
+        }
+    });
+
+    it('should render a fragment element as html', () => {
+        const jsxNode = (
+            // $FlowFixMe
+            <>
+                <span foo="bar"><p>hello</p></span>
+                <p>wat</p>
+                <button>click me</button>
+            </>
+        );
+
+        const htmlString = jsxNode.render(html());
+        const htmlExpected = `<span foo="bar"><p>hello</p></span><p>wat</p><button>click me</button>`;
+
+        if (htmlString !== htmlExpected) {
+            throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
+        }
+    });
+
+    it('should render a list element as html', () => {
+        const Foo = () => {
+            return [
+                <span foo="bar"><p>hello</p></span>,
+                <p>wat</p>,
+                <button>click me</button>
+            ];
+        };
+
+        const jsxNode = (
+            <Foo />
+        );
+
+        const htmlString = jsxNode.render(html());
+        const htmlExpected = `<span foo="bar"><p>hello</p></span><p>wat</p><button>click me</button>`;
+
+        if (htmlString !== htmlExpected) {
+            throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
+        }
+    });
+
+    it('should render a fragment with a single child as html', () => {
+        const jsxNode = (
+            // $FlowFixMe
+            <>
+                <span foo="bar"><p>hello</p></span>
+            </>
+        );
+
+        const htmlString = jsxNode.render(html());
+        const htmlExpected = `<span foo="bar"><p>hello</p></span>`;
+
+        if (htmlString !== htmlExpected) {
+            throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
+        }
+    });
+
+    it('should render a list with a single child as html', () => {
+        const Foo = () => {
+            return [
+                <span foo="bar"><p>hello</p></span>
+            ];
+        };
+
+        const jsxNode = (
+            <Foo />
+        );
+
+        const htmlString = jsxNode.render(html());
+        const htmlExpected = `<span foo="bar"><p>hello</p></span>`;
 
         if (htmlString !== htmlExpected) {
             throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);

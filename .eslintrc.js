@@ -5,6 +5,7 @@ module.exports = {
 
     'rules': {
         'react/display-name': 'off',
-        'react/button-has-type': 'off'
+        'react/button-has-type': 'off',
+        'react/prop-types': 'off'
     }
 };
