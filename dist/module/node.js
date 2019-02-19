@@ -1,202 +1,177 @@
-import _inheritsLoose from "@babel/runtime/helpers/esm/inheritsLoose";
+import { NODE_TYPE } from './constants';
 
-// eslint-disable-next-line no-use-before-define
-// eslint-disable-next-line no-use-before-define
-var Node =
-/*#__PURE__*/
-function () {
-  function Node() {}
-
-  var _proto = Node.prototype;
-
-  _proto.isElementNode = function isElementNode() {
-    return false;
-  };
-
-  _proto.isTextNode = function isTextNode() {
-    return false;
-  };
-
-  _proto.isFragmentNode = function isFragmentNode() {
-    return false;
-  };
-
-  return Node;
-}();
-
-export var ElementNode =
-/*#__PURE__*/
-function (_Node) {
-  _inheritsLoose(ElementNode, _Node);
-
-  // eslint-disable-line no-undef
-  function ElementNode(name, props, children) {
-    var _this;
-
-    _this = _Node.call(this) || this;
-    _this.name = void 0;
-    _this.props = void 0;
-    _this.children = void 0;
-    _this.onRender = void 0;
-    _this.name = name;
-    _this.props = props;
-    _this.children = children;
-
-    if (typeof props.onRender === 'function') {
-      _this.onRender = props.onRender;
-      delete props.onRender;
-    }
-
-    return _this;
-  }
-
-  var _proto2 = ElementNode.prototype;
-
-  _proto2.getTag = function getTag() {
-    return this.name;
-  };
-
-  _proto2.isTag = function isTag(name) {
-    return name === this.name;
-  };
-
-  _proto2.isElementNode = function isElementNode() {
-    return true;
-  };
-
-  _proto2.render = function render(renderer) {
-    var element = renderer(this.name, this.props, this.children);
-
-    if (this.onRender) {
-      this.onRender(element);
-    }
-
-    return element;
-  };
-
-  _proto2.getText = function getText() {
-    throw new Error("Can not get text of an element node");
-  };
-
-  return ElementNode;
-}(Node);
-export var TextNode =
-/*#__PURE__*/
-function (_Node2) {
-  _inheritsLoose(TextNode, _Node2);
-
-  function TextNode(text) {
-    var _this2;
-
-    _this2 = _Node2.call(this) || this;
-    _this2.text = void 0;
-    _this2.text = text;
-    return _this2;
-  }
-
-  var _proto3 = TextNode.prototype;
-
-  _proto3.getTag = function getTag() {
-    throw new Error("Can not get tag of text node");
-  };
-
-  _proto3.isTag = function isTag(name) {
-    // eslint-disable-line no-unused-vars
-    throw new Error("Can not check tag of text node");
-  };
-
-  _proto3.isTextNode = function isTextNode() {
-    return true;
-  };
-
-  _proto3.render = function render(renderer) {
-    // eslint-disable-line no-unused-vars
-    throw new Error("Can not render a text node");
-  };
-
-  _proto3.getText = function getText() {
-    return this.text;
-  };
-
-  return TextNode;
-}(Node);
-export var FragmentNode =
-/*#__PURE__*/
-function (_Node3) {
-  _inheritsLoose(FragmentNode, _Node3);
-
-  function FragmentNode(children) {
-    var _this3;
-
-    _this3 = _Node3.call(this) || this;
-    _this3.children = void 0;
-    _this3.children = children;
-    return _this3;
-  }
-
-  var _proto4 = FragmentNode.prototype;
-
-  _proto4.getTag = function getTag() {
-    throw new Error("Can not get tag of fragment node");
-  };
-
-  _proto4.isTag = function isTag(name) {
-    // eslint-disable-line no-unused-vars
-    throw new Error("Can not check tag of fragment node");
-  };
-
-  _proto4.isFragmentNode = function isFragmentNode() {
-    return true;
-  };
-
-  _proto4.render = function render(renderer) {
-    // eslint-disable-line no-unused-vars
-    throw new Error("Can not render a fragment node");
-  };
-
-  _proto4.getText = function getText() {
-    throw new Error("Can not get text of a fragment node");
-  };
-
-  return FragmentNode;
-}(Node);
-
-function normalizeChild(child) {
-  if (typeof child === 'string') {
-    return new TextNode(child);
-  } else if (child instanceof ElementNode || child instanceof TextNode || child instanceof FragmentNode) {
-    return child;
-  } else if (Array.isArray(child)) {
-    return new FragmentNode(normalizeChildren(child)); // eslint-disable-line no-use-before-define
-  } else if (child === null || typeof child === 'undefined') {
-    return; // eslint-disable-line no-useless-return
-  } else {
-    throw new Error("Child node must be string or instance of jsx-pragmatic node; got " + typeof child);
-  }
-}
-
-function normalizeChildren(children) {
+function _renderChildren(children, renderer) {
+  // eslint-disable-line no-use-before-define
   var result = [];
 
   for (var _i2 = 0; _i2 < children.length; _i2++) {
     var child = children[_i2];
-    var normalizedChild = normalizeChild(child);
+    var renderedChild = child.render(renderer);
 
-    if (!normalizedChild) {
+    if (!renderedChild) {
       continue;
-    }
+    } else if (Array.isArray(renderedChild)) {
+      for (var _i4 = 0; _i4 < renderedChild.length; _i4++) {
+        var subchild = renderedChild[_i4];
 
-    if (normalizedChild instanceof FragmentNode) {
-      for (var _i4 = 0, _normalizedChild$chil2 = normalizedChild.children; _i4 < _normalizedChild$chil2.length; _i4++) {
-        var subchild = _normalizedChild$chil2[_i4];
-        result.push(subchild);
+        if (subchild) {
+          result.push(subchild);
+        }
       }
     } else {
-      result.push(normalizedChild);
+      result.push(renderedChild);
     }
   }
 
   return result;
+}
+
+export var ElementNode =
+/*#__PURE__*/
+function () {
+  // eslint-disable-line no-use-before-define
+  // eslint-disable-line no-undef
+  function ElementNode(name, props, children) {
+    this.type = NODE_TYPE.ELEMENT;
+    this.name = void 0;
+    this.props = void 0;
+    this.children = void 0;
+    this.onRender = void 0;
+    // eslint-disable-line no-use-before-define
+    this.name = name;
+    this.props = props;
+    this.children = children;
+    var onRender = props.onRender;
+
+    if (typeof onRender === 'function') {
+      this.onRender = onRender;
+      delete props.onRender;
+    }
+  }
+
+  var _proto = ElementNode.prototype;
+
+  _proto.render = function render(renderer) {
+    var el = renderer(this);
+
+    if (this.onRender) {
+      this.onRender(el);
+    }
+
+    return el;
+  };
+
+  _proto.renderChildren = function renderChildren(renderer) {
+    return _renderChildren(this.children, renderer);
+  };
+
+  return ElementNode;
+}();
+export var FragmentNode =
+/*#__PURE__*/
+function () {
+  // eslint-disable-line no-use-before-define
+  function FragmentNode(children) {
+    this.type = NODE_TYPE.FRAGMENT;
+    this.children = void 0;
+    // eslint-disable-line no-use-before-define
+    this.children = children;
+  }
+
+  var _proto2 = FragmentNode.prototype;
+
+  _proto2.render = function render(renderer) {
+    return this.children.map(renderer);
+  };
+
+  return FragmentNode;
+}();
+export var TextNode =
+/*#__PURE__*/
+function () {
+  function TextNode(text) {
+    this.type = NODE_TYPE.TEXT;
+    this.text = void 0;
+    this.text = text;
+  }
+
+  var _proto3 = TextNode.prototype;
+
+  _proto3.render = function render(renderer) {
+    return renderer(this);
+  };
+
+  return TextNode;
+}();
+export var ComponentNode =
+/*#__PURE__*/
+function () {
+  function ComponentNode(component, props, children) {
+    this.type = NODE_TYPE.COMPONENT;
+    this.component = void 0;
+    this.props = void 0;
+    this.children = void 0;
+    this.component = component;
+    this.props = props;
+    this.children = children;
+  }
+
+  var _proto4 = ComponentNode.prototype;
+
+  _proto4.renderComponent = function renderComponent(renderer) {
+    // $FlowFixMe
+    var props = this.props;
+    var child = normalizeChild(this.component(props, this.children)); // eslint-disable-line no-use-before-define
+
+    if (child) {
+      return child.render(renderer);
+    }
+  };
+
+  _proto4.render = function render(renderer) {
+    return renderer(this);
+  };
+
+  _proto4.renderChildren = function renderChildren(renderer) {
+    return _renderChildren(this.children, renderer);
+  };
+
+  return ComponentNode;
+}();
+
+function normalizeChildren(children) {
+  var result = [];
+
+  for (var _i6 = 0; _i6 < children.length; _i6++) {
+    var child = children[_i6];
+
+    if (!child) {
+      continue;
+    } else if (typeof child === 'string') {
+      result.push(new TextNode(child));
+    } else if (Array.isArray(child)) {
+      for (var _i8 = 0, _normalizeChildren2 = normalizeChildren(child); _i8 < _normalizeChildren2.length; _i8++) {
+        var subchild = _normalizeChildren2[_i8];
+        result.push(subchild);
+      }
+    } else if (child instanceof ElementNode || child instanceof TextNode || child instanceof ComponentNode) {
+      result.push(child);
+    } else {
+      throw new TypeError("Unrecognized node type: " + typeof child);
+    }
+  }
+
+  return result;
+}
+
+function normalizeChild(child) {
+  var children = normalizeChildren(Array.isArray(child) ? child : [child]);
+
+  if (children.length === 1) {
+    return children[0];
+  } else if (children.length > 1) {
+    return new FragmentNode(children);
+  }
 }
 
 export var node = function node(element, props) {
@@ -204,25 +179,24 @@ export var node = function node(element, props) {
     children[_key - 2] = arguments[_key];
   }
 
+  // $FlowFixMe
+  props = props || {};
+  children = normalizeChildren(children);
+
   if (typeof element === 'string') {
-    return new ElementNode(element, props || {}, normalizeChildren(children));
+    return new ElementNode(element, props, children);
   }
 
   if (typeof element === 'function') {
-    // $FlowFixMe
-    return normalizeChild(element(props || {}, normalizeChildren(children)));
+    return new ComponentNode(element, props, children);
   }
 
-  throw new TypeError("Expected jsx Element to be a string or a function");
+  throw new TypeError("Expected jsx element to be a string or a function");
 };
-export function Fragment(props) {
+export var Fragment = function Fragment(props, children) {
   if (props && Object.keys(props).length) {
     throw new Error("Do not pass props to Fragment");
   }
 
-  for (var _len2 = arguments.length, children = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-    children[_key2 - 1] = arguments[_key2];
-  }
-
-  return new FragmentNode(normalizeChildren(children));
-}
+  return children;
+};

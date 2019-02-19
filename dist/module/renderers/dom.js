@@ -1,5 +1,7 @@
-var _CREATE_ELEMENT, _ADD_CHILDREN;
+var _ADD_CHILDREN;
 
+import { ComponentNode, TextNode, ElementNode } from '../node';
+import { NODE_TYPE } from '../constants';
 import { uniqueID } from '../util';
 var ELEMENT_TAG = {
   HTML: 'html',
@@ -34,40 +36,21 @@ function fixScripts(el, doc) {
   }
 }
 
-var CREATE_ELEMENT = (_CREATE_ELEMENT = {}, _CREATE_ELEMENT[ELEMENT_TAG.NODE] = function (_ref) {
-  var props = _ref.props;
-
-  if (!props[ELEMENT_PROP.EL]) {
-    throw new Error("Must pass " + ELEMENT_PROP.EL + " prop to " + ELEMENT_TAG.NODE + " element");
+function createElement(doc, node) {
+  if (node.props[ELEMENT_PROP.EL]) {
+    // $FlowFixMe
+    return node.props[ELEMENT_PROP.EL];
   }
 
-  if (Object.keys(props).length > 1) {
-    throw new Error("Must not pass any prop other than " + ELEMENT_PROP.EL + " to " + ELEMENT_TAG.NODE + " element");
-  } // $FlowFixMe
-
-
-  return props[ELEMENT_PROP.EL];
-}, _CREATE_ELEMENT[ELEMENT_TAG.DEFAULT] = function (_ref2) {
-  var name = _ref2.name,
-      doc = _ref2.doc;
-  return doc.createElement(name);
-}, _CREATE_ELEMENT);
-
-function createElement(_ref3) {
-  var doc = _ref3.doc,
-      name = _ref3.name,
-      props = _ref3.props;
-  var elementCreator = CREATE_ELEMENT[name] || CREATE_ELEMENT[ELEMENT_TAG.DEFAULT];
-  return elementCreator({
-    name: name,
-    props: props,
-    doc: doc
-  });
+  return doc.createElement(node.name);
 }
 
-function addProps(_ref4) {
-  var el = _ref4.el,
-      props = _ref4.props;
+function createTextElement(doc, node) {
+  return doc.createTextNode(node.text);
+}
+
+function addProps(el, node) {
+  var props = node.props;
 
   for (var _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
     var prop = _Object$keys2[_i4];
@@ -95,17 +78,11 @@ function addProps(_ref4) {
   }
 }
 
-var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = function (_ref5) {
-  var el = _ref5.el,
-      children = _ref5.children;
-  var firstChild = children[0];
+var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = function (el, node) {
+  var firstChild = node.children[0];
 
-  if (children.length > 1 || !firstChild.isElementNode()) {
-    throw new Error("Expected only single element node as child of " + ELEMENT_TAG.IFRAME + " element");
-  }
-
-  if (!firstChild.isTag(ELEMENT_TAG.HTML)) {
-    throw new Error("Expected element to be inserted into frame to be html, got " + firstChild.getTag());
+  if (node.children.length !== 1 || !(firstChild instanceof ElementNode) || firstChild.name !== ELEMENT_TAG.HTML) {
+    throw new Error("Expected only single html element node as child of " + ELEMENT_TAG.IFRAME + " element");
   }
 
   el.addEventListener('load', function () {
@@ -132,54 +109,35 @@ var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = func
       docElement.appendChild(child.children[0]);
     }
   });
-}, _ADD_CHILDREN[ELEMENT_TAG.SCRIPT] = function (_ref6) {
-  var el = _ref6.el,
-      children = _ref6.children;
-  var firstChild = children[0];
+}, _ADD_CHILDREN[ELEMENT_TAG.SCRIPT] = function (el, node) {
+  var firstChild = node.children[0];
 
-  if (children.length !== 1 || !firstChild.isTextNode()) {
+  if (node.children.length !== 1 || !(firstChild instanceof TextNode)) {
     throw new Error("Expected only single text node as child of " + ELEMENT_TAG.SCRIPT + " element");
   } // $FlowFixMe
 
 
-  el.text = firstChild.getText();
-}, _ADD_CHILDREN[ELEMENT_TAG.DEFAULT] = function (_ref7) {
-  var el = _ref7.el,
-      children = _ref7.children,
-      doc = _ref7.doc,
-      domRenderer = _ref7.domRenderer;
-
-  for (var _i6 = 0; _i6 < children.length; _i6++) {
-    var child = children[_i6];
-
-    if (child.isTextNode()) {
-      el.appendChild(doc.createTextNode(child.getText()));
-    } else {
-      el.appendChild(child.render(domRenderer));
-    }
+  el.text = firstChild.text;
+}, _ADD_CHILDREN[ELEMENT_TAG.DEFAULT] = function (el, node, renderer) {
+  for (var _i6 = 0, _node$renderChildren2 = node.renderChildren(renderer); _i6 < _node$renderChildren2.length; _i6++) {
+    var child = _node$renderChildren2[_i6];
+    el.appendChild(child);
   }
 }, _ADD_CHILDREN);
 
-function addChildren(_ref8) {
-  var el = _ref8.el,
-      name = _ref8.name,
-      props = _ref8.props,
-      children = _ref8.children,
-      doc = _ref8.doc,
-      domRenderer = _ref8.domRenderer;
-
-  if (props.hasOwnProperty(ELEMENT_PROP.INNER_HTML)) {
-    if (children.length >= 1) {
+function addChildren(el, node, doc, renderer) {
+  if (node.props.hasOwnProperty(ELEMENT_PROP.INNER_HTML)) {
+    if (node.children.length) {
       throw new Error("Expected no children to be passed when " + ELEMENT_PROP.INNER_HTML + " prop is set");
     }
 
-    var html = props[ELEMENT_PROP.INNER_HTML];
+    var html = node.props[ELEMENT_PROP.INNER_HTML];
 
     if (typeof html !== 'string') {
       throw new TypeError(ELEMENT_PROP.INNER_HTML + " prop must be string");
     }
 
-    if (name === ELEMENT_TAG.SCRIPT) {
+    if (node.name === ELEMENT_TAG.SCRIPT) {
       // $FlowFixMe
       el.text = html;
     } else {
@@ -187,43 +145,40 @@ function addChildren(_ref8) {
       fixScripts(el, doc);
     }
   } else {
-    var addChildrenToElement = ADD_CHILDREN[name] || ADD_CHILDREN[ELEMENT_TAG.DEFAULT];
-    addChildrenToElement({
-      el: el,
-      name: name,
-      props: props,
-      children: children,
-      doc: doc,
-      domRenderer: domRenderer
-    });
+    var addChildrenToElement = ADD_CHILDREN[node.name] || ADD_CHILDREN[ELEMENT_TAG.DEFAULT];
+    addChildrenToElement(el, node, renderer);
   }
 }
 
-export var dom = function dom(_temp) {
-  var _ref9 = _temp === void 0 ? {} : _temp,
-      _ref9$doc = _ref9.doc,
-      doc = _ref9$doc === void 0 ? document : _ref9$doc;
+export function dom(opts) {
+  if (opts === void 0) {
+    opts = {};
+  }
 
-  var domRenderer = function domRenderer(name, props, children) {
-    var el = createElement({
-      name: name,
-      props: props,
-      doc: doc
-    });
-    addProps({
-      el: el,
-      props: props
-    });
-    addChildren({
-      el: el,
-      name: name,
-      props: props,
-      children: children,
-      doc: doc,
-      domRenderer: domRenderer
-    });
-    return el;
+  var _opts = opts,
+      _opts$doc = _opts.doc,
+      doc = _opts$doc === void 0 ? document : _opts$doc;
+
+  var domRenderer = function domRenderer(node) {
+    if (node.type === NODE_TYPE.COMPONENT) {
+      return node.renderComponent(domRenderer);
+    }
+
+    if (node.type === NODE_TYPE.TEXT) {
+      // $FlowFixMe
+      return createTextElement(doc, node);
+    }
+
+    if (node.type === NODE_TYPE.ELEMENT) {
+      var el = createElement(doc, node);
+      addProps(el, node);
+      addChildren(el, node, doc, domRenderer); // $FlowFixMe
+
+      return el;
+    }
+
+    throw new TypeError("Unhandleable node");
   };
 
   return domRenderer;
-};
+}

@@ -1,9 +1,11 @@
+import { ComponentNode, TextNode, ElementNode } from '../node';
+import { NODE_TYPE } from '../constants';
 var ELEMENT_PROP = {
   INNER_HTML: 'innerHTML'
 };
 
-function htmlEncode(html) {
-  return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\//g, '&#x2F;');
+function htmlEncode(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\//g, '&#x2F;');
 }
 
 function propsToHTML(props) {
@@ -45,13 +47,24 @@ function propsToHTML(props) {
   return " " + pairs.join(' ');
 }
 
-export var html = function html() {
-  var htmlRenderer = function htmlRenderer(name, props, children) {
-    var renderedChildren = typeof props[ELEMENT_PROP.INNER_HTML] === 'string' ? props[ELEMENT_PROP.INNER_HTML] : children.map(function (child) {
-      return child.isTextNode() ? htmlEncode(child.getText()) : child.render(htmlRenderer);
-    }).join('');
-    return "<" + name + propsToHTML(props) + ">" + renderedChildren + "</" + name + ">";
+export function html() {
+  var htmlRenderer = function htmlRenderer(node) {
+    if (node.type === NODE_TYPE.COMPONENT) {
+      return [].concat(node.renderComponent(htmlRenderer)).join('');
+    }
+
+    if (node.type === NODE_TYPE.ELEMENT) {
+      var renderedProps = propsToHTML(node.props);
+      var renderedChildren = typeof node.props[ELEMENT_PROP.INNER_HTML] === 'string' ? node.props[ELEMENT_PROP.INNER_HTML] : node.renderChildren(htmlRenderer).join('');
+      return "<" + node.name + renderedProps + ">" + renderedChildren + "</" + node.name + ">";
+    }
+
+    if (node.type === NODE_TYPE.TEXT) {
+      return htmlEncode(node.text);
+    }
+
+    throw new TypeError("Unhandleable node: " + node.type);
   };
 
   return htmlRenderer;
-};
+}
