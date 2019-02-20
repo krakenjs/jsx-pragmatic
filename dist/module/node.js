@@ -154,7 +154,7 @@ function normalizeChildren(children) {
         var subchild = _normalizeChildren2[_i8];
         result.push(subchild);
       }
-    } else if (child instanceof ElementNode || child instanceof TextNode || child instanceof ComponentNode) {
+    } else if (child && (child.type === NODE_TYPE.ELEMENT || child.type === NODE_TYPE.TEXT || child.type === NODE_TYPE.COMPONENT)) {
       result.push(child);
     } else {
       throw new TypeError("Unrecognized node type: " + typeof child);

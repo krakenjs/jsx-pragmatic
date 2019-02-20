@@ -81,7 +81,7 @@ function addProps(el, node) {
 var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = function (el, node) {
   var firstChild = node.children[0];
 
-  if (node.children.length !== 1 || !(firstChild instanceof ElementNode) || firstChild.name !== ELEMENT_TAG.HTML) {
+  if (node.children.length !== 1 || !(firstChild && firstChild.type === NODE_TYPE.ELEMENT) || firstChild.name !== ELEMENT_TAG.HTML) {
     throw new Error("Expected only single html element node as child of " + ELEMENT_TAG.IFRAME + " element");
   }
 
@@ -112,7 +112,7 @@ var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = func
 }, _ADD_CHILDREN[ELEMENT_TAG.SCRIPT] = function (el, node) {
   var firstChild = node.children[0];
 
-  if (node.children.length !== 1 || !(firstChild instanceof TextNode)) {
+  if (node.children.length !== 1 || !(firstChild && firstChild.type === NODE_TYPE.TEXT)) {
     throw new Error("Expected only single text node as child of " + ELEMENT_TAG.SCRIPT + " element");
   } // $FlowFixMe
 

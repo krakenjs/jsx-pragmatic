@@ -115,7 +115,7 @@
             for (var result = [], _i6 = 0; _i6 < children.length; _i6++) {
                 var child = children[_i6];
                 if (child) if ("string" == typeof child) result.push(new node_TextNode(child)); else if (Array.isArray(child)) for (var _i8 = 0, _normalizeChildren2 = normalizeChildren(child); _i8 < _normalizeChildren2.length; _i8++) result.push(_normalizeChildren2[_i8]); else {
-                    if (!(child instanceof node_ElementNode || child instanceof node_TextNode || child instanceof node_ComponentNode)) throw new TypeError("Unrecognized node type: " + typeof child);
+                    if (!child || child.type !== NODE_TYPE.ELEMENT && child.type !== NODE_TYPE.TEXT && child.type !== NODE_TYPE.COMPONENT) throw new TypeError("Unrecognized node type: " + typeof child);
                     result.push(child);
                 }
             }
@@ -141,7 +141,7 @@
             EL: "el"
         }, ADD_CHILDREN = ((_ADD_CHILDREN = {})[ELEMENT_TAG.IFRAME] = function(el, node) {
             var firstChild = node.children[0];
-            if (1 !== node.children.length || !(firstChild instanceof node_ElementNode) || firstChild.name !== ELEMENT_TAG.HTML) throw new Error("Expected only single html element node as child of " + ELEMENT_TAG.IFRAME + " element");
+            if (1 !== node.children.length || !firstChild || firstChild.type !== NODE_TYPE.ELEMENT || firstChild.name !== ELEMENT_TAG.HTML) throw new Error("Expected only single html element node as child of " + ELEMENT_TAG.IFRAME + " element");
             el.addEventListener("load", function() {
                 var win = el.contentWindow;
                 if (!win) throw new Error("Expected frame to have contentWindow");
@@ -152,7 +152,7 @@
             });
         }, _ADD_CHILDREN[ELEMENT_TAG.SCRIPT] = function(el, node) {
             var firstChild = node.children[0];
-            if (1 !== node.children.length || !(firstChild instanceof node_TextNode)) throw new Error("Expected only single text node as child of " + ELEMENT_TAG.SCRIPT + " element");
+            if (1 !== node.children.length || !firstChild || firstChild.type !== NODE_TYPE.TEXT) throw new Error("Expected only single text node as child of " + ELEMENT_TAG.SCRIPT + " element");
             el.text = firstChild.text;
         }, _ADD_CHILDREN[ELEMENT_TAG.DEFAULT] = function(el, node, renderer) {
             for (var _i6 = 0, _node$renderChildren2 = node.renderChildren(renderer); _i6 < _node$renderChildren2.length; _i6++) el.appendChild(_node$renderChildren2[_i6]);
