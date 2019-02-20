@@ -150,7 +150,7 @@ function normalizeChildren(children : NullableChildrenType) : $ReadOnlyArray<Ele
             for (const subchild of normalizeChildren(child)) {
                 result.push(subchild);
             }
-        } else if (child instanceof ElementNode || child instanceof TextNode || child instanceof ComponentNode) {
+        } else if (child && (child.type === NODE_TYPE.ELEMENT || child.type === NODE_TYPE.TEXT || child.type === NODE_TYPE.COMPONENT)) {
             result.push(child);
     
         } else {
