@@ -201,6 +201,15 @@
                 throw new TypeError("Unhandleable node");
             };
         }
+        function _extends() {
+            return (_extends = Object.assign || function(target) {
+                for (var i = 1; i < arguments.length; i++) {
+                    var source = arguments[i];
+                    for (var key in source) ({}).hasOwnProperty.call(source, key) && (target[key] = source[key]);
+                }
+                return target;
+            }).apply(this, arguments);
+        }
         function react(_temp) {
             var React = (void 0 === _temp ? {} : _temp).React;
             if (!React) throw new Error("Must pass React library to react renderer");
@@ -208,7 +217,18 @@
                 if (node.type === NODE_TYPE.COMPONENT) return React.createElement.apply(React, [ function() {
                     return node.renderComponent(reactRenderer) || null;
                 }, node.props ].concat(node.renderChildren(reactRenderer)));
-                if (node.type === NODE_TYPE.ELEMENT) return React.createElement.apply(React, [ node.name, node.props ].concat(node.renderChildren(reactRenderer)));
+                if (node.type === NODE_TYPE.ELEMENT) return React.createElement.apply(React, [ node.name, (props = node.props, 
+                innerHTML = props.innerHTML, _extends({
+                    dangerouslySetInnerHTML: innerHTML ? {
+                        __html: innerHTML
+                    } : null
+                }, function(source, excluded) {
+                    if (null == source) return {};
+                    var key, i, target = {}, sourceKeys = Object.keys(source);
+                    for (i = 0; i < sourceKeys.length; i++) excluded.indexOf(key = sourceKeys[i]) >= 0 || (target[key] = source[key]);
+                    return target;
+                }(props, [ "innerHTML" ]))) ].concat(node.renderChildren(reactRenderer)));
+                var props, innerHTML;
                 if (node.type === NODE_TYPE.TEXT) return node.text;
                 throw new TypeError("Unhandleable node");
             };
