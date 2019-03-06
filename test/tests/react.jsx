@@ -331,4 +331,39 @@ describe('react renderer cases', () => {
             throw new Error(`Expected React.createElement to be called with an element component`);
         }
     });
+
+    it('should render a basic element as a React element with innerHTML', () => {
+
+        const html = `div: { color: red }`;
+
+        const jsxNode = (
+            <style innerHTML={ html } />
+        );
+
+        let createElementCalled = false;
+
+        const React = {
+            createElement: (name, props) => {
+                createElementCalled = true;
+
+                if (name !== 'style') {
+                    throw new Error(`Expected React tag name to be style, got ${ name }`);
+                }
+
+                if (!props.dangerouslySetInnerHTML || props.dangerouslySetInnerHTML.__html !== html) {
+                    throw new Error(`Expected prop props.dangerouslySetInnerHTML.__html to be '${ html }', got ${ JSON.stringify(props.dangerouslySetInnerHTML) }`);
+                }
+
+                if (props.innerHTML) {
+                    throw new Error(`Expected innerHTML to not be passed`);
+                }
+            }
+        };
+
+        jsxNode.render(react({ React }));
+
+        if (!createElementCalled) {
+            throw new Error(`Expected React.createElement to be called`);
+        }
+    });
 });

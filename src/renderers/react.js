@@ -2,7 +2,7 @@
 
 import type { Node } from 'react'; // eslint-disable-line import/no-unresolved
 
-import { ComponentNode, TextNode, ElementNode, type NodeRenderer } from '../node';
+import { ComponentNode, TextNode, ElementNode, type NodeRenderer, type NodePropsType } from '../node';
 import { NODE_TYPE } from '../constants';
 
 type ReactType = {|
@@ -10,6 +10,19 @@ type ReactType = {|
 |};
 
 type ReactRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<*>, Node | string | null>;
+
+function mapReactProps(props : NodePropsType) : NodePropsType {
+    const { innerHTML, ...remainingProps } = props;
+
+    const dangerouslySetInnerHTML = innerHTML
+        ? { __html: innerHTML }
+        : null;
+
+    return {
+        dangerouslySetInnerHTML,
+        ...remainingProps
+    };
+}
 
 export function react({ React } : { React : ReactType } = {}) : ReactRenderer {
     if (!React) {
@@ -22,7 +35,7 @@ export function react({ React } : { React : ReactType } = {}) : ReactRenderer {
         }
         
         if (node.type === NODE_TYPE.ELEMENT) {
-            return React.createElement(node.name, node.props, ...node.renderChildren(reactRenderer));
+            return React.createElement(node.name, mapReactProps(node.props), ...node.renderChildren(reactRenderer));
         }
         
         if (node.type === NODE_TYPE.TEXT) {
