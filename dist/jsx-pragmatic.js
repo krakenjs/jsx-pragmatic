@@ -235,6 +235,8 @@
         }
         var html_ELEMENT_PROP = {
             INNER_HTML: "innerHTML"
+        }, SELF_CLOSING_TAGS = {
+            br: !0
         };
         function htmlEncode(text) {
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\//g, "&#x2F;");
@@ -251,7 +253,9 @@
                         if (!0 === val) return "" + htmlEncode(key);
                         if ("string" != typeof val && "number" != typeof val) throw new TypeError("Unexpected prop type: " + typeof val);
                         return htmlEncode(key) + '="' + htmlEncode(val.toString()) + '"';
-                    }).join(" ") : ""), renderedChildren = "string" == typeof node.props[html_ELEMENT_PROP.INNER_HTML] ? node.props[html_ELEMENT_PROP.INNER_HTML] : node.renderChildren(htmlRenderer).join("");
+                    }).join(" ") : "");
+                    if (SELF_CLOSING_TAGS[node.name]) return "<" + node.name + renderedProps + " />";
+                    var renderedChildren = "string" == typeof node.props[html_ELEMENT_PROP.INNER_HTML] ? node.props[html_ELEMENT_PROP.INNER_HTML] : node.renderChildren(htmlRenderer).join("");
                     return "<" + node.name + renderedProps + ">" + renderedChildren + "</" + node.name + ">";
                 }
                 var props, keys;

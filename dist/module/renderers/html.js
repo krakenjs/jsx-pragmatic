@@ -3,6 +3,9 @@ import { NODE_TYPE } from '../constants';
 var ELEMENT_PROP = {
   INNER_HTML: 'innerHTML'
 };
+var SELF_CLOSING_TAGS = {
+  br: true
+};
 
 function htmlEncode(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\//g, '&#x2F;');
@@ -55,8 +58,13 @@ export function html() {
 
     if (node.type === NODE_TYPE.ELEMENT) {
       var renderedProps = propsToHTML(node.props);
-      var renderedChildren = typeof node.props[ELEMENT_PROP.INNER_HTML] === 'string' ? node.props[ELEMENT_PROP.INNER_HTML] : node.renderChildren(htmlRenderer).join('');
-      return "<" + node.name + renderedProps + ">" + renderedChildren + "</" + node.name + ">";
+
+      if (SELF_CLOSING_TAGS[node.name]) {
+        return "<" + node.name + renderedProps + " />";
+      } else {
+        var renderedChildren = typeof node.props[ELEMENT_PROP.INNER_HTML] === 'string' ? node.props[ELEMENT_PROP.INNER_HTML] : node.renderChildren(htmlRenderer).join('');
+        return "<" + node.name + renderedProps + ">" + renderedChildren + "</" + node.name + ">";
+      }
     }
 
     if (node.type === NODE_TYPE.TEXT) {
