@@ -226,4 +226,20 @@ describe('html renderer cases', () => {
             throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
         }
     });
+
+    it('should treat <br> as a self-closing tag', () => {
+
+        const bar = 'baz';
+
+        const jsxNode = (
+            <button foo={ bar }>click<br />me</button>
+        );
+
+        const htmlString = jsxNode.render(html());
+        const htmlExpected = `<button foo="baz">click<br />me</button>`;
+
+        if (htmlString !== htmlExpected) {
+            throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);
+        }
+    });
 });

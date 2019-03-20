@@ -9,6 +9,10 @@ const ELEMENT_PROP = {
     INNER_HTML: 'innerHTML'
 };
 
+const SELF_CLOSING_TAGS = {
+    br: true
+};
+
 function htmlEncode(text : string) : string {
     return text
         .replace(/&/g, '&amp;')
@@ -69,10 +73,16 @@ export function html() : HTMLRenderer {
         
         if (node.type === NODE_TYPE.ELEMENT) {
             const renderedProps = propsToHTML(node.props);
-            const renderedChildren = (typeof node.props[ELEMENT_PROP.INNER_HTML] === 'string')
-                ? node.props[ELEMENT_PROP.INNER_HTML]
-                : node.renderChildren(htmlRenderer).join('');
-            return `<${ node.name }${ renderedProps }>${ renderedChildren }</${ node.name }>`;
+
+            if (SELF_CLOSING_TAGS[node.name]) {
+                return `<${ node.name }${ renderedProps } />`;
+            } else {
+                const renderedChildren = (typeof node.props[ELEMENT_PROP.INNER_HTML] === 'string')
+                    ? node.props[ELEMENT_PROP.INNER_HTML]
+                    : node.renderChildren(htmlRenderer).join('');
+                    
+                return `<${ node.name }${ renderedProps }>${ renderedChildren }</${ node.name }>`;
+            }
         }
         
         if (node.type === NODE_TYPE.TEXT) {
