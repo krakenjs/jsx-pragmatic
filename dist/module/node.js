@@ -81,7 +81,7 @@ function () {
   var _proto2 = FragmentNode.prototype;
 
   _proto2.render = function render(renderer) {
-    return this.children.map(renderer);
+    return _renderChildren(this.children, renderer);
   };
 
   return FragmentNode;

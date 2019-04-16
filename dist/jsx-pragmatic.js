@@ -84,7 +84,7 @@
                 this.type = NODE_TYPE.FRAGMENT, this.children = void 0, this.children = children;
             }
             return FragmentNode.prototype.render = function(renderer) {
-                return this.children.map(renderer);
+                return _renderChildren(this.children, renderer);
             }, FragmentNode;
         }(), node_TextNode = function() {
             function TextNode(text) {
