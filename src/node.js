@@ -89,7 +89,7 @@ export class FragmentNode {
     }
 
     render<T>(renderer : NodeRenderer<*, *>) : $ReadOnlyArray<T> {
-        return this.children.map(renderer);
+        return renderChildren(this.children, renderer);
     }
 }
 
