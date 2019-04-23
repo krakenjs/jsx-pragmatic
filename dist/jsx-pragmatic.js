@@ -172,10 +172,7 @@
                     return function(el, node) {
                         for (var props = node.props, _i4 = 0, _Object$keys2 = Object.keys(props); _i4 < _Object$keys2.length; _i4++) {
                             var prop = _Object$keys2[_i4], val = props[prop];
-                            if (null != val && prop !== ELEMENT_PROP.EL && prop !== ELEMENT_PROP.INNER_HTML) if (prop.match(/^on[A-Z][a-z]/) && "function" == typeof val) el.addEventListener(prop.slice(2).toLowerCase(), val); else if ("string" == typeof val || "number" == typeof val) el.setAttribute(prop, val.toString()); else {
-                                if ("boolean" != typeof val) throw new TypeError("Can not render prop " + prop + " of type " + typeof val);
-                                !0 === val && el.setAttribute(prop, "");
-                            }
+                            null != val && prop !== ELEMENT_PROP.EL && prop !== ELEMENT_PROP.INNER_HTML && (prop.match(/^on[A-Z][a-z]/) && "function" == typeof val ? el.addEventListener(prop.slice(2).toLowerCase(), val) : "string" == typeof val || "number" == typeof val ? el.setAttribute(prop, val.toString()) : "boolean" == typeof val && !0 === val && el.setAttribute(prop, ""));
                         }
                         el.tagName.toLowerCase() !== ELEMENT_TAG.IFRAME || props.id || el.setAttribute(ELEMENT_PROP.ID, "jsx-iframe-" + "xxxxxxxxxx".replace(/./g, function() {
                             return ALPHA_CHARS.charAt(Math.floor(Math.random() * ALPHA_CHARS.length));
