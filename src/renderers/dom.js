@@ -70,9 +70,6 @@ function addProps(el : HTMLElement, node) {
             if (val === true) {
                 el.setAttribute(prop, '');
             }
-
-        } else {
-            throw new TypeError(`Can not render prop ${ prop } of type ${ typeof val }`);
         }
     }
 

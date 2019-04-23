@@ -241,26 +241,7 @@ describe('dom renderer cases', () => {
             throw new Error(`Expected error to be thrown`);
         }
     });
-
-    it('should error when a object is passed as a prop', () => {
-
-        const jsxNode = (
-            <button beep={ { hello: 'world' } }>click me</button>
-        );
-
-        let error;
-
-        try {
-            jsxNode.render(dom());
-        } catch (err) {
-            error = err;
-        }
-
-        if (!error) {
-            throw new Error(`Expected error to be thrown`);
-        }
-    });
-
+    
     it('should render an element with a script tag', () => {
 
         window.scriptTagRun = false;
