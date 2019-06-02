@@ -177,10 +177,12 @@ export const node : CreateNode<*> = (element, props, ...children) => {
     children = normalizeChildren(children);
 
     if (typeof element === 'string') {
+        // $FlowFixMe
         return new ElementNode(element, props, children);
     }
     
     if (typeof element === 'function') {
+        // $FlowFixMe
         return new ComponentNode(element, props, children);
     }
 
