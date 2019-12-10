@@ -5,14 +5,14 @@ import type { Node } from 'react'; // eslint-disable-line import/no-unresolved
 import { ComponentNode, TextNode, ElementNode, type NodeRenderer, type NodePropsType } from '../node';
 import { NODE_TYPE } from '../constants';
 
-type ReactType = {|
-    createElement : Function
+type PreactType = {|
+    h : Function
 |};
 
-type ReactRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<*>, Node | string | null>;
+type PreactRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<*>, Node | string | null>;
 
-function mapReactProps(props : NodePropsType) : NodePropsType {
-    const { innerHTML, class: className, ...remainingProps } = props;
+function mapPreactProps(props : NodePropsType) : NodePropsType {
+    const { innerHTML, ...remainingProps } = props;
 
     const dangerouslySetInnerHTML = innerHTML
         ? { __html: innerHTML }
@@ -20,23 +20,22 @@ function mapReactProps(props : NodePropsType) : NodePropsType {
 
     return {
         dangerouslySetInnerHTML,
-        className,
         ...remainingProps
     };
 }
 
-export function react({ React } : { React : ReactType } = {}) : ReactRenderer {
-    if (!React) {
-        throw new Error(`Must pass React library to react renderer`);
+export function preact({ Preact } : { Preact : PreactType } = {}) : PreactRenderer {
+    if (!Preact) {
+        throw new Error(`Must pass Preact library to react renderer`);
     }
     
     const reactRenderer = (node) => {
         if (node.type === NODE_TYPE.COMPONENT) {
-            return React.createElement(() => (node.renderComponent(reactRenderer) || null), node.props, ...node.renderChildren(reactRenderer));
+            return Preact.h(() => (node.renderComponent(reactRenderer) || null), node.props, ...node.renderChildren(reactRenderer));
         }
         
         if (node.type === NODE_TYPE.ELEMENT) {
-            return React.createElement(node.name, mapReactProps(node.props), ...node.renderChildren(reactRenderer));
+            return Preact.h(node.name, mapPreactProps(node.props), ...node.renderChildren(reactRenderer));
         }
         
         if (node.type === NODE_TYPE.TEXT) {
