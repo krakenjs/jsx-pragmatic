@@ -1,6 +1,6 @@
 {
   "name": "jsx-pragmatic",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "Javascript module template.",
   "main": "index.js",
   "scripts": {
