@@ -35,7 +35,7 @@ function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
     }
 
     // $FlowFixMe
-    const children : $ReadOnlyArray<HTMLElement | Text> = Array.from(domNode.childNodes).filter(child => { // eslint-disable-line unicorn/prefer-spread
+    const children : $ReadOnlyArray<HTMLElement | Text> = Array.from(domNode.childNodes).filter(child => { // eslint-disable-line unicorn/prefer-spread, compat/compat
         return child.nodeType === Node.ELEMENT_NODE || child.nodeType === Node.TEXT_NODE;
     });
 
