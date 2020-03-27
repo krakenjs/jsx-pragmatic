@@ -65,10 +65,11 @@ function propsToHTML(props : NodePropsType) : string {
 }
 
 export function html(opts? : { transform?: (node: any) => any } = {}) : HTMLRenderer {
+    const { transform } = opts;
 
     const htmlRenderer = (node) => {
-        if (opts && opts.transform) {
-            node = opts.transform(node);
+        if (transform) {
+            node = transform(node);
         }
 
         if (node.type === NODE_TYPE.COMPONENT) {

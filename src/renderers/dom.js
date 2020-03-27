@@ -157,11 +157,11 @@ function addChildren(el : HTMLElement, node : ElementNode, doc : Document, rende
 }
 
 export function dom(opts? : { doc? : Document, transform?: (node: any) => any } = {}) : DomRenderer {
-    const { doc = document } = opts;
+    const { doc = document, transform } = opts;
     
     const domRenderer : DomRenderer = (node) => {
-        if (opts && opts.transform) {
-            node = opts.transform(node);
+        if (transform) {
+            node = transform(node);
         }
 
         if (node.type === NODE_TYPE.COMPONENT) {
