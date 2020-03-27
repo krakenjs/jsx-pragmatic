@@ -25,12 +25,16 @@ function mapReactProps(props : NodePropsType) : NodePropsType {
     };
 }
 
-export function react({ React } : { React : ReactType } = {}) : ReactRenderer {
+export function react({ React, transform } : { React : ReactType, transform?: (node: any) => any } = {}) : ReactRenderer {
     if (!React) {
         throw new Error(`Must pass React library to react renderer`);
     }
     
     const reactRenderer = (node) => {
+        if (transform) {
+            node = transform(node);
+        }
+
         if (node.type === NODE_TYPE.COMPONENT) {
             return React.createElement(() => (node.renderComponent(reactRenderer) || null), node.props, ...node.renderChildren(reactRenderer));
         }

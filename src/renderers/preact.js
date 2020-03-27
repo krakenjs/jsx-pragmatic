@@ -24,12 +24,16 @@ function mapPreactProps(props : NodePropsType) : NodePropsType {
     };
 }
 
-export function preact({ Preact } : { Preact : PreactType } = {}) : PreactRenderer {
+export function preact({ Preact, transform } : { Preact : PreactType, transform?: (node: any) => any } = {}) : PreactRenderer {
     if (!Preact) {
         throw new Error(`Must pass Preact library to react renderer`);
     }
     
     const reactRenderer = (node) => {
+        if (transform) {
+            node = transform(node);
+        }
+
         if (node.type === NODE_TYPE.COMPONENT) {
             return Preact.h(() => (node.renderComponent(reactRenderer) || null), node.props, ...node.renderChildren(reactRenderer));
         }

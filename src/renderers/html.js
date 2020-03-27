@@ -64,9 +64,13 @@ function propsToHTML(props : NodePropsType) : string {
     return ` ${ pairs.join(' ') }`;
 }
 
-export function html() : HTMLRenderer {
+export function html(opts? : { transform?: (node: any) => any } = {}) : HTMLRenderer {
 
     const htmlRenderer = (node) => {
+        if (opts && opts.transform) {
+            node = opts.transform(node);
+        }
+
         if (node.type === NODE_TYPE.COMPONENT) {
             return [].concat(node.renderComponent(htmlRenderer)).join('');
         }
