@@ -24,15 +24,10 @@ function htmlEncode(text : string) : string {
 }
 
 function propsToHTML(props : NodePropsType) : string {
-
     const keys = Object.keys(props).filter(key => {
         const val = props[key];
 
         if (key === ELEMENT_PROP.INNER_HTML) {
-            return false;
-        }
-
-        if (!val) {
             return false;
         }
 
@@ -58,6 +53,10 @@ function propsToHTML(props : NodePropsType) : string {
             throw new TypeError(`Unexpected prop type: ${ typeof val }`);
         }
 
+        if (val === '') {
+            return htmlEncode(key);
+        }
+
         return `${ htmlEncode(key) }="${ htmlEncode(val.toString()) }"`;
     });
 
@@ -80,7 +79,7 @@ export function html() : HTMLRenderer {
                 const renderedChildren = (typeof node.props[ELEMENT_PROP.INNER_HTML] === 'string')
                     ? node.props[ELEMENT_PROP.INNER_HTML]
                     : node.renderChildren(htmlRenderer).join('');
-                    
+
                 return `<${ node.name }${ renderedProps }>${ renderedChildren }</${ node.name }>`;
             }
         }

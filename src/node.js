@@ -190,9 +190,5 @@ export const node : CreateNode<*> = (element, props, ...children) => {
 };
 
 export const Fragment : ComponentFunctionType<EmptyProps> = (props : NodePropsType, children : ChildrenType) : NullableChildType => {
-    if (props && Object.keys(props).length) {
-        throw new Error(`Do not pass props to Fragment`);
-    }
-
     return children;
 };
