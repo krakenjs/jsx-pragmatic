@@ -22,6 +22,7 @@ describe('basic node cases', () => {
             // $FlowFixMe
             <>
                 <div />
+                <div />
             </>
         );
 
@@ -296,20 +297,9 @@ describe('node render cases', () => {
         }
     });
 
-    it('should error out when passing props to a fragment', () => {
-
-        let error;
-        const jsxNode = <Fragment foo="bar"><div /></Fragment>;
-
-        try {
-            jsxNode.render(objectRenderer);
-        } catch (err) {
-            error = err;
-        }
-
-        if (!error) {
-            throw new Error(`Expected error to be thrown`);
-        }
+    it('should not error out when passing props to a fragment', () => {
+        const jsxNode = <Fragment foo="bar"><div /><div /></Fragment>;
+        jsxNode.render(objectRenderer);
     });
 
     it('should error out when trying to render an unexpected object', () => {

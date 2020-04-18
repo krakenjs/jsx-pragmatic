@@ -1,7 +1,5 @@
 /* @flow */
 
-import type { Node } from 'react'; // eslint-disable-line import/no-unresolved
-
 import { ComponentNode, TextNode, ElementNode, type NodeRenderer, type NodePropsType } from '../node';
 import { NODE_TYPE } from '../constants';
 
@@ -9,7 +7,9 @@ type PreactType = {|
     h : Function
 |};
 
-type PreactRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<*>, Node | string | null>;
+type PreactNode = {||};
+
+type PreactRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<*>, PreactNode | string | null>;
 
 function mapPreactProps(props : NodePropsType) : NodePropsType {
     const { innerHTML, ...remainingProps } = props;
@@ -24,7 +24,7 @@ function mapPreactProps(props : NodePropsType) : NodePropsType {
     };
 }
 
-export function preact({ Preact } : { Preact : PreactType } = {}) : PreactRenderer {
+export function preact({ Preact } : {| Preact : PreactType |} = {}) : PreactRenderer {
     if (!Preact) {
         throw new Error(`Must pass Preact library to react renderer`);
     }

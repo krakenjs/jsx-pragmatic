@@ -13,7 +13,6 @@ const ELEMENT_TAG = {
     HTML:    'html',
     IFRAME:  'iframe',
     SCRIPT:  'script',
-    NODE:    'node',
     DEFAULT: 'default'
 };
 
@@ -156,7 +155,16 @@ function addChildren(el : HTMLElement, node : ElementNode, doc : Document, rende
     }
 }
 
-export function dom(opts? : { doc? : Document } = {}) : DomRenderer {
+type DomOptions = {|
+    doc? : Document
+|};
+
+const getDefaultDomOptions = () : DomOptions => {
+    // $FlowFixMe
+    return {};
+};
+
+export function dom(opts? : DomOptions = getDefaultDomOptions()) : DomRenderer {
     const { doc = document } = opts;
     
     const domRenderer : DomRenderer = (node) => {

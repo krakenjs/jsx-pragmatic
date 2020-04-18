@@ -1,6 +1,6 @@
 /* @flow */
 
-import type { Node } from 'react'; // eslint-disable-line import/no-unresolved
+import type { Node } from 'react';
 
 import { ComponentNode, TextNode, ElementNode, type NodeRenderer, type NodePropsType } from '../node';
 import { NODE_TYPE } from '../constants';
@@ -25,7 +25,7 @@ function mapReactProps(props : NodePropsType) : NodePropsType {
     };
 }
 
-export function react({ React } : { React : ReactType } = {}) : ReactRenderer {
+export function react({ React } : {| React : ReactType |} = {}) : ReactRenderer {
     if (!React) {
         throw new Error(`Must pass React library to react renderer`);
     }

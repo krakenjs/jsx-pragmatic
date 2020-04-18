@@ -1,6 +1,7 @@
 /* @flow */
 /** @jsx node */
 /** @jsxFrag Fragment */
+/* eslint react/jsx-no-useless-fragment: off */
 
 import { node, html, Fragment } from '../../src'; // eslint-disable-line no-unused-vars
 
@@ -35,7 +36,7 @@ describe('html renderer cases', () => {
         );
 
         const htmlString = jsxNode.render(html());
-        const htmlExpected = `<section>This is some text<p n="1" hello></p><button foo="baz">click me</button></section>`;
+        const htmlExpected = `<section>This is some text<p n="1" hello></p><button foo="baz" baz>click me</button></section>`;
 
         if (htmlString !== htmlExpected) {
             throw new Error(`Expected:\n\n${ htmlExpected }\n\nActual:\n\n${ htmlString }\n`);

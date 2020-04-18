@@ -283,7 +283,7 @@ describe('dom renderer cases', () => {
                     </script>
                 </p>
                 <script>
-                        window.scriptTagRunCount += 1;
+                    window.scriptTagRunCount += 1;
                 </script>
             </section>
         );
