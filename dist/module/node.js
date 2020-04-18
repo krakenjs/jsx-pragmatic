@@ -26,9 +26,7 @@ function _renderChildren(children, renderer) {
   return result;
 }
 
-export var ElementNode =
-/*#__PURE__*/
-function () {
+export var ElementNode = /*#__PURE__*/function () {
   // eslint-disable-line no-use-before-define
   // eslint-disable-line no-undef
   function ElementNode(name, props, children) {
@@ -67,9 +65,7 @@ function () {
 
   return ElementNode;
 }();
-export var FragmentNode =
-/*#__PURE__*/
-function () {
+export var FragmentNode = /*#__PURE__*/function () {
   // eslint-disable-line no-use-before-define
   function FragmentNode(children) {
     this.type = NODE_TYPE.FRAGMENT;
@@ -86,9 +82,7 @@ function () {
 
   return FragmentNode;
 }();
-export var TextNode =
-/*#__PURE__*/
-function () {
+export var TextNode = /*#__PURE__*/function () {
   function TextNode(text) {
     this.type = NODE_TYPE.TEXT;
     this.text = void 0;
@@ -103,9 +97,7 @@ function () {
 
   return TextNode;
 }();
-export var ComponentNode =
-/*#__PURE__*/
-function () {
+export var ComponentNode = /*#__PURE__*/function () {
   function ComponentNode(component, props, children) {
     this.type = NODE_TYPE.COMPONENT;
     this.component = void 0;
@@ -196,9 +188,5 @@ export var node = function node(element, props) {
   throw new TypeError("Expected jsx element to be a string or a function");
 };
 export var Fragment = function Fragment(props, children) {
-  if (props && Object.keys(props).length) {
-    throw new Error("Do not pass props to Fragment");
-  }
-
   return children;
 };

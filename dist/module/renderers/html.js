@@ -19,10 +19,6 @@ function propsToHTML(props) {
       return false;
     }
 
-    if (!val) {
-      return false;
-    }
-
     if (typeof val === 'string' || typeof val === 'number' || val === true) {
       return true;
     }
@@ -43,6 +39,10 @@ function propsToHTML(props) {
 
     if (typeof val !== 'string' && typeof val !== 'number') {
       throw new TypeError("Unexpected prop type: " + typeof val);
+    }
+
+    if (val === '') {
+      return htmlEncode(key);
     }
 
     return htmlEncode(key) + "=\"" + htmlEncode(val.toString()) + "\"";

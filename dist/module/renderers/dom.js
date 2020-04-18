@@ -7,7 +7,6 @@ var ELEMENT_TAG = {
   HTML: 'html',
   IFRAME: 'iframe',
   SCRIPT: 'script',
-  NODE: 'node',
   DEFAULT: 'default'
 };
 var ELEMENT_PROP = {
@@ -148,9 +147,14 @@ function addChildren(el, node, doc, renderer) {
   }
 }
 
+var getDefaultDomOptions = function getDefaultDomOptions() {
+  // $FlowFixMe
+  return {};
+};
+
 export function dom(opts) {
   if (opts === void 0) {
-    opts = {};
+    opts = getDefaultDomOptions();
   }
 
   var _opts = opts,
