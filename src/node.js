@@ -144,15 +144,14 @@ function normalizeChildren(children : NullableChildrenType) : $ReadOnlyArray<Ele
     for (const child of children) {
         if (!child) {
             continue;
-        } else if (typeof child === 'string') {
-            result.push(new TextNode(child));
+        } else if (typeof child === 'string' || typeof child === 'number') {
+            result.push(new TextNode(`${ child }`));
         } else if (Array.isArray(child)) {
             for (const subchild of normalizeChildren(child)) {
                 result.push(subchild);
             }
         } else if (child && (child.type === NODE_TYPE.ELEMENT || child.type === NODE_TYPE.TEXT || child.type === NODE_TYPE.COMPONENT)) {
             result.push(child);
-    
         } else {
             throw new TypeError(`Unrecognized node type: ${ typeof child }`);
         }
