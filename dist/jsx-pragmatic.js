@@ -194,9 +194,12 @@
             var result = [];
             for (var _i6 = 0; _i6 < children.length; _i6++) {
                 var child = children[_i6];
-                if (child) if ("string" == typeof child || "number" == typeof child) result.push(new node_TextNode("" + child)); else if (Array.isArray(child)) for (var _i8 = 0, _normalizeChildren2 = normalizeChildren(child); _i8 < _normalizeChildren2.length; _i8++) result.push(_normalizeChildren2[_i8]); else {
-                    if (!child || child.type !== NODE_TYPE.ELEMENT && child.type !== NODE_TYPE.TEXT && child.type !== NODE_TYPE.COMPONENT) throw new TypeError("Unrecognized node type: " + typeof child);
-                    result.push(child);
+                if (child) if ("string" == typeof child || "number" == typeof child) result.push(new node_TextNode("" + child)); else {
+                    if ("boolean" == typeof child) continue;
+                    if (Array.isArray(child)) for (var _i8 = 0, _normalizeChildren2 = normalizeChildren(child); _i8 < _normalizeChildren2.length; _i8++) result.push(_normalizeChildren2[_i8]); else {
+                        if (!child || child.type !== NODE_TYPE.ELEMENT && child.type !== NODE_TYPE.TEXT && child.type !== NODE_TYPE.COMPONENT) throw new TypeError("Unrecognized node type: " + typeof child);
+                        result.push(child);
+                    }
                 }
             }
             return result;

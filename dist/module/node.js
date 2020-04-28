@@ -141,6 +141,8 @@ function normalizeChildren(children) {
       continue;
     } else if (typeof child === 'string' || typeof child === 'number') {
       result.push(new TextNode("" + child));
+    } else if (typeof child === 'boolean') {
+      continue;
     } else if (Array.isArray(child)) {
       for (var _i8 = 0, _normalizeChildren2 = normalizeChildren(child); _i8 < _normalizeChildren2.length; _i8++) {
         var subchild = _normalizeChildren2[_i8];
