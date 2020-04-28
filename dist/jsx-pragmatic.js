@@ -366,11 +366,11 @@
                 throw new TypeError("Unhandleable node");
             };
         }
-        function Style(_ref) {
+        function Style(_ref, children) {
             var css = _ref.css;
-            return node_node("style", {
+            return node_node(Fragment, null, node_node("style", {
                 innerHTML: "string" == typeof css ? css : css._getCss()
-            });
+            }), children);
         }
     } ]);
 }));

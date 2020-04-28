@@ -1,8 +1,8 @@
 /** @jsx node */
-import { node } from './node';
-export function Style(_ref) {
+import { Fragment, node } from './node';
+export function Style(_ref, children) {
   var css = _ref.css;
-  return node("style", {
+  return node(Fragment, null, node("style", {
     innerHTML: typeof css === 'string' ? css : css._getCss()
-  });
+  }), children);
 }
