@@ -11,12 +11,15 @@ export type EmptyProps = {||};
 export type NodeRenderer<N, O> = (N) => O;
 export type NodeRendererFactory<L, N, O> = (L) => NodeRenderer<N, O>;
 
+type Primitive = string | boolean | number;
+type NullablePrimitive = Primitive | null | void;
+
 export type NodeType = ElementNode | TextNode | FragmentNode | ComponentNode<*>; // eslint-disable-line no-use-before-define
 export type ChildNodeType = ElementNode | TextNode | ComponentNode<*>; // eslint-disable-line no-use-before-define
-export type ChildType = ChildNodeType | string | $ReadOnlyArray<ChildType>;
+export type ChildType = ChildNodeType | Primitive | $ReadOnlyArray<ChildType>;
 export type ChildrenType = $ReadOnlyArray<ChildNodeType>;
-export type NullableChildType = $ReadOnlyArray<ChildType> | ChildNodeType | string | null | void;
-export type NullableChildrenType = $ReadOnlyArray<NullableChildrenType | ChildNodeType | string | null | void>;
+export type NullableChildType = $ReadOnlyArray<ChildType> | ChildNodeType | NullablePrimitive;
+export type NullableChildrenType = $ReadOnlyArray<NullableChildrenType | ChildNodeType | NullablePrimitive>;
 
 export type ComponentFunctionType<P> = (P, ChildrenType) => NullableChildType;
 
@@ -146,6 +149,8 @@ function normalizeChildren(children : NullableChildrenType) : $ReadOnlyArray<Ele
             continue;
         } else if (typeof child === 'string' || typeof child === 'number') {
             result.push(new TextNode(`${ child }`));
+        } else if (typeof child === 'boolean') {
+            continue;
         } else if (Array.isArray(child)) {
             for (const subchild of normalizeChildren(child)) {
                 result.push(subchild);
