@@ -5,7 +5,7 @@ import { Fragment, node, type ChildType, type ChildrenType } from './node';
 
 type StyleProps = {|
     css : string | {| _getCss : () => string |},
-    nonce : string
+    nonce : ?string
 |};
 
 export function Style({ css, nonce } : StyleProps, children? : ChildrenType) : ChildType {
