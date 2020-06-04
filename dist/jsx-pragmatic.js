@@ -370,9 +370,10 @@
             };
         }
         function Style(_ref, children) {
-            var css = _ref.css;
+            var css = _ref.css, nonce = _ref.nonce;
             return node_node(Fragment, null, node_node("style", {
-                innerHTML: "string" == typeof css ? css : css._getCss()
+                innerHTML: "string" == typeof css ? css : css._getCss(),
+                nonce: nonce
             }), children);
         }
     } ]);
