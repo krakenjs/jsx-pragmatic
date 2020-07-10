@@ -105,7 +105,7 @@ function customDom({ removeScriptTags = false } = {}) {
     }
 
     if (node.type === NODE_TYPE.ELEMENT) {
-      if (removeScriptTags && name === 'script') {
+      if (removeScriptTags && node.name === 'script') {
         return;
       }
 
