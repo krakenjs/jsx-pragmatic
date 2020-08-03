@@ -35,7 +35,7 @@ function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
     }
 
     // $FlowFixMe
-    const children : $ReadOnlyArray<HTMLElement | Text> = Array.from(domNode.childNodes).filter(child => { // eslint-disable-line unicorn/prefer-spread, compat/compat
+    const children : $ReadOnlyArray<HTMLElement | Text> = Array.from(domNode.childNodes).filter(child => { // eslint-disable-line unicorn/prefer-spread
         return child.nodeType === Node.ELEMENT_NODE || child.nodeType === Node.TEXT_NODE;
     });
 
@@ -369,7 +369,7 @@ describe('dom renderer cases', () => {
 
         const domNode = jsxNode.render(dom());
 
-        // eslint-disable-next-line compat/compat, no-restricted-globals, promise/no-native
+        // eslint-disable-next-line no-restricted-globals, promise/no-native
         const promise = new Promise((resolve, reject) => {
             domNode.addEventListener('load', () => {
                 try {
