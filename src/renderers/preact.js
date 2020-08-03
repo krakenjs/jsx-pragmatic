@@ -18,6 +18,7 @@ function mapPreactProps(props : NodePropsType) : NodePropsType {
         ? { __html: innerHTML }
         : null;
 
+    // $FlowFixMe
     return {
         dangerouslySetInnerHTML,
         ...remainingProps

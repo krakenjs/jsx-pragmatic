@@ -18,6 +18,7 @@ function mapReactProps(props : NodePropsType) : NodePropsType {
         ? { __html: innerHTML }
         : null;
 
+    // $FlowFixMe
     return {
         dangerouslySetInnerHTML,
         className,
