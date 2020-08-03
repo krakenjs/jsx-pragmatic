@@ -10,7 +10,8 @@ function mapReactProps(props) {
 
   var dangerouslySetInnerHTML = innerHTML ? {
     __html: innerHTML
-  } : null;
+  } : null; // $FlowFixMe
+
   return _extends({
     dangerouslySetInnerHTML: dangerouslySetInnerHTML,
     className: className
