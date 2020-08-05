@@ -80,7 +80,7 @@ function render() {
 
 #### Render in a Preact app
 
-Or if we're using the same component in React, we can render it as a React component:
+Or if we're using the same component in Preact, we can render it as a Preact component:
 
 ```javascript
 /* @jsx node */
