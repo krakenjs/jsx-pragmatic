@@ -78,6 +78,23 @@ function render() {
 }
 ```
 
+#### Render in a Preact app
+
+Or if we're using the same component in React, we can render it as a React component:
+
+```javascript
+/* @jsx node */
+
+import { node, preact } from 'jsx-pragmatic';
+import { Login } from './components'
+
+function render() {
+  return (
+    <Login prefilledEmail='foo@bar.com' />
+  ).render(preact({ Preact }));
+}
+```
+
 ### Write your own renderer
 
 Renderers are just functions!
