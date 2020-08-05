@@ -93,7 +93,7 @@ This example renders the jsx directly to DOM elements:
 import { node, NODE_TYPE } from 'jsx-pragmatic';
 import { Login } from './components'
 
-function customDom({ removeScriptTags = false } = {}) {
+function customDom({ removeScriptTags } = { removeScriptTags: false }) {
 
   let domRenderer = (node) => {
     if (node.type === NODE_TYPE.COMPONENT) {
@@ -133,7 +133,7 @@ Then when you're ready to use your renderer, just pass it into `.render()` and p
 function render() {
   return (
     <Login prefilledEmail='foo@bar.com' />
-  ).render(customDom({ stripScriptTags: true }));
+  ).render(customDom({ removeScriptTags: true }));
 }
 ```
 
