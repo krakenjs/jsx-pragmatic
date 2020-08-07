@@ -31,4 +31,12 @@ export const WEBPACK_CONFIG_TEST = getWebpackConfig({
     }
 });
 
-export default [ WEBPACK_CONFIG, WEBPACK_CONFIG_MIN ];
+export const WEBPACK_CONFIG_DEMO = getWebpackConfig({
+    entry:      './demo/dev/index.jsx',
+    filename:   `${ FILE_NAME }-demo.js`,
+    modulename: MODULE_NAME,
+    minify:     false
+});
+
+
+export default [ WEBPACK_CONFIG, WEBPACK_CONFIG_MIN, WEBPACK_CONFIG_DEMO ];

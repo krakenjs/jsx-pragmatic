@@ -1,7 +1,7 @@
 /* @flow */
 /** @jsx node */
 
-import { Fragment, node, type ChildType, type ChildrenType } from './node';
+import { Fragment, node, type ChildType, type ChildrenType } from '../node';
 
 type StyleProps = {|
     css : string | {| _getCss : () => string |},
