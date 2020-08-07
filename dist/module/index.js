@@ -1,4 +1,4 @@
 export * from './node';
 export * from './renderers';
 export * from './constants';
-export * from './components';
+export * from './component';

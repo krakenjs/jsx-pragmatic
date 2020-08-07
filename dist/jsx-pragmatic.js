@@ -80,6 +80,9 @@
         __webpack_require__.d(__webpack_exports__, "Fragment", (function() {
             return Fragment;
         }));
+        __webpack_require__.d(__webpack_exports__, "text", (function() {
+            return text_text;
+        }));
         __webpack_require__.d(__webpack_exports__, "dom", (function() {
             return dom;
         }));
@@ -92,11 +95,32 @@
         __webpack_require__.d(__webpack_exports__, "preact", (function() {
             return preact;
         }));
+        __webpack_require__.d(__webpack_exports__, "regex", (function() {
+            return regex;
+        }));
         __webpack_require__.d(__webpack_exports__, "NODE_TYPE", (function() {
             return NODE_TYPE;
         }));
         __webpack_require__.d(__webpack_exports__, "Style", (function() {
             return Style;
+        }));
+        __webpack_require__.d(__webpack_exports__, "Regex", (function() {
+            return Regex;
+        }));
+        __webpack_require__.d(__webpack_exports__, "RegexText", (function() {
+            return RegexText;
+        }));
+        __webpack_require__.d(__webpack_exports__, "RegexWord", (function() {
+            return RegexWord;
+        }));
+        __webpack_require__.d(__webpack_exports__, "RegexCharacters", (function() {
+            return RegexCharacters;
+        }));
+        __webpack_require__.d(__webpack_exports__, "RegexGroup", (function() {
+            return RegexGroup;
+        }));
+        __webpack_require__.d(__webpack_exports__, "RegexUnion", (function() {
+            return RegexUnion;
         }));
         var NODE_TYPE = {
             ELEMENT: "element",
@@ -215,6 +239,17 @@
         var Fragment = function(props, children) {
             return children;
         };
+        function text_text() {
+            return function textRenderer(node) {
+                if (node.type === NODE_TYPE.COMPONENT) return [].concat(node.renderComponent(textRenderer)).join("");
+                if (node.type === NODE_TYPE.ELEMENT) throw new Error("Text renderer does not support basic elements");
+                if (node.type === NODE_TYPE.TEXT) return node.text;
+                throw new TypeError("Unhandleable node: " + node.type);
+            };
+        }
+        function isDefined(val) {
+            return null != val;
+        }
         var _ADD_CHILDREN;
         var ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(el, node) {
             var firstChild = node.children[0];
@@ -369,12 +404,85 @@
                 throw new TypeError("Unhandleable node");
             };
         }
+        function regex() {
+            var regexRenderer = text_text();
+            return function(nodeInstance) {
+                return new RegExp(regexRenderer(nodeInstance));
+            };
+        }
+        regex.node = function(el, props) {
+            for (var _len = arguments.length, children = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) children[_key - 2] = arguments[_key];
+            var nodeInstance = node_node.apply(void 0, [ el, props ].concat(children));
+            return el.renderer ? nodeInstance.render(el.renderer()) : nodeInstance;
+        };
         function Style(_ref, children) {
             var css = _ref.css, nonce = _ref.nonce;
             return node_node(Fragment, null, node_node("style", {
                 innerHTML: "string" == typeof css ? css : css._getCss(),
                 nonce: nonce
             }), children);
+        }
+        var escapeRegex = function(text) {
+            return text.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
+        };
+        var regex_validateAndEscapeChildren = function(name, children) {
+            return (children = function(name, children) {
+                if (!children) throw new Error("Must pass children to " + name);
+                return children;
+            }(name, children)).map((function(child) {
+                return child.type === NODE_TYPE.TEXT ? new node_TextNode(escapeRegex(child.text)) : child;
+            }));
+        };
+        function Regex(_ref, children) {
+            var _ref$exact = _ref.exact, exact = void 0 === _ref$exact || _ref$exact;
+            children = regex_validateAndEscapeChildren("RegexGroup", children);
+            return exact ? [ "^" ].concat(children, [ "$" ]) : children;
+        }
+        Regex.renderer = regex;
+        function RegexText(props, children) {
+            return regex_validateAndEscapeChildren("RegexText", children);
+        }
+        function RegexWord(props, children) {
+            !function(name, children) {
+                if (children && children.length) throw new Error("Must not pass children to RegexWord");
+            }(0, children);
+            return "\\w+";
+        }
+        function RegexCharacters(props, children) {
+            return [ "[" ].concat(regex_validateAndEscapeChildren("RegexText", children), [ "]" ]);
+        }
+        function RegexGroup(_ref2, children) {
+            var repeat = _ref2.repeat, repeatMin = _ref2.repeatMin, repeatMax = _ref2.repeatMax, name = _ref2.name, _ref2$optional = _ref2.optional, optional = void 0 !== _ref2$optional && _ref2$optional, _ref2$capture = _ref2.capture, capture = void 0 === _ref2$capture || _ref2$capture, _ref2$union = _ref2.union, union = void 0 !== _ref2$union && _ref2$union;
+            children = regex_validateAndEscapeChildren("RegexGroup", children);
+            if (isDefined(repeat) && (isDefined(repeatMin) || isDefined(repeatMax))) throw new Error("repeat can not be used with repeatMin or repeatMax");
+            if (name && !capture) throw new Error("Named groups must be captured");
+            if (union) {
+                var _result = [];
+                for (var _i2 = 0, _children2 = children; _i2 < _children2.length; _i2++) {
+                    _result.push(_children2[_i2]);
+                    _result.push(new node_TextNode("|"));
+                }
+                _result.pop();
+                children = _result;
+            }
+            var result = [];
+            result.push(capture ? "(" : "(?:");
+            name && result.push("?<" + escapeRegex(name) + ">");
+            result.push.apply(result, children);
+            result.push(")");
+            isDefined(repeat) && ("number" == typeof repeat ? result.push("{" + repeat + "}") : !0 === repeat && result.push("+"));
+            (isDefined(repeatMin) || isDefined(repeatMax)) && result.push("{" + (repeatMin || "") + "," + (repeatMax || "") + "}");
+            optional && result.push("?");
+            return result;
+        }
+        function RegexUnion(props, children) {
+            var result = [];
+            for (var _i4 = 0, _children4 = children = regex_validateAndEscapeChildren("RegexGroup", children); _i4 < _children4.length; _i4++) {
+                result.push(_children4[_i4]);
+                result.push("|");
+            }
+            result.pop();
+            return result;
         }
     } ]);
 }));
