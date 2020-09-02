@@ -23,9 +23,11 @@ export type NullableChildrenType = $ReadOnlyArray<NullableChildrenType | ChildNo
 
 export type ComponentFunctionType<P> = (P, ChildrenType) => NullableChildType;
 
-export type CreateElementNode<P : NodePropsType> = (string, P | null, ...NullableChildrenType) => ElementNode; // eslint-disable-line no-use-before-define
-export type CreateComponentNode<P : NodePropsType> = (ComponentFunctionType<P>, P | null, ...NullableChildrenType) => ComponentNode<P>; // eslint-disable-line no-use-before-define
-export type CreateNode<P : NodePropsType> = CreateElementNode<P> & CreateComponentNode<P>;
+export type CreateElementNode = <P>(string, P, ...NullableChildrenType) => ElementNode; // eslint-disable-line no-undef, no-use-before-define
+export type CreateComponentNode = <P>(ComponentFunctionType<P>, P, ...NullableChildrenType) => ComponentNode<*>; // eslint-disable-line no-undef, no-use-before-define
+export type CreateNullComponentNode = <P>(ComponentFunctionType<P>, null, ...NullableChildrenType) => ComponentNode<*>; // eslint-disable-line no-undef, no-use-before-define
+
+export type CreateNode = CreateNullComponentNode & CreateComponentNode & CreateElementNode;
 
 function renderChildren<T>(children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>, renderer : NodeRenderer<*, *>) : $ReadOnlyArray<T> { // eslint-disable-line no-use-before-define
     const result = [];
@@ -59,10 +61,10 @@ export class ElementNode {
 
     constructor(name : string, props : NodePropsType, children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>) { // eslint-disable-line no-use-before-define
         this.name = name;
-        this.props = props;
+        this.props = props || {};
         this.children = children;
 
-        const onRender = props.onRender;
+        const onRender = this.props.onRender;
         if (typeof onRender === 'function') {
             this.onRender = onRender;
             delete props.onRender;
@@ -110,23 +112,24 @@ export class TextNode {
     }
 }
 
-export class ComponentNode<P : NodePropsType> {
+// eslint-disable-next-line no-unused-vars
+export class ComponentNode<P = null> {
     type : (typeof NODE_TYPE.COMPONENT) = NODE_TYPE.COMPONENT
 
-    component : ComponentFunctionType<P>
+    component : ComponentFunctionType<NodePropsType>
     props : NodePropsType
     children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>
 
-    constructor(component : ComponentFunctionType<P>, props : NodePropsType, children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>) {
+    constructor(component : ComponentFunctionType<NodePropsType>, props : NodePropsType, children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>) {
         this.component = component;
-        this.props = props;
+        this.props = props || {};
         this.children = children;
+
+        this.props.children = children;
     }
 
     renderComponent(renderer : NodeRenderer<*, *>) : * {
-        // $FlowFixMe
-        const props : P = this.props;
-        const child = normalizeChild(this.component(props, this.children)); // eslint-disable-line no-use-before-define
+        const child = normalizeChild(this.component(this.props, this.children)); // eslint-disable-line no-use-before-define
         if (child) {
             return child.render(renderer);
         }
@@ -148,7 +151,7 @@ function normalizeChildren(children : NullableChildrenType) : $ReadOnlyArray<Ele
         if (!child) {
             continue;
         } else if (typeof child === 'string' || typeof child === 'number') {
-            result.push(new TextNode(`${ child }`));
+            result.push(new TextNode(child.toString()));
         } else if (typeof child === 'boolean') {
             continue;
         } else if (Array.isArray(child)) {
@@ -175,9 +178,7 @@ function normalizeChild(child) : ElementNode | TextNode | ComponentNode<*> | Fra
     }
 }
 
-export const node : CreateNode<*> = (element, props, ...children) => {
-    // $FlowFixMe
-    props = props || {};
+export const node : CreateNode = <P>(element, props : P, ...children) => {
     children = normalizeChildren(children);
 
     if (typeof element === 'string') {
@@ -187,12 +188,12 @@ export const node : CreateNode<*> = (element, props, ...children) => {
     
     if (typeof element === 'function') {
         // $FlowFixMe
-        return new ComponentNode(element, props, children);
+        return new ComponentNode<*>(element, props, children);
     }
 
     throw new TypeError(`Expected jsx element to be a string or a function`);
 };
 
-export const Fragment : ComponentFunctionType<EmptyProps> = (props : NodePropsType, children : ChildrenType) : NullableChildType => {
+export const Fragment : ComponentFunctionType<null> = (props, children) => {
     return children;
 };

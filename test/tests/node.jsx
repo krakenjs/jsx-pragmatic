@@ -298,6 +298,7 @@ describe('node render cases', () => {
     });
 
     it('should not error out when passing props to a fragment', () => {
+        // $FlowFixMe
         const jsxNode = <Fragment foo="bar"><div /><div /></Fragment>;
         jsxNode.render(objectRenderer);
     });

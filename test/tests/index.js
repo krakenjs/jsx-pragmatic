@@ -5,3 +5,4 @@ import './dom';
 import './html';
 import './react';
 import './preact';
+import './style';
