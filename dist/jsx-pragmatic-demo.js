@@ -81,9 +81,9 @@
                 this.children = void 0;
                 this.onRender = void 0;
                 this.name = name;
-                this.props = props;
+                this.props = props || {};
                 this.children = children;
-                var onRender = props.onRender;
+                var onRender = this.props.onRender;
                 if ("function" == typeof onRender) {
                     this.onRender = onRender;
                     delete props.onRender;
@@ -129,8 +129,9 @@
                 this.props = void 0;
                 this.children = void 0;
                 this.component = component;
-                this.props = props;
+                this.props = props || {};
                 this.children = children;
+                this.props.children = children;
             }
             var _proto4 = ComponentNode.prototype;
             _proto4.renderComponent = function(renderer) {
@@ -152,7 +153,7 @@
             var result = [];
             for (var _i6 = 0; _i6 < children.length; _i6++) {
                 var child = children[_i6];
-                if (child) if ("string" == typeof child || "number" == typeof child) result.push(new node_TextNode("" + child)); else {
+                if (child) if ("string" == typeof child || "number" == typeof child) result.push(new node_TextNode(child.toString())); else {
                     if ("boolean" == typeof child) continue;
                     if (Array.isArray(child)) for (var _i8 = 0, _normalizeChildren2 = normalizeChildren(child); _i8 < _normalizeChildren2.length; _i8++) result.push(_normalizeChildren2[_i8]); else {
                         if (!child || "element" !== child.type && "text" !== child.type && "component" !== child.type) throw new TypeError("Unrecognized node type: " + typeof child);
@@ -164,7 +165,6 @@
         }
         var node_node = function(element, props) {
             for (var _len = arguments.length, children = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) children[_key - 2] = arguments[_key];
-            props = props || {};
             children = normalizeChildren(children);
             if ("string" == typeof element) return new node_ElementNode(element, props, children);
             if ("function" == typeof element) return new node_ComponentNode(element, props, children);

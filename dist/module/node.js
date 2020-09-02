@@ -37,9 +37,9 @@ export var ElementNode = /*#__PURE__*/function () {
     this.onRender = void 0;
     // eslint-disable-line no-use-before-define
     this.name = name;
-    this.props = props;
+    this.props = props || {};
     this.children = children;
-    var onRender = props.onRender;
+    var onRender = this.props.onRender;
 
     if (typeof onRender === 'function') {
       this.onRender = onRender;
@@ -96,7 +96,8 @@ export var TextNode = /*#__PURE__*/function () {
   };
 
   return TextNode;
-}();
+}(); // eslint-disable-next-line no-unused-vars
+
 export var ComponentNode = /*#__PURE__*/function () {
   function ComponentNode(component, props, children) {
     this.type = NODE_TYPE.COMPONENT;
@@ -104,16 +105,15 @@ export var ComponentNode = /*#__PURE__*/function () {
     this.props = void 0;
     this.children = void 0;
     this.component = component;
-    this.props = props;
+    this.props = props || {};
     this.children = children;
+    this.props.children = children;
   }
 
   var _proto4 = ComponentNode.prototype;
 
   _proto4.renderComponent = function renderComponent(renderer) {
-    // $FlowFixMe
-    var props = this.props;
-    var child = normalizeChild(this.component(props, this.children)); // eslint-disable-line no-use-before-define
+    var child = normalizeChild(this.component(this.props, this.children)); // eslint-disable-line no-use-before-define
 
     if (child) {
       return child.render(renderer);
@@ -140,7 +140,7 @@ function normalizeChildren(children) {
     if (!child) {
       continue;
     } else if (typeof child === 'string' || typeof child === 'number') {
-      result.push(new TextNode("" + child));
+      result.push(new TextNode(child.toString()));
     } else if (typeof child === 'boolean') {
       continue;
     } else if (Array.isArray(child)) {
@@ -173,8 +173,6 @@ export var node = function node(element, props) {
     children[_key - 2] = arguments[_key];
   }
 
-  // $FlowFixMe
-  props = props || {};
   children = normalizeChildren(children);
 
   if (typeof element === 'string') {

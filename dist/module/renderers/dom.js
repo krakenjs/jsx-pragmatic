@@ -28,8 +28,7 @@ function fixScripts(el, doc) {
       continue;
     }
 
-    var newScript = doc.createElement('script'); // $FlowFixMe
-
+    var newScript = doc.createElement('script');
     newScript.text = script.textContent;
     parentNode.replaceChild(newScript, script);
   }
@@ -37,7 +36,6 @@ function fixScripts(el, doc) {
 
 function createElement(doc, node) {
   if (node.props[ELEMENT_PROP.EL]) {
-    // $FlowFixMe
     return node.props[ELEMENT_PROP.EL];
   }
 
