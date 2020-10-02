@@ -13,6 +13,7 @@ export function regex() : RegexRenderer {
     return (nodeInstance) => new RegExp(regexRenderer(nodeInstance));
 }
 
+// $FlowFixMe
 regex.node = (el, props, ...children) => {
     // $FlowFixMe
     const nodeInstance = node(el, props, ...children);
