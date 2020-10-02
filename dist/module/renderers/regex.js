@@ -6,7 +6,7 @@ export function regex() {
   return function (nodeInstance) {
     return new RegExp(regexRenderer(nodeInstance));
   };
-}
+} // $FlowFixMe
 
 regex.node = function (el, props) {
   for (var _len = arguments.length, children = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
