@@ -1,6 +1,4 @@
 declare module 'jsx-pragmatic' {
-  type $ReadOnlyArray<T> = Readonly<Array<T>>;
-
   /* node.js */
   export type NodePropsType = {
     [key: string]: any,
@@ -16,10 +14,10 @@ declare module 'jsx-pragmatic' {
 
   export type NodeType = ElementNode | TextNode | FragmentNode | ComponentNode<any>;
   export type ChildNodeType = ElementNode | TextNode | ComponentNode<any>;
-  export type ChildType = ChildNodeType | Primitive | $ReadOnlyArray<ChildType>;
-  export type ChildrenType = $ReadOnlyArray<ChildNodeType>;
-  export type NullableChildType = $ReadOnlyArray<ChildType> | ChildNodeType | NullablePrimitive;
-  export type NullableChildrenType = $ReadOnlyArray<NullableChildrenType | ChildNodeType | NullablePrimitive>;
+  export type ChildType = ChildNodeType | Primitive | ReadonlyArray<ChildType>;
+  export type ChildrenType = ReadonlyArray<ChildNodeType>;
+  export type NullableChildType = ReadonlyArray<ChildType> | ChildNodeType | NullablePrimitive;
+  export type NullableChildrenType = ReadonlyArray<NullableChildrenType | ChildNodeType | NullablePrimitive>;
 
   export type ComponentFunctionType<P> = (P, ChildrenType) => NullableChildType;
 
@@ -33,24 +31,24 @@ declare module 'jsx-pragmatic' {
     type: 'element';
     name: string;
     props: NodePropsType;
-    children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>;
+    children: ReadonlyArray<ElementNode | TextNode | ComponentNode<any>>;
     onRender?: <T>(T) => void;
 
-    constructor(name: string, props: NodePropsType, children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>);
+    constructor(name: string, props: NodePropsType, children: ReadonlyArray<ElementNode | TextNode | ComponentNode<any>>);
 
     render<T>(renderer: NodeRenderer<any, any>): T;
 
-    renderChildren<T>(renderer: NodeRenderer<any, any>): $ReadOnlyArray<T>
+    renderChildren<T>(renderer: NodeRenderer<any, any>): ReadonlyArray<T>
   }
 
   export interface FragmentNode {
     type: 'fragment';
 
-    children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>;
+    children: ReadonlyArray<ElementNode | TextNode | ComponentNode<any>>;
 
-    constructor(children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>);
+    constructor(children: ReadonlyArray<ElementNode | TextNode | ComponentNode<any>>);
 
-    render<T>(renderer: NodeRenderer<any, any>): $ReadOnlyArray<T>;
+    render<T>(renderer: NodeRenderer<any, any>): ReadonlyArray<T>;
   }
 
   export interface TextNode {
@@ -66,15 +64,15 @@ declare module 'jsx-pragmatic' {
     type: 'component';
     component: ComponentFunctionType<NodePropsType>
     props: NodePropsType
-    children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>
+    children: ReadonlyArray<ElementNode | TextNode | ComponentNode<any>>
 
-    constructor(component: ComponentFunctionType<NodePropsType>, props: NodePropsType, children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>);
+    constructor(component: ComponentFunctionType<NodePropsType>, props: NodePropsType, children: ReadonlyArray<ElementNode | TextNode | ComponentNode<any>>);
 
     renderComponent(renderer: NodeRenderer<any, any>): any;
 
     render<T>(renderer: NodeRenderer<any, any>): T;
 
-    renderChildren<T>(renderer: NodeRenderer<any, any>): $ReadOnlyArray<T>;
+    renderChildren<T>(renderer: NodeRenderer<any, any>): ReadonlyArray<T>;
   }
 
   export function node<P>(element, props: P, ...children): ElementNode | ComponentNode<any>;
@@ -91,7 +89,7 @@ declare module 'jsx-pragmatic' {
   /* renderers.js -> dom.js */
   type DomNodeRenderer = NodeRenderer<ElementNode, HTMLElement>;
   type DomTextRenderer = NodeRenderer<TextNode, Text>;
-  type DomComponentRenderer = NodeRenderer<ComponentNode<any>, HTMLElement | TextNode | $ReadOnlyArray<HTMLElement | TextNode> | void>;
+  type DomComponentRenderer = NodeRenderer<ComponentNode<any>, HTMLElement | TextNode | ReadonlyArray<HTMLElement | TextNode> | void>;
   type DomRenderer = DomComponentRenderer & DomNodeRenderer & DomTextRenderer;
   type DomOptions = {
     doc?: Document
