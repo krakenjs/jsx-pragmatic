@@ -118,4 +118,12 @@ declare module 'jsx-pragmatic' {
   export function regex(): RegexRenderer;
 
   // TODO: how to type regex.node()?
+
+  /* constants.js */
+  export const NODE_TYPE: {
+    ELEMENT: 'element',
+    TEXT: 'text',
+    COMPONENT: 'component',
+    FRAGMENT: 'fragment',
+  };
 }
