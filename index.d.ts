@@ -73,4 +73,49 @@ declare module 'jsx-pragmatic' {
 
   export function node<P>(element, props: P, ...children): ElementNode | ComponentNode<any>;
   export function Fragment(props: null, children: ChildType): NullableChildrenType;
+
+  /* renderers.js */
+
+  /* renderers.js -> text.js */
+  type TextRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, string>;
+  export function text() : TextRenderer;
+
+  /* renderers.js -> dom.js */
+  type DomNodeRenderer = NodeRenderer<ElementNode, HTMLElement>;
+  type DomTextRenderer = NodeRenderer<TextNode, Text>;
+  type DomComponentRenderer = NodeRenderer<ComponentNode<any>, HTMLElement | TextNode | $ReadOnlyArray<HTMLElement | TextNode> | void>;
+  type DomRenderer = DomComponentRenderer & DomNodeRenderer & DomTextRenderer;
+  type DomOptions = {
+    doc? : Document
+  };
+
+  export function dom(opts?: DomOptions): DomRenderer;
+
+  /* renderers.js -> react.js */
+  type ReactType = {
+    createElement : Function
+  };
+
+  type ReactRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, Node | string | null>;
+  export function react({ React }: { React: ReactType }): ReactRenderer;
+
+  /* renderers.js -> html.js */
+  type HTMLRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, string>;
+  export function html(): HTMLRenderer;
+
+  /* renderers.js -> preact.js */
+  type PreactType = {
+    h : Function
+  };
+  type PreactNode = {};
+  type PreactRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, PreactNode | string | null>;
+
+  export function preact({ Preact }: { Preact: PreactType }): PreactRenderer;
+
+  /* renderers.js -> preact.js */
+  type RegexRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, RegExp>;
+
+  export function regex(): RegexRenderer;
+
+  // TODO: how to type regex.node()?
 }
