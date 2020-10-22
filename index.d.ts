@@ -3,7 +3,7 @@ declare module 'jsx-pragmatic' {
 
   /* node.js */
   export type NodePropsType = {
-    [key: string] : any,
+    [key: string]: any,
   };
 
   export type EmptyProps = {};
@@ -37,48 +37,56 @@ declare module 'jsx-pragmatic' {
     onRender?: <T>(T) => void;
 
     constructor(name: string, props: NodePropsType, children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>);
+
     render<T>(renderer: NodeRenderer<any, any>): T;
-    renderChildren<T>(renderer: NodeRenderer<any, any>) : $ReadOnlyArray<T>
+
+    renderChildren<T>(renderer: NodeRenderer<any, any>): $ReadOnlyArray<T>
   }
 
   export interface FragmentNode {
     type: 'fragment';
 
     children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>;
-    constructor(children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>);
-    render<T>(renderer : NodeRenderer<any, any>): $ReadOnlyArray<T>;
+
+    constructor(children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>);
+
+    render<T>(renderer: NodeRenderer<any, any>): $ReadOnlyArray<T>;
   }
 
   export interface TextNode {
     type: 'text';
-    text : string;
+    text: string;
 
-    constructor(text : string);
+    constructor(text: string);
 
-    render<T>(renderer : NodeRenderer<any, any>): T;
+    render<T>(renderer: NodeRenderer<any, any>): T;
   }
 
   export interface ComponentNode<P = null> {
     type: 'component';
-    component : ComponentFunctionType<NodePropsType>
-    props : NodePropsType
-    children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>
+    component: ComponentFunctionType<NodePropsType>
+    props: NodePropsType
+    children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>
 
-    constructor(component: ComponentFunctionType<NodePropsType>, props : NodePropsType, children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>);
-    renderComponent(renderer : NodeRenderer<any, any>): any;
-    render<T>(renderer : NodeRenderer<any, any>): T;
+    constructor(component: ComponentFunctionType<NodePropsType>, props: NodePropsType, children: $ReadOnlyArray<ElementNode | TextNode | ComponentNode<any>>);
 
-    renderChildren<T>(renderer : NodeRenderer<any, any>): $ReadOnlyArray<T>;
+    renderComponent(renderer: NodeRenderer<any, any>): any;
+
+    render<T>(renderer: NodeRenderer<any, any>): T;
+
+    renderChildren<T>(renderer: NodeRenderer<any, any>): $ReadOnlyArray<T>;
   }
 
   export function node<P>(element, props: P, ...children): ElementNode | ComponentNode<any>;
+
   export function Fragment(props: null, children: ChildType): NullableChildrenType;
 
   /* renderers.js */
 
   /* renderers.js -> text.js */
   type TextRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, string>;
-  export function text() : TextRenderer;
+
+  export function text(): TextRenderer;
 
   /* renderers.js -> dom.js */
   type DomNodeRenderer = NodeRenderer<ElementNode, HTMLElement>;
@@ -86,31 +94,33 @@ declare module 'jsx-pragmatic' {
   type DomComponentRenderer = NodeRenderer<ComponentNode<any>, HTMLElement | TextNode | $ReadOnlyArray<HTMLElement | TextNode> | void>;
   type DomRenderer = DomComponentRenderer & DomNodeRenderer & DomTextRenderer;
   type DomOptions = {
-    doc? : Document
+    doc?: Document
   };
 
   export function dom(opts?: DomOptions): DomRenderer;
 
   /* renderers.js -> react.js */
   type ReactType = {
-    createElement : Function
+    createElement: Function
   };
 
   type ReactRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, Node | string | null>;
-  export function react({ React }: { React: ReactType }): ReactRenderer;
+
+  export function react({React}: { React: ReactType }): ReactRenderer;
 
   /* renderers.js -> html.js */
   type HTMLRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, string>;
+
   export function html(): HTMLRenderer;
 
   /* renderers.js -> preact.js */
   type PreactType = {
-    h : Function
+    h: Function
   };
   type PreactNode = {};
   type PreactRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, PreactNode | string | null>;
 
-  export function preact({ Preact }: { Preact: PreactType }): PreactRenderer;
+  export function preact({Preact}: { Preact: PreactType }): PreactRenderer;
 
   /* renderers.js -> preact.js */
   type RegexRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, RegExp>;
@@ -126,4 +136,48 @@ declare module 'jsx-pragmatic' {
     COMPONENT: 'component',
     FRAGMENT: 'fragment',
   };
+
+  /* component.js -> style.jsx */
+  type StyleProps = {
+    css: string | { _getCss: () => string },
+    nonce?: string,
+    children?: NullableChildrenType,
+  };
+
+  export function Style(props: StyleProps): ChildType;
+
+  /* component.js -> regex.jsx */
+  export type RegexOptions = {
+    exact?: boolean
+  };
+
+  export function Regex(options: RegexOptions, children?: ChildrenType): ChildType;
+
+  // TODO: How to type Regex.renderer?
+
+  type RegexTextOptions = {};
+
+  export function RegexText(props: RegexTextOptions, children?: ChildrenType): ChildType;
+
+  type RegexWordOptions = {};
+
+  export function RegexWord(props: RegexWordOptions, children?: ChildrenType): ChildType;
+
+  type RegexCharactersOptions = {};
+
+  export function RegexCharacters(props: RegexCharactersOptions, children?: ChildrenType): ChildType;
+
+  type RegexGroupOptions = {
+    optional?: boolean,
+    repeat?: boolean | number,
+    repeatMin?: number,
+    repeatMax?: number,
+    capture?: boolean,
+    union?: boolean,
+    name?: string
+  };
+  export function RegexGroup(props: RegexGroupOptions, children?: ChildrenType): ChildType;
+
+  type RegexUnionOptions = {};
+  export function RegexUnion(props: RegexUnionOptions, children?: ChildrenType): ChildType;
 }
