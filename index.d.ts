@@ -120,7 +120,7 @@ declare module 'jsx-pragmatic' {
 
   export function preact({Preact}: { Preact: PreactType }): PreactRenderer;
 
-  /* renderers.js -> preact.js */
+  /* renderers.js -> regex.js */
   type RegexRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, RegExp>;
 
   export function regex(): RegexRenderer;
