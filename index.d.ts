@@ -123,9 +123,10 @@ declare module 'jsx-pragmatic' {
   /* renderers.js -> regex.js */
   type RegexRenderer = NodeRenderer<ElementNode | TextNode | ComponentNode<any>, RegExp>;
 
-  export function regex(): RegexRenderer;
-
-  // TODO: how to type regex.node()?
+  export interface regex {
+    (): RegexRenderer,
+    node<P>(el: string | ComponentFunctionType<P>, props: P | null, ...children: Array<any>): ElementNode | ComponentNode<any>,
+  }
 
   /* constants.js */
   export const NODE_TYPE: {
@@ -149,9 +150,10 @@ declare module 'jsx-pragmatic' {
     exact?: boolean
   };
 
-  export function Regex(options: RegexOptions, children?: ChildrenType): ChildType;
-
-  // TODO: How to type Regex.renderer?
+  export interface Regex {
+    (options: RegexOptions, children?: ChildrenType): ChildType,
+    renderer: regex,
+  }
 
   type RegexTextOptions = {};
 
