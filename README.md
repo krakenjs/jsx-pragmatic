@@ -1,6 +1,17 @@
 JSX Pragmatic
 -------------
 
+[![build status][build-badge]][build]
+[![code coverage][coverage-badge]][coverage]
+[![npm version][version-badge]][package]
+
+[build-badge]: https://img.shields.io/github/workflow/status/krakenjs/jsx-pragmatic/build?logo=github&style=flat-square
+[build]: https://github.com/krakenjs/jsx-pragmatic/actions?query=workflow%3Abuild
+[coverage-badge]: https://img.shields.io/codecov/c/github/krakenjs/jsx-pragmatic.svg?style=flat-square
+[coverage]: https://codecov.io/github/krakenjs/jsx-pragmatic/
+[version-badge]: https://img.shields.io/npm/v/jsx-pragmatic.svg?style=flat-square
+[package]: https://www.npmjs.com/package/jsx-pragmatic
+
 - Build JSX templates
 - Decide at runtime how you want to render them
 - Easily build custom renderers - render to HTML, DOM, or anything else!
