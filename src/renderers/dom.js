@@ -164,6 +164,17 @@ const getDefaultDomOptions = () : DomOptions => {
     return {};
 };
 
+function addXmlNamespace(node: ElementNode) {
+    if (typeof node.props.xmlns !== 'string') {
+        node.props.xmlns = 'http://www.w3.org/2000/svg'
+    }
+    node.children.map((child) => {
+        child.props.xmlns = node.props.xmlns;
+        child.children.map(setXmlNs)
+        return child;
+    });
+}
+
 export function dom(opts? : DomOptions = getDefaultDomOptions()) : DomRenderer {
     const { doc = document } = opts;
     
@@ -178,14 +189,11 @@ export function dom(opts? : DomOptions = getDefaultDomOptions()) : DomRenderer {
         }
         
         if (node.type === NODE_TYPE.ELEMENT) {
+            if (typeof node.name === 'svg') {
+                addXmlNamespace(node)
+            }
             const el = createElement(doc, node);
             addProps(el, node);
-            if (typeof node.props.xmlns === 'string') {
-                node.children.map((child) => {
-                    child.props.xmlns = node.props.xmlns;
-                    return child;
-                });
-            }
             addChildren(el, node, doc, domRenderer);
             // $FlowFixMe
             return el;
