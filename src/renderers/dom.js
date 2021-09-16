@@ -39,6 +39,8 @@ function fixScripts(el : HTMLElement, doc : Document = window.document) {
 function createElement(doc : Document, node : ElementNode) : HTMLElement {
     if (node.props[ELEMENT_PROP.EL]) {
         return node.props[ELEMENT_PROP.EL];
+    } else if (typeof node.props.xmlns === 'string') {
+        return doc.createElementNS(node.props.xmlns, node.name);
     }
 
     return doc.createElement(node.name);
@@ -178,6 +180,12 @@ export function dom(opts? : DomOptions = getDefaultDomOptions()) : DomRenderer {
         if (node.type === NODE_TYPE.ELEMENT) {
             const el = createElement(doc, node);
             addProps(el, node);
+            if (typeof node.props.xmlns === 'string') {
+                node.children.map((child) => {
+                    child.props.xmlns = node.props.xmlns;
+                    return child;
+                });
+            }
             addChildren(el, node, doc, domRenderer);
             // $FlowFixMe
             return el;
