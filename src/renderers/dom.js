@@ -164,7 +164,7 @@ const getDefaultDomOptions = () : DomOptions => {
     return {};
 };
 
-function addXmlNamespace(node: ElementNode, xmlns: string = 'http://www.w3.org/2000/svg') {
+function addXmlNamespace(node : ElementNode, xmlns : string = 'http://www.w3.org/2000/svg') {
     if (node.type === NODE_TYPE.ELEMENT && typeof node.props.xmlns !== 'string') {
         node.props.xmlns = xmlns;
     }

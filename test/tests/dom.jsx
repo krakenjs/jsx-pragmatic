@@ -823,40 +823,40 @@ describe('dom renderer cases', () => {
 
     it('should render as an svg element', () => {
         const svgProps = {
-            width: '36',
-            height: '36',
+            width:   '36',
+            height:  '36',
             viewBox: '0 0 36 36',
-            fill: 'transparent',
-            xmlns: 'http://www.w3.org/2000/svg'
+            fill:    'transparent',
+            xmlns:   'http://www.w3.org/2000/svg'
         };
 
         const styles = `path{transition: all 0.3s;}`;
 
         const pathProps = {
-            stroke: '#000000',
-            'stroke-width': '2',
+            'stroke':           '#000000',
+            'stroke-width':   '2',
             'stroke-linecap': 'round',
-            transform: 'translate(12 12)'
+            'transform':        'translate(12 12)'
         };
 
         const forwardSlashNodeProps = {
             ...pathProps,
-            d: 'M12 0L0 12',
+            d:  'M12 0L0 12',
             id: 'forwardSlash'
         };
 
         const backwardSlashNodeProps = {
             ...pathProps,
-            d: 'M0 0L12 12',
+            d:  'M0 0L12 12',
             id: 'backwardSlash'
         };
 
         const SvgImage = () => {
             return (
-                <svg {...svgProps}>
-                    <style>{styles}</style>
-                    <path {...forwardSlashNodeProps} />
-                    <path {...backwardSlashNodeProps} />
+                <svg { ...svgProps } >
+                    <style>{ styles } </style>
+                    <path { ...forwardSlashNodeProps }  />
+                    <path { ...backwardSlashNodeProps }  />
                 </svg>
             );
         };
@@ -866,19 +866,19 @@ describe('dom renderer cases', () => {
         const node1 = jsxNode.render(dom());
 
         validateDOM(node1, {
-            name: 'svg',
-            attrs: { ...svgProps },
+            name:     'svg',
+            attrs:    { ...svgProps },
             children: [
                 {
-                    name: 'style',
-                    children: [{ text: styles }]
+                    name:     'style',
+                    children: [ { text: styles } ]
                 },
                 {
-                    name: 'path',
+                    name:  'path',
                     attrs: { ...forwardSlashNodeProps }
                 },
                 {
-                    name: 'path',
+                    name:  'path',
                     attrs: { ...backwardSlashNodeProps }
                 }
             ]
