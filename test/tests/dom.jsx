@@ -14,7 +14,7 @@ type ExpectedNode = {|
 
 function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
     if (domNode.constructor.name === 'HTMLUnknownElement') {
-        throw new Error(`Expected dom domNode to be a valid element`);
+        throw new Error(`Expected dom domNode '${ expected.name || 'undefined' }' to be a valid element`);
     }
     if (expected.text && domNode.textContent !== expected.text) {
         throw new Error(`Expected dom domNode inner text to be '${ expected.text }', got ${ domNode.textContent || 'undefined' }`);
@@ -830,7 +830,7 @@ describe('dom renderer cases', () => {
             xmlns:   'http://www.w3.org/2000/svg'
         };
 
-        const styles = `path{transition: all 0.3s;}`;
+        const styles = 'path{transition: all 0.3s;}';
 
         const pathProps = {
             'stroke':           '#000000',
@@ -854,7 +854,7 @@ describe('dom renderer cases', () => {
         const SvgImage = () => {
             return (
                 <svg { ...svgProps } >
-                    <style>{ styles } </style>
+                    <style>{ styles }</style>
                     <path { ...forwardSlashNodeProps }  />
                     <path { ...backwardSlashNodeProps }  />
                 </svg>

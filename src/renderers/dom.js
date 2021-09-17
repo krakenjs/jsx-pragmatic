@@ -22,7 +22,7 @@ const ELEMENT_PROP = {
     EL:         'el'
 };
 
-function fixScripts(el : HTMLElement, doc : Document = window.document) {
+function fixScripts(el : HTMLElement | Element, doc : Document = window.document) {
     for (const script of el.querySelectorAll('script')) {
         const parentNode = script.parentNode;
 
@@ -36,7 +36,7 @@ function fixScripts(el : HTMLElement, doc : Document = window.document) {
     }
 }
 
-function createElement(doc : Document, node : ElementNode) : HTMLElement {
+function createElement(doc : Document, node : ElementNode) : HTMLElement | Element {
     if (node.props[ELEMENT_PROP.EL]) {
         return node.props[ELEMENT_PROP.EL];
     } else if (node.type === NODE_TYPE.ELEMENT && typeof node.props.xmlns === 'string') {
@@ -50,7 +50,7 @@ function createTextElement(doc : Document, node : TextNode) : Text {
     return doc.createTextNode(node.text);
 }
 
-function addProps(el : HTMLElement, node) {
+function addProps(el : HTMLElement | Element, node) {
     const props = node.props;
 
     for (const prop of Object.keys(props)) {
@@ -76,7 +76,7 @@ function addProps(el : HTMLElement, node) {
         el.setAttribute(ELEMENT_PROP.ID, `jsx-iframe-${ uniqueID() }`);
     }
 }
-const ADD_CHILDREN : { [string] : (HTMLElement, ElementNode, DomNodeRenderer) => void } = {
+const ADD_CHILDREN : { [string] : (HTMLElement | Element, ElementNode, DomNodeRenderer) => void } = {
 
     [ ELEMENT_TAG.IFRAME ]: (el, node) => {
         const firstChild = node.children[0];
@@ -128,7 +128,7 @@ const ADD_CHILDREN : { [string] : (HTMLElement, ElementNode, DomNodeRenderer) =>
     }
 };
 
-function addChildren(el : HTMLElement, node : ElementNode, doc : Document, renderer : DomNodeRenderer) {
+function addChildren(el : HTMLElement | Element, node : ElementNode, doc : Document, renderer : DomNodeRenderer) {
     if (node.props.hasOwnProperty(ELEMENT_PROP.INNER_HTML)) {
 
         if (node.children.length) {
@@ -164,13 +164,20 @@ const getDefaultDomOptions = () : DomOptions => {
     return {};
 };
 
-function addXmlNamespace(node : ElementNode, xmlns : string = 'http://www.w3.org/2000/svg') {
-    if (node.type === NODE_TYPE.ELEMENT && typeof node.props.xmlns !== 'string') {
-        node.props.xmlns = xmlns;
+function addXmlNamespace(node : ElementNode | TextNode | ComponentNode<*>, xmlns : string = 'http://www.w3.org/2000/svg') {
+    if (node.type === NODE_TYPE.TEXT) {
+        return;
     }
+    let ns = xmlns;
+    if (typeof node.props.xmlns === 'string') {
+        ns = node.props.xmlns;
+    } else {
+        node.props.xmlns = ns;
+    }
+
     if (Array.isArray(node.children) && node.children.length > 0) {
-        node.children.forEach(child => {
-            addXmlNamespace(child, child.props?.xmlns ?? node.props.xmlns);
+        node.children.forEach((child : ElementNode | TextNode | ComponentNode<*>) => {
+            addXmlNamespace(child, ns);
         });
     }
 }
