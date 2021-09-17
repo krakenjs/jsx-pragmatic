@@ -39,7 +39,7 @@ function fixScripts(el : HTMLElement, doc : Document = window.document) {
 function createElement(doc : Document, node : ElementNode) : HTMLElement {
     if (node.props[ELEMENT_PROP.EL]) {
         return node.props[ELEMENT_PROP.EL];
-    } else if (typeof node.props.xmlns === 'string') {
+    } else if (node.type === NODE_TYPE.ELEMENT && typeof node.props.xmlns === 'string') {
         return doc.createElementNS(node.props.xmlns, node.name);
     }
 
@@ -164,15 +164,15 @@ const getDefaultDomOptions = () : DomOptions => {
     return {};
 };
 
-function addXmlNamespace(node: ElementNode) {
-    if (typeof node.props.xmlns !== 'string') {
-        node.props.xmlns = 'http://www.w3.org/2000/svg'
+function addXmlNamespace(node: ElementNode, xmlns: string = 'http://www.w3.org/2000/svg') {
+    if (node.type === NODE_TYPE.ELEMENT && typeof node.props.xmlns !== 'string') {
+        node.props.xmlns = xmlns;
     }
-    node.children.map((child) => {
-        child.props.xmlns = node.props.xmlns;
-        child.children.map(setXmlNs)
-        return child;
-    });
+    if (Array.isArray(node.children) && node.children.length > 0) {
+        node.children.forEach(child => {
+            addXmlNamespace(child, child.props?.xmlns ?? node.props.xmlns);
+        });
+    }
 }
 
 export function dom(opts? : DomOptions = getDefaultDomOptions()) : DomRenderer {
@@ -189,8 +189,8 @@ export function dom(opts? : DomOptions = getDefaultDomOptions()) : DomRenderer {
         }
         
         if (node.type === NODE_TYPE.ELEMENT) {
-            if (typeof node.name === 'svg') {
-                addXmlNamespace(node)
+            if (node.name.toLowerCase() === 'svg' || typeof node.props.xmlns !== 'undefined') {
+                addXmlNamespace(node);
             }
             const el = createElement(doc, node);
             addProps(el, node);
