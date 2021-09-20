@@ -34,8 +34,12 @@ jobs:
  
             - name: Check Type Declarations
               if: always()
-              run: |
-                  npm run flow-typed && npm run flow
+              run: >
+                  sed -i.bak -E '
+                  /devDependencies/,/  \}/{
+                      s/: "\^(.+)"/: "\1"/g; 
+                  }
+                  ' package.json && npm run flow-typed && npm run flow
 
             - name: Check Test Suites
               if: always()
