@@ -50,6 +50,7 @@
   "devDependencies": {
     "flow-bin": "^0.135.0",
     "grumbler-scripts": "^3",
-    "mocha": "^4.1.0"
+    "mocha": "^4.1.0",
+    "react": "^17.0.2"
   }
 }
