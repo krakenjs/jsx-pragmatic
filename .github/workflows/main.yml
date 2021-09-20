@@ -5,19 +5,20 @@ on:
         branches:
             - master
     pull_request: {}
+    
 jobs:
     lint:
-        name: Run Lint
+        name: Lint
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node: [10,12,14]
+                node: [12,14]
         steps:
             - name: Checkout repo
               uses: actions/checkout@v2
 
             - name: Setup node
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v2
               with:
                   node-version: ${{ matrix.node }}
 
@@ -25,21 +26,21 @@ jobs:
               uses: bahmutov/npm-install@v1
               with:
                   useLockFile: false
-            - name: Run lint
+            - name: Run lint command
               run: |
                   npm run lint
     flow:
-        name: Run Flow
+        name: Check Flow
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node: [10,12,14]
+                node: [12,14]
         steps:
             - name: Checkout repo
               uses: actions/checkout@v2
 
             - name: Setup node
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v2
               with:
                   node-version: ${{ matrix.node }}
 
@@ -47,7 +48,7 @@ jobs:
               uses: bahmutov/npm-install@v1
               with:
                   useLockFile: false
-            - name: Run Flow Typed
+            - name: Run flow command
               run: |
                   npm run flow-typed && npm run flow
     karma:
@@ -55,13 +56,13 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node: [10,12,14]
+                node: [12,14]
         steps:
             - name: Checkout repo
               uses: actions/checkout@v2
 
             - name: Setup node
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v2
               with:
                   node-version: ${{ matrix.node }}
 
@@ -70,6 +71,6 @@ jobs:
               with:
                   useLockFile: false
 
-            - name: Run karma
+            - name: Run karma command
               run: |
                   npm run karma
