@@ -1,4 +1,4 @@
-name: 'GitHub-CI: lint & test'
+name: 'GitHub-CI: Lint & Test'
 
 on:
     push:
@@ -6,12 +6,12 @@ on:
             - master
     pull_request: {}
 jobs:
-    setup:
-        name: Checkout & Install
+    lint:
+        name: Run Lint
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node: [12,14]
+                node: [10,12,14]
         steps:
             - name: Checkout repo
               uses: actions/checkout@v2
@@ -25,37 +25,51 @@ jobs:
               uses: bahmutov/npm-install@v1
               with:
                   useLockFile: false
-    lint:
-        needs: setup
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                node: [12,14]
-        steps:
             - name: Run lint
               run: |
                   npm run lint
     flow:
-        needs: setup
+        name: Run Flow
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node: [12,14]
+                node: [10,12,14]
         steps:
-            - name: Run Lint
-              run: |
-                  npm run lint
+            - name: Checkout repo
+              uses: actions/checkout@v2
 
+            - name: Setup node
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node }}
+
+            - name: 📥 Download deps
+              uses: bahmutov/npm-install@v1
+              with:
+                  useLockFile: false
             - name: Run Flow Typed
               run: |
                   npm run flow-typed && npm run flow
     karma:
-        needs: setup
+        name: Run Karma
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node: [12,14]
+                node: [10,12,14]
         steps:
+            - name: Checkout repo
+              uses: actions/checkout@v2
+
+            - name: Setup node
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node }}
+
+            - name: 📥 Download deps
+              uses: bahmutov/npm-install@v1
+              with:
+                  useLockFile: false
+
             - name: Run karma
               run: |
                   npm run karma
