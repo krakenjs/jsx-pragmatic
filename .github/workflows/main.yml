@@ -5,10 +5,10 @@ on:
         branches:
             - master
     pull_request: {}
-    
+
 jobs:
     lint:
-        name: Lint
+        name: Verify Tests
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -26,51 +26,18 @@ jobs:
               uses: bahmutov/npm-install@v1
               with:
                   useLockFile: false
-            - name: Run lint command
+
+            - name: Lint files
+              if: always()
               run: |
                   npm run lint
-    flow:
-        name: Check Flow
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                node: [12,14]
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v2
-
-            - name: Setup node
-              uses: actions/setup-node@v2
-              with:
-                  node-version: ${{ matrix.node }}
-
-            - name: 📥 Download deps
-              uses: bahmutov/npm-install@v1
-              with:
-                  useLockFile: false
-            - name: Run flow command
+ 
+            - name: Check Type Declarations
+              if: always()
               run: |
                   npm run flow-typed && npm run flow
-    karma:
-        name: Run Karma
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                node: [12,14]
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v2
 
-            - name: Setup node
-              uses: actions/setup-node@v2
-              with:
-                  node-version: ${{ matrix.node }}
-
-            - name: 📥 Download deps
-              uses: bahmutov/npm-install@v1
-              with:
-                  useLockFile: false
-
-            - name: Run karma command
+            - name: Check Test Suites
+              if: always()
               run: |
                   npm run karma
