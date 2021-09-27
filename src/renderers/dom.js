@@ -42,7 +42,6 @@ function createElement(doc : Document, node : ElementNode) : HTMLElement | Eleme
     } else if (node.type === NODE_TYPE.ELEMENT && typeof node.props.xmlns === 'string') {
         return doc.createElementNS(node.props.xmlns, node.name);
     }
-
     return doc.createElement(node.name);
 }
 
@@ -63,8 +62,11 @@ function addProps(el : HTMLElement | Element, node) {
         if (prop.match(/^on[A-Z][a-z]/) && typeof val === 'function') {
             el.addEventListener(prop.slice(2).toLowerCase(), val);
         } else if (typeof val === 'string' || typeof val === 'number') {
-            el.setAttribute(prop, val.toString());
-
+            if (prop.match(/^xlink:href$/)) {
+                el.setAttributeNS(`http://www.w3.org/1999/xlink`, prop, val.toString());
+            } else {
+                el.setAttribute(prop, val.toString());
+            }
         } else if (typeof val === 'boolean') {
             if (val === true) {
                 el.setAttribute(prop, '');

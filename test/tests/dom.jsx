@@ -7,16 +7,22 @@ import { node, dom, Fragment } from '../../src';  // eslint-disable-line no-unus
 
 type ExpectedNode = {|
     name? : string,
+    element? : string,
     attrs? : { [string] : string },
     text? : string,
     children? : $ReadOnlyArray<ExpectedNode>
 |};
 
-function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
+function validateDOMElement(domNode : HTMLElement | Text, expected : ExpectedNode) {
     if (domNode.constructor.name === 'HTMLUnknownElement') {
-        throw new Error(`Expected dom domNode '${ expected.name || 'undefined' }' to be a valid element`);
+        throw new Error(`Expected dom domNode '${ expected.name || 'undefiined' }' to be a valid element`);
     }
-    if (expected.text && domNode.textContent !== expected.text) {
+    
+    if (typeof expected.element === 'string' && domNode.constructor.name !== expected.element) {
+        throw new Error(`Expected dom domNode '${ expected.element || 'undefiined' }', got ${ domNode.constructor.name || 'undefined' }`);
+    }
+
+    if (typeof expected.text === 'string' && domNode.textContent !== expected.text) {
         throw new Error(`Expected dom domNode inner text to be '${ expected.text }', got ${ domNode.textContent || 'undefined' }`);
     }
 
@@ -26,6 +32,15 @@ function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
 
     if (expected.name && domNode.tagName.toLowerCase() !== expected.name) {
         throw new Error(`Expected dom domNode tag name to be ${ expected.name }, got ${ domNode.tagName.toLowerCase() }`);
+    }
+}
+
+function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
+
+    validateDOMElement(domNode, expected);
+
+    if (domNode.nodeType === Node.TEXT_NODE || domNode instanceof Text) {
+        return;
     }
 
     const attrs = expected.attrs;
@@ -55,7 +70,6 @@ function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
         throw new Error(`Expected no children for ${ expected.name || 'element' }, found ${ children.length.toString() }`);
     }
 }
-
 describe('dom renderer cases', () => {
 
     it('should render a basic element as a dom element with a tag name, dynamic attribute, and inner text', () => {
@@ -832,6 +846,7 @@ describe('dom renderer cases', () => {
 
         const styles = 'path{transition: all 0.3s;}';
 
+
         const pathProps = {
             'stroke':           '#000000',
             'stroke-width':   '2',
@@ -850,13 +865,53 @@ describe('dom renderer cases', () => {
             d:  'M0 0L12 12',
             id: 'backwardSlash'
         };
+        
+        const circleProps = {
+            id: 'defCircle',
+            cx: '0',
+            cy: '0',
+            r:  '5'
+        };
+
+        const blueGradient = {
+            id:                'blueGradient',
+            gradientTransform: 'rotate(90)'
+        };
+
+        const blueGradientStart = {
+            'offset':     '0%',
+            'stop-color': 'white'
+        };
+
+        const blueGradientEnd = {
+            'offset':     '90%',
+            'stop-color': 'blue'
+        };
+
+        const useCircleProps = {
+            'x':          '5',
+            'y':          '5',
+            'xlink:href': '#defCircle',
+            'fill':       'url("#blueGradient")'
+        };
+
+        const someText = 'foo bar';
 
         const SvgImage = () => {
             return (
                 <svg { ...svgProps } >
+                    <defs>
+                        <circle { ...circleProps } />
+                        <linearGradient { ...blueGradient } >
+                            <stop { ...blueGradientStart } />
+                            <stop { ...blueGradientEnd } />
+                        </linearGradient>
+                    </defs>
+                    <use { ...useCircleProps } />
                     <style>{ styles }</style>
-                    <path { ...forwardSlashNodeProps }  />
-                    <path { ...backwardSlashNodeProps }  />
+                    <path { ...forwardSlashNodeProps } />
+                    <path { ...backwardSlashNodeProps } />
+                    <text>{ someText }</text>
                 </svg>
             );
         };
@@ -870,16 +925,57 @@ describe('dom renderer cases', () => {
             attrs:    { ...svgProps },
             children: [
                 {
+                    name:     'defs',
+                    element:  'SVGDefsElement',
+                    children: [
+                        {
+                            name:     'circle',
+                            element:  'SVGCircleElement',
+                            attrs:    { ...circleProps }
+                        },
+                        {
+                            name:     'lineargradient',
+                            element:  'SVGLinearGradientElement',
+                            attrs:    { ...blueGradient },
+                            children: [
+                                {
+                                    name:     'stop',
+                                    element:  'SVGStopElement',
+                                    attrs:    { ...blueGradientStart }
+                                },
+                                {
+                                    name:     'stop',
+                                    element:  'SVGStopElement',
+                                    attrs:    { ...blueGradientEnd }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name:    'use',
+                    element: 'SVGUseElement',
+                    attrs:   { ...useCircleProps }
+                },
+                {
                     name:     'style',
+                    element:  'SVGStyleElement',
                     children: [ { text: styles } ]
                 },
                 {
-                    name:  'path',
-                    attrs: { ...forwardSlashNodeProps }
+                    name:     'path',
+                    element:  'SVGPathElement',
+                    attrs:    { ...forwardSlashNodeProps }
                 },
                 {
-                    name:  'path',
-                    attrs: { ...backwardSlashNodeProps }
+                    name:     'path',
+                    element:  'SVGPathElement',
+                    attrs:    { ...backwardSlashNodeProps }
+                },
+                {
+                    name:     'text',
+                    element:  'SVGTextElement',
+                    children: [ { text: someText } ]
                 }
             ]
         });
