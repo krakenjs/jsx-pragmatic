@@ -8,7 +8,7 @@ import { node, dom, Fragment } from '../../src';  // eslint-disable-line no-unus
 type ExpectedNode = {|
     name? : string,
     element? : string,
-    attrs? : { [string] : string },
+    attrs? : { [string] : string | {| value : string, xmlns? : string |} },
     text? : string,
     children? : $ReadOnlyArray<ExpectedNode>
 |};
@@ -46,8 +46,16 @@ function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
     const attrs = expected.attrs;
     if (attrs) {
         for (const key of Object.keys(attrs)) {
-            if (domNode.getAttribute(key) !== attrs[key]) {
-                throw new Error(`Expected dom domNode attribute '${ key }' to be '${ attrs[key] }', got ${ domNode.getAttribute(key) || 'undefined' }`);
+            const expectedAttr = (typeof attrs[key] === 'string')
+                ? { value: attrs[key] }
+                : attrs[key];
+
+            if (domNode.getAttribute(key) !== expectedAttr.value) {
+                throw new Error(`Expected dom domNode attribute '${ key }' to be '${ expectedAttr.value }', got ${ domNode.getAttribute(key) || 'undefined' }`);
+            }
+
+            if (expectedAttr.xmlns && domNode.attributes.getNamedItem(key).namespaceURI !== expectedAttr.xmlns) {
+                throw new Error(`Expected dom domNode attribute '${ key }' to have namespace of '${ expectedAttr.xmlns }'`);
             }
         }
     }
@@ -955,7 +963,13 @@ describe('dom renderer cases', () => {
                 {
                     name:    'use',
                     element: 'SVGUseElement',
-                    attrs:   { ...useCircleProps }
+                    attrs:   {
+                        ...useCircleProps,
+                        'xlink:href': {
+                            value: '#defCircle',
+                            xmlns: 'http://www.w3.org/1999/xlink'
+                        }
+                    }
                 },
                 {
                     name:     'style',

@@ -13,13 +13,23 @@ const ELEMENT_TAG = {
     HTML:    'html',
     IFRAME:  'iframe',
     SCRIPT:  'script',
+    SVG:     'svg',
     DEFAULT: 'default'
 };
 
 const ELEMENT_PROP = {
     ID:         'id',
     INNER_HTML: 'innerHTML',
-    EL:         'el'
+    EL:         'el',
+    XLINK_HREF: 'xlink:href'
+};
+
+const ELEMENT_DEFAULT_XML_NAMESPACE : {| [$Values<typeof ELEMENT_TAG>] : string |} = {
+    [ ELEMENT_TAG.SVG ]: 'http://www.w3.org/2000/svg'
+};
+
+const ATTRIBUTE_DEFAULT_XML_NAMESPACE : {| [$Values<typeof ELEMENT_PROP>] : string |} = {
+    [ ELEMENT_PROP.XLINK_HREF ]: 'http://www.w3.org/1999/xlink'
 };
 
 function fixScripts(el : HTMLElement | Element, doc : Document = window.document) {
@@ -39,10 +49,13 @@ function fixScripts(el : HTMLElement | Element, doc : Document = window.document
 function createElement(doc : Document, node : ElementNode) : HTMLElement | Element {
     if (node.props[ELEMENT_PROP.EL]) {
         return node.props[ELEMENT_PROP.EL];
-    } else if (node.type === NODE_TYPE.ELEMENT && typeof node.props.xmlns === 'string') {
-        return doc.createElementNS(node.props.xmlns, node.name);
+    } else {
+        return doc.createElement(node.name);
     }
-    return doc.createElement(node.name);
+}
+
+function createElementWithXMLNamespace(doc : Document, node : ElementNode, xmlNamespace : string) : HTMLElement | Element {
+    return doc.createElementNS(xmlNamespace, node.name);
 }
 
 function createTextElement(doc : Document, node : TextNode) : Text {
@@ -62,8 +75,9 @@ function addProps(el : HTMLElement | Element, node) {
         if (prop.match(/^on[A-Z][a-z]/) && typeof val === 'function') {
             el.addEventListener(prop.slice(2).toLowerCase(), val);
         } else if (typeof val === 'string' || typeof val === 'number') {
-            if (prop.match(/^xlink:href$/)) {
-                el.setAttributeNS(`http://www.w3.org/1999/xlink`, prop, val.toString());
+            const xmlNamespace = ATTRIBUTE_DEFAULT_XML_NAMESPACE[prop];
+            if (xmlNamespace) {
+                el.setAttributeNS(xmlNamespace, prop, val.toString());
             } else {
                 el.setAttribute(prop, val.toString());
             }
@@ -166,26 +180,29 @@ const getDefaultDomOptions = () : DomOptions => {
     return {};
 };
 
-function addXmlNamespace(node : ElementNode | TextNode | ComponentNode<*>, xmlns : string = 'http://www.w3.org/2000/svg') {
-    if (node.type === NODE_TYPE.TEXT) {
-        return;
-    }
-    let ns = xmlns;
-    if (typeof node.props.xmlns === 'string') {
-        ns = node.props.xmlns;
-    } else {
-        node.props.xmlns = ns;
-    }
-
-    if (Array.isArray(node.children) && node.children.length > 0) {
-        node.children.forEach((child : ElementNode | TextNode | ComponentNode<*>) => {
-            addXmlNamespace(child, ns);
-        });
-    }
-}
-
 export function dom(opts? : DomOptions = getDefaultDomOptions()) : DomRenderer {
     const { doc = document } = opts;
+    
+    const xmlNamespaceDomRenderer = (node : ElementNode, xmlNamespace : string) : HTMLElement => {
+        if (node.type === NODE_TYPE.COMPONENT) {
+            return node.renderComponent(childNode => xmlNamespaceDomRenderer(childNode, xmlNamespace));
+        }
+        
+        if (node.type === NODE_TYPE.TEXT) {
+            // $FlowFixMe
+            return createTextElement(doc, node);
+        }
+        
+        if (node.type === NODE_TYPE.ELEMENT) {
+            const el = createElementWithXMLNamespace(doc, node, xmlNamespace);
+            addProps(el, node);
+            addChildren(el, node, doc, childNode => xmlNamespaceDomRenderer(childNode, xmlNamespace));
+            // $FlowFixMe
+            return el;
+        }
+
+        throw new TypeError(`Unhandleable node`);
+    };
     
     const domRenderer : DomRenderer = (node) => {
         if (node.type === NODE_TYPE.COMPONENT) {
@@ -198,9 +215,13 @@ export function dom(opts? : DomOptions = getDefaultDomOptions()) : DomRenderer {
         }
         
         if (node.type === NODE_TYPE.ELEMENT) {
-            if (node.name.toLowerCase() === 'svg' || typeof node.props.xmlns !== 'undefined') {
-                addXmlNamespace(node);
+            const xmlNamespace = ELEMENT_DEFAULT_XML_NAMESPACE[node.name.toLowerCase()];
+
+            if (xmlNamespace) {
+                // $FlowFixMe
+                return xmlNamespaceDomRenderer(node, xmlNamespace);
             }
+
             const el = createElement(doc, node);
             addProps(el, node);
             addChildren(el, node, doc, domRenderer);
