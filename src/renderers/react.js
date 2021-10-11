@@ -1,5 +1,6 @@
 /* @flow */
 
+// eslint-disable-next-line import/no-unresolved
 import type { Node } from 'react';
 
 import { ComponentNode, TextNode, ElementNode, type NodeRenderer, type NodePropsType } from '../node';
