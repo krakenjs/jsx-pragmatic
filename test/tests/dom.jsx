@@ -7,13 +7,22 @@ import { node, dom, Fragment } from '../../src';  // eslint-disable-line no-unus
 
 type ExpectedNode = {|
     name? : string,
-    attrs? : { [string] : string },
+    element? : string,
+    attrs? : { [string] : string | {| value : string, xmlns? : string |} },
     text? : string,
     children? : $ReadOnlyArray<ExpectedNode>
 |};
 
-function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
-    if (expected.text && domNode.textContent !== expected.text) {
+function validateDOMElement(domNode : HTMLElement | Text, expected : ExpectedNode) {
+    if (domNode.constructor.name === 'HTMLUnknownElement') {
+        throw new Error(`Expected dom domNode '${ expected.name || 'undefiined' }' to be a valid element`);
+    }
+    
+    if (typeof expected.element === 'string' && domNode.constructor.name !== expected.element) {
+        throw new Error(`Expected dom domNode '${ expected.element || 'undefiined' }', got ${ domNode.constructor.name || 'undefined' }`);
+    }
+
+    if (typeof expected.text === 'string' && domNode.textContent !== expected.text) {
         throw new Error(`Expected dom domNode inner text to be '${ expected.text }', got ${ domNode.textContent || 'undefined' }`);
     }
 
@@ -24,12 +33,29 @@ function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
     if (expected.name && domNode.tagName.toLowerCase() !== expected.name) {
         throw new Error(`Expected dom domNode tag name to be ${ expected.name }, got ${ domNode.tagName.toLowerCase() }`);
     }
+}
+
+function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
+
+    validateDOMElement(domNode, expected);
+
+    if (domNode.nodeType === Node.TEXT_NODE || domNode instanceof Text) {
+        return;
+    }
 
     const attrs = expected.attrs;
     if (attrs) {
         for (const key of Object.keys(attrs)) {
-            if (domNode.getAttribute(key) !== attrs[key]) {
-                throw new Error(`Expected dom domNode attribute '${ key }' to be '${ attrs[key] }', got ${ domNode.getAttribute(key) || 'undefined' }`);
+            const expectedAttr = (typeof attrs[key] === 'string')
+                ? { value: attrs[key] }
+                : attrs[key];
+
+            if (domNode.getAttribute(key) !== expectedAttr.value) {
+                throw new Error(`Expected dom domNode attribute '${ key }' to be '${ expectedAttr.value }', got ${ domNode.getAttribute(key) || 'undefined' }`);
+            }
+
+            if (expectedAttr.xmlns && domNode.attributes.getNamedItem(key).namespaceURI !== expectedAttr.xmlns) {
+                throw new Error(`Expected dom domNode attribute '${ key }' to have namespace of '${ expectedAttr.xmlns }'`);
             }
         }
     }
@@ -52,7 +78,6 @@ function validateDOM(domNode : HTMLElement | Text, expected : ExpectedNode) {
         throw new Error(`Expected no children for ${ expected.name || 'element' }, found ${ children.length.toString() }`);
     }
 }
-
 describe('dom renderer cases', () => {
 
     it('should render a basic element as a dom element with a tag name, dynamic attribute, and inner text', () => {
@@ -813,6 +838,158 @@ describe('dom renderer cases', () => {
                             text: 'way'
                         }
                     ]
+                }
+            ]
+        });
+    });
+
+    it('should render as an svg element', () => {
+        const svgProps = {
+            width:   '36',
+            height:  '36',
+            viewBox: '0 0 36 36',
+            fill:    'transparent',
+            xmlns:   'http://www.w3.org/2000/svg'
+        };
+
+        const styles = 'path{transition: all 0.3s;}';
+
+
+        const pathProps = {
+            'stroke':           '#000000',
+            'stroke-width':   '2',
+            'stroke-linecap': 'round',
+            'transform':        'translate(12 12)'
+        };
+
+        const forwardSlashNodeProps = {
+            ...pathProps,
+            d:  'M12 0L0 12',
+            id: 'forwardSlash'
+        };
+
+        const backwardSlashNodeProps = {
+            ...pathProps,
+            d:  'M0 0L12 12',
+            id: 'backwardSlash'
+        };
+        
+        const circleProps = {
+            id: 'defCircle',
+            cx: '0',
+            cy: '0',
+            r:  '5'
+        };
+
+        const blueGradient = {
+            id:                'blueGradient',
+            gradientTransform: 'rotate(90)'
+        };
+
+        const blueGradientStart = {
+            'offset':     '0%',
+            'stop-color': 'white'
+        };
+
+        const blueGradientEnd = {
+            'offset':     '90%',
+            'stop-color': 'blue'
+        };
+
+        const useCircleProps = {
+            'x':          '5',
+            'y':          '5',
+            'xlink:href': '#defCircle',
+            'fill':       'url("#blueGradient")'
+        };
+
+        const someText = 'foo bar';
+
+        const SvgImage = () => {
+            return (
+                <svg { ...svgProps } >
+                    <defs>
+                        <circle { ...circleProps } />
+                        <linearGradient { ...blueGradient } >
+                            <stop { ...blueGradientStart } />
+                            <stop { ...blueGradientEnd } />
+                        </linearGradient>
+                    </defs>
+                    <use { ...useCircleProps } />
+                    <style>{ styles }</style>
+                    <path { ...forwardSlashNodeProps } />
+                    <path { ...backwardSlashNodeProps } />
+                    <text>{ someText }</text>
+                </svg>
+            );
+        };
+
+        const jsxNode = <SvgImage />;
+
+        const node1 = jsxNode.render(dom());
+
+        validateDOM(node1, {
+            name:     'svg',
+            attrs:    { ...svgProps },
+            children: [
+                {
+                    name:     'defs',
+                    element:  'SVGDefsElement',
+                    children: [
+                        {
+                            name:     'circle',
+                            element:  'SVGCircleElement',
+                            attrs:    { ...circleProps }
+                        },
+                        {
+                            name:     'lineargradient',
+                            element:  'SVGLinearGradientElement',
+                            attrs:    { ...blueGradient },
+                            children: [
+                                {
+                                    name:     'stop',
+                                    element:  'SVGStopElement',
+                                    attrs:    { ...blueGradientStart }
+                                },
+                                {
+                                    name:     'stop',
+                                    element:  'SVGStopElement',
+                                    attrs:    { ...blueGradientEnd }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name:    'use',
+                    element: 'SVGUseElement',
+                    attrs:   {
+                        ...useCircleProps,
+                        'xlink:href': {
+                            value: '#defCircle',
+                            xmlns: 'http://www.w3.org/1999/xlink'
+                        }
+                    }
+                },
+                {
+                    name:     'style',
+                    element:  'SVGStyleElement',
+                    children: [ { text: styles } ]
+                },
+                {
+                    name:     'path',
+                    element:  'SVGPathElement',
+                    attrs:    { ...forwardSlashNodeProps }
+                },
+                {
+                    name:     'path',
+                    element:  'SVGPathElement',
+                    attrs:    { ...backwardSlashNodeProps }
+                },
+                {
+                    name:     'text',
+                    element:  'SVGTextElement',
+                    children: [ { text: someText } ]
                 }
             ]
         });
