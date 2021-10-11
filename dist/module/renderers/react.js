@@ -1,12 +1,14 @@
 import _extends from "@babel/runtime/helpers/esm/extends";
 import _objectWithoutPropertiesLoose from "@babel/runtime/helpers/esm/objectWithoutPropertiesLoose";
+var _excluded = ["innerHTML", "class"];
+// eslint-disable-next-line import/no-unresolved
 import { ComponentNode, TextNode, ElementNode } from '../node';
 import { NODE_TYPE } from '../constants';
 
 function mapReactProps(props) {
   var innerHTML = props.innerHTML,
       className = props.class,
-      remainingProps = _objectWithoutPropertiesLoose(props, ["innerHTML", "class"]);
+      remainingProps = _objectWithoutPropertiesLoose(props, _excluded);
 
   var dangerouslySetInnerHTML = innerHTML ? {
     __html: innerHTML

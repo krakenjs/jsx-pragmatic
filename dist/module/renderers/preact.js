@@ -1,11 +1,12 @@
 import _extends from "@babel/runtime/helpers/esm/extends";
 import _objectWithoutPropertiesLoose from "@babel/runtime/helpers/esm/objectWithoutPropertiesLoose";
+var _excluded = ["innerHTML"];
 import { ComponentNode, TextNode, ElementNode } from '../node';
 import { NODE_TYPE } from '../constants';
 
 function mapPreactProps(props) {
   var innerHTML = props.innerHTML,
-      remainingProps = _objectWithoutPropertiesLoose(props, ["innerHTML"]);
+      remainingProps = _objectWithoutPropertiesLoose(props, _excluded);
 
   var dangerouslySetInnerHTML = innerHTML ? {
     __html: innerHTML

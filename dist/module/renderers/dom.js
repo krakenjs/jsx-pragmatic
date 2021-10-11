@@ -1,4 +1,4 @@
-var _ADD_CHILDREN;
+var _ELEMENT_DEFAULT_XML_, _ATTRIBUTE_DEFAULT_XM, _ADD_CHILDREN;
 
 import { ComponentNode, TextNode, ElementNode } from '../node';
 import { NODE_TYPE } from '../constants';
@@ -7,13 +7,17 @@ var ELEMENT_TAG = {
   HTML: 'html',
   IFRAME: 'iframe',
   SCRIPT: 'script',
+  SVG: 'svg',
   DEFAULT: 'default'
 };
 var ELEMENT_PROP = {
   ID: 'id',
   INNER_HTML: 'innerHTML',
-  EL: 'el'
+  EL: 'el',
+  XLINK_HREF: 'xlink:href'
 };
+var ELEMENT_DEFAULT_XML_NAMESPACE = (_ELEMENT_DEFAULT_XML_ = {}, _ELEMENT_DEFAULT_XML_[ELEMENT_TAG.SVG] = 'http://www.w3.org/2000/svg', _ELEMENT_DEFAULT_XML_);
+var ATTRIBUTE_DEFAULT_XML_NAMESPACE = (_ATTRIBUTE_DEFAULT_XM = {}, _ATTRIBUTE_DEFAULT_XM[ELEMENT_PROP.XLINK_HREF] = 'http://www.w3.org/1999/xlink', _ATTRIBUTE_DEFAULT_XM);
 
 function fixScripts(el, doc) {
   if (doc === void 0) {
@@ -37,9 +41,13 @@ function fixScripts(el, doc) {
 function createElement(doc, node) {
   if (node.props[ELEMENT_PROP.EL]) {
     return node.props[ELEMENT_PROP.EL];
+  } else {
+    return doc.createElement(node.name);
   }
+}
 
-  return doc.createElement(node.name);
+function createElementWithXMLNamespace(doc, node, xmlNamespace) {
+  return doc.createElementNS(xmlNamespace, node.name);
 }
 
 function createTextElement(doc, node) {
@@ -60,7 +68,13 @@ function addProps(el, node) {
     if (prop.match(/^on[A-Z][a-z]/) && typeof val === 'function') {
       el.addEventListener(prop.slice(2).toLowerCase(), val);
     } else if (typeof val === 'string' || typeof val === 'number') {
-      el.setAttribute(prop, val.toString());
+      var xmlNamespace = ATTRIBUTE_DEFAULT_XML_NAMESPACE[prop];
+
+      if (xmlNamespace) {
+        el.setAttributeNS(xmlNamespace, prop, val.toString());
+      } else {
+        el.setAttribute(prop, val.toString());
+      }
     } else if (typeof val === 'boolean') {
       if (val === true) {
         el.setAttribute(prop, '');
@@ -159,6 +173,31 @@ export function dom(opts) {
       _opts$doc = _opts.doc,
       doc = _opts$doc === void 0 ? document : _opts$doc;
 
+  var xmlNamespaceDomRenderer = function xmlNamespaceDomRenderer(node, xmlNamespace) {
+    if (node.type === NODE_TYPE.COMPONENT) {
+      return node.renderComponent(function (childNode) {
+        return xmlNamespaceDomRenderer(childNode, xmlNamespace);
+      });
+    }
+
+    if (node.type === NODE_TYPE.TEXT) {
+      // $FlowFixMe
+      return createTextElement(doc, node);
+    }
+
+    if (node.type === NODE_TYPE.ELEMENT) {
+      var el = createElementWithXMLNamespace(doc, node, xmlNamespace);
+      addProps(el, node);
+      addChildren(el, node, doc, function (childNode) {
+        return xmlNamespaceDomRenderer(childNode, xmlNamespace);
+      }); // $FlowFixMe
+
+      return el;
+    }
+
+    throw new TypeError("Unhandleable node");
+  };
+
   var domRenderer = function domRenderer(node) {
     if (node.type === NODE_TYPE.COMPONENT) {
       return node.renderComponent(domRenderer);
@@ -170,6 +209,13 @@ export function dom(opts) {
     }
 
     if (node.type === NODE_TYPE.ELEMENT) {
+      var xmlNamespace = ELEMENT_DEFAULT_XML_NAMESPACE[node.name.toLowerCase()];
+
+      if (xmlNamespace) {
+        // $FlowFixMe
+        return xmlNamespaceDomRenderer(node, xmlNamespace);
+      }
+
       var el = createElement(doc, node);
       addProps(el, node);
       addChildren(el, node, doc, domRenderer); // $FlowFixMe
