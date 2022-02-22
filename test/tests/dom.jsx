@@ -3,7 +3,7 @@
 /** @jsxFrag Fragment */
 /* eslint max-lines: off */
 
-import { node, dom, Fragment } from '../../src';  // eslint-disable-line no-unused-vars
+import { node, dom, Fragment } from '../../src';
 
 type ExpectedNode = {|
     name? : string,
@@ -17,7 +17,7 @@ function validateDOMElement(domNode : HTMLElement | Text, expected : ExpectedNod
     if (domNode.constructor.name === 'HTMLUnknownElement') {
         throw new Error(`Expected dom domNode '${ expected.name || 'undefiined' }' to be a valid element`);
     }
-    
+
     if (typeof expected.element === 'string' && domNode.constructor.name !== expected.element) {
         throw new Error(`Expected dom domNode '${ expected.element || 'undefiined' }', got ${ domNode.constructor.name || 'undefined' }`);
     }
@@ -186,7 +186,7 @@ describe('dom renderer cases', () => {
     it('should render an element with innerHTML and a script tag', () => {
 
         window.scriptTagRun = false;
-        
+
         const jsxNode = (
             <section innerHTML={ `<p id="foo"><script>window.scriptTagRun = true;</script></p>` } />
         );
@@ -266,11 +266,11 @@ describe('dom renderer cases', () => {
             throw new Error(`Expected error to be thrown`);
         }
     });
-    
+
     it('should render an element with a script tag', () => {
 
         window.scriptTagRun = false;
-        
+
         const jsxNode = (
             <section>
                 <p id="foo">
@@ -299,7 +299,7 @@ describe('dom renderer cases', () => {
     it('should render an element with multiple script tags', () => {
 
         window.scriptTagRunCount = 0;
-        
+
         const jsxNode = (
             <section>
                 <p id="foo">
@@ -873,7 +873,7 @@ describe('dom renderer cases', () => {
             d:  'M0 0L12 12',
             id: 'backwardSlash'
         };
-        
+
         const circleProps = {
             id: 'defCircle',
             cx: '0',

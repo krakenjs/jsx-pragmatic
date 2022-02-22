@@ -52,12 +52,12 @@ function renderChildren<T>(children : $ReadOnlyArray<ElementNode | TextNode | Co
 }
 
 export class ElementNode {
-    type : (typeof NODE_TYPE.ELEMENT) = NODE_TYPE.ELEMENT
+    type : (typeof NODE_TYPE.ELEMENT) = NODE_TYPE.ELEMENT;
 
-    name : string
-    props : NodePropsType
-    children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>> // eslint-disable-line no-use-before-define
-    onRender : ?<T>(T) => void // eslint-disable-line no-undef
+    name : string;
+    props : NodePropsType;
+    children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>; // eslint-disable-line no-use-before-define
+    onRender : ?<T>(T) => void; // eslint-disable-line no-undef
 
     constructor(name : string, props : NodePropsType, children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>) { // eslint-disable-line no-use-before-define
         this.name = name;
@@ -85,9 +85,9 @@ export class ElementNode {
 }
 
 export class FragmentNode {
-    type : (typeof NODE_TYPE.FRAGMENT) = NODE_TYPE.FRAGMENT
+    type : (typeof NODE_TYPE.FRAGMENT) = NODE_TYPE.FRAGMENT;
 
-    children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>> // eslint-disable-line no-use-before-define
+    children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>; // eslint-disable-line no-use-before-define
 
     constructor(children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>) { // eslint-disable-line no-use-before-define
         this.children = children;
@@ -99,9 +99,9 @@ export class FragmentNode {
 }
 
 export class TextNode {
-    type : (typeof NODE_TYPE.TEXT) = NODE_TYPE.TEXT
+    type : (typeof NODE_TYPE.TEXT) = NODE_TYPE.TEXT;
 
-    text : string
+    text : string;
 
     constructor(text : string) {
         this.text = text;
@@ -114,11 +114,12 @@ export class TextNode {
 
 // eslint-disable-next-line no-unused-vars
 export class ComponentNode<P = null> {
-    type : (typeof NODE_TYPE.COMPONENT) = NODE_TYPE.COMPONENT
+    type : (typeof NODE_TYPE.COMPONENT) = NODE_TYPE.COMPONENT;
 
-    component : ComponentFunctionType<NodePropsType>
-    props : NodePropsType
-    children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>
+    component : ComponentFunctionType<NodePropsType>;
+    props : NodePropsType;
+    // eslint-disable-next-line no-use-before-define
+    children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>;
 
     constructor(component : ComponentFunctionType<NodePropsType>, props : NodePropsType, children : $ReadOnlyArray<ElementNode | TextNode | ComponentNode<*>>) {
         this.component = component;
@@ -185,7 +186,7 @@ export const node : CreateNode = <P>(element, props : P, ...children) => {
         // $FlowFixMe
         return new ElementNode(element, props, children);
     }
-    
+
     if (typeof element === 'function') {
         // $FlowFixMe
         return new ComponentNode<*>(element, props, children);
