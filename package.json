@@ -1,5 +1,5 @@
 {
-  "name": "jsx-pragmatic",
+  "name": "@krakenjs/jsx-pragmatic",
   "version": "2.0.22",
   "description": "Javascript module template.",
   "main": "index.js",
