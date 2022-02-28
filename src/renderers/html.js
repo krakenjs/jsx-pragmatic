@@ -1,4 +1,5 @@
 /* @flow */
+/* eslint unicorn/prefer-spread: off */
 
 import { ComponentNode, TextNode, ElementNode, type NodePropsType, type NodeRenderer } from '../node';
 import { NODE_TYPE } from '../constants';
@@ -69,7 +70,7 @@ export function html() : HTMLRenderer {
         if (node.type === NODE_TYPE.COMPONENT) {
             return [].concat(node.renderComponent(htmlRenderer)).join('');
         }
-        
+
         if (node.type === NODE_TYPE.ELEMENT) {
             const renderedProps = propsToHTML(node.props);
 
@@ -83,7 +84,7 @@ export function html() : HTMLRenderer {
                 return `<${ node.name }${ renderedProps }>${ renderedChildren }</${ node.name }>`;
             }
         }
-        
+
         if (node.type === NODE_TYPE.TEXT) {
             return htmlEncode(node.text);
         }

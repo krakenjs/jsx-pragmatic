@@ -3,7 +3,7 @@
 /** @jsxFrag Fragment */
 /* eslint react/jsx-no-useless-fragment: off */
 
-import { node, html, Fragment } from '../../src'; // eslint-disable-line no-unused-vars
+import { node, html, Fragment } from '../../src';
 
 describe('html renderer cases', () => {
 
@@ -44,7 +44,7 @@ describe('html renderer cases', () => {
     });
 
     it('should escape special characters', () => {
-        
+
         const jsxNode = (
             <button foo={ `&"'$%<>` } { ...{ '$"\'': '<><>%$&' } }>${ `a&<<b>c"<d'''/` }</button>
         );
@@ -73,7 +73,7 @@ describe('html renderer cases', () => {
     });
 
     it('should render a basic element as html with innerHTML', () => {
-        
+
         const jsxNode = (
             <section>
                 <p foo="bar" innerHTML={ `<span>hello world</span>` } />
