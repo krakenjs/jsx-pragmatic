@@ -99,6 +99,7 @@ export var TextNode = /*#__PURE__*/function () {
 }(); // eslint-disable-next-line no-unused-vars
 
 export var ComponentNode = /*#__PURE__*/function () {
+  // eslint-disable-next-line no-use-before-define
   function ComponentNode(component, props, children) {
     this.type = NODE_TYPE.COMPONENT;
     this.component = void 0;

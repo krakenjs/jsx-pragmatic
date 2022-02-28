@@ -1,3 +1,4 @@
+/* eslint unicorn/prefer-spread: off */
 import { ComponentNode, TextNode, ElementNode } from '../node';
 import { NODE_TYPE } from '../constants';
 export function text() {
