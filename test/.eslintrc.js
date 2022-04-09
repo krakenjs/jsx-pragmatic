@@ -2,7 +2,7 @@
 /* eslint import/no-commonjs: off */
 
 module.exports = {
-    'extends': require.resolve('grumbler-scripts/config/.eslintrc-browser-test'),
+    'extends': require.resolve('@krakenjs/grumbler-scripts/config/.eslintrc-browser-test'),
 
     'rules': {
         'react/display-name':    'off',
