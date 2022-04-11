@@ -25,7 +25,7 @@ First we'll build a small component. We're not tying ourselves to any particular
 ```javascript
 /* @jsx node */
 
-import { node } from 'jsx-pragmatic';
+import { node } from '@krakenjs/jsx-pragmatic';
 
 function Login({ prefilledEmail }) {
   return (
@@ -45,7 +45,7 @@ Let's say we're on the server-side, and we want to render the jsx to html to ser
 ```javascript
 /* @jsx node */
 
-import { node, html } from 'jsx-pragmatic';
+import { node, html } from '@krakenjs/jsx-pragmatic';
 import { Login } from './components'
 
 function render() {
@@ -62,7 +62,7 @@ Now let's render the same jsx template on the client-side, directly to a DOM ele
 ```javascript
 /* @jsx node */
 
-import { node, dom } from 'jsx-pragmatic';
+import { node, dom } from '@krakenjs/jsx-pragmatic';
 import { Login } from './components'
 
 function render() {
@@ -79,7 +79,7 @@ Or if we're using the same component in React, we can render it as a React compo
 ```javascript
 /* @jsx node */
 
-import { node, react } from 'jsx-pragmatic';
+import { node, react } from '@krakenjs/jsx-pragmatic';
 import { Login } from './components'
 
 function render() {
@@ -96,7 +96,7 @@ Or if we're using the same component in Preact, we can render it as a Preact com
 ```javascript
 /* @jsx node */
 
-import { node, preact } from 'jsx-pragmatic';
+import { node, preact } from '@krakenjs/jsx-pragmatic';
 import { Login } from './components'
 
 function render() {
@@ -118,7 +118,7 @@ This example renders the jsx directly to DOM elements:
 ```javascript
 /* @jsx node */
 
-import { node, NODE_TYPE } from 'jsx-pragmatic';
+import { node, NODE_TYPE } from '@krakenjs/jsx-pragmatic';
 import { Login } from './components'
 
 function customDom({ removeScriptTags } = { removeScriptTags: false }) {
@@ -172,7 +172,7 @@ You can either import `Fragment` from `jsx-pragmatic`:
 ```javascript
 /* @jsx node */
 
-import { node, Fragment } from 'jsx-pragmatic';
+import { node, Fragment } from '@krakenjs/jsx-pragmatic';
 
 function Login({ prefilledEmail }) {
   return (
@@ -191,7 +191,7 @@ Or use the `@jsxFrag` comment, and the new `<>` `</>` syntax for Fragments, prov
 /* @jsx node */
 /* @jsxFrag Fragment */
 
-import { node, Fragment } from 'jsx-pragmatic';
+import { node, Fragment } from '@krakenjs/jsx-pragmatic';
 
 function Login({ prefilledEmail }) {
   return (
