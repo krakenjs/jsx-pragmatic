@@ -1,5 +1,4 @@
-JSX Pragmatic
--------------
+## JSX Pragmatic
 
 [![build status][build-badge]][build]
 [![code coverage][coverage-badge]][coverage]
@@ -25,7 +24,7 @@ First we'll build a small component. We're not tying ourselves to any particular
 ```javascript
 /* @jsx node */
 
-import { node } from 'jsx-pragmatic';
+import { node } from "jsx-pragmatic";
 
 function Login({ prefilledEmail }) {
   return (
@@ -45,13 +44,11 @@ Let's say we're on the server-side, and we want to render the jsx to html to ser
 ```javascript
 /* @jsx node */
 
-import { node, html } from 'jsx-pragmatic';
-import { Login } from './components'
+import { node, html } from "jsx-pragmatic";
+import { Login } from "./components";
 
 function render() {
-  return (
-    <Login prefilledEmail='foo@bar.com' />
-  ).render(html());
+  return (<Login prefilledEmail="foo@bar.com" />).render(html());
 }
 ```
 
@@ -62,13 +59,11 @@ Now let's render the same jsx template on the client-side, directly to a DOM ele
 ```javascript
 /* @jsx node */
 
-import { node, dom } from 'jsx-pragmatic';
-import { Login } from './components'
+import { node, dom } from "jsx-pragmatic";
+import { Login } from "./components";
 
 function render() {
-  return (
-    <Login prefilledEmail='foo@bar.com' />
-  ).render(dom());
+  return (<Login prefilledEmail="foo@bar.com" />).render(dom());
 }
 ```
 
@@ -79,13 +74,11 @@ Or if we're using the same component in React, we can render it as a React compo
 ```javascript
 /* @jsx node */
 
-import { node, react } from 'jsx-pragmatic';
-import { Login } from './components'
+import { node, react } from "jsx-pragmatic";
+import { Login } from "./components";
 
 function render() {
-  return (
-    <Login prefilledEmail='foo@bar.com' />
-  ).render(react({ React }));
+  return (<Login prefilledEmail="foo@bar.com" />).render(react({ React }));
 }
 ```
 
@@ -96,13 +89,11 @@ Or if we're using the same component in Preact, we can render it as a Preact com
 ```javascript
 /* @jsx node */
 
-import { node, preact } from 'jsx-pragmatic';
-import { Login } from './components'
+import { node, preact } from "jsx-pragmatic";
+import { Login } from "./components";
 
 function render() {
-  return (
-    <Login prefilledEmail='foo@bar.com' />
-  ).render(preact({ Preact }));
+  return (<Login prefilledEmail="foo@bar.com" />).render(preact({ Preact }));
 }
 ```
 
@@ -118,11 +109,10 @@ This example renders the jsx directly to DOM elements:
 ```javascript
 /* @jsx node */
 
-import { node, NODE_TYPE } from 'jsx-pragmatic';
-import { Login } from './components'
+import { node, NODE_TYPE } from "jsx-pragmatic";
+import { Login } from "./components";
 
 function customDom({ removeScriptTags } = { removeScriptTags: false }) {
-
   let domRenderer = (node) => {
     if (node.type === NODE_TYPE.COMPONENT) {
       return node.renderComponent(domRenderer);
@@ -133,13 +123,13 @@ function customDom({ removeScriptTags } = { removeScriptTags: false }) {
     }
 
     if (node.type === NODE_TYPE.ELEMENT) {
-      if (removeScriptTags && node.name === 'script') {
+      if (removeScriptTags && node.name === "script") {
         return;
       }
 
       let el = document.createElement(node.name);
 
-      for (let [ key, val ] of Object.entries(node.props)) {
+      for (let [key, val] of Object.entries(node.props)) {
         el.setAttribute(key, val);
       }
 
@@ -149,7 +139,7 @@ function customDom({ removeScriptTags } = { removeScriptTags: false }) {
 
       return el;
     }
-  }
+  };
 
   return domRenderer;
 }
@@ -159,9 +149,9 @@ Then when you're ready to use your renderer, just pass it into `.render()` and p
 
 ```javascript
 function render() {
-  return (
-    <Login prefilledEmail='foo@bar.com' />
-  ).render(customDom({ removeScriptTags: true }));
+  return (<Login prefilledEmail="foo@bar.com" />).render(
+    customDom({ removeScriptTags: true })
+  );
 }
 ```
 
@@ -172,7 +162,7 @@ You can either import `Fragment` from `jsx-pragmatic`:
 ```javascript
 /* @jsx node */
 
-import { node, Fragment } from 'jsx-pragmatic';
+import { node, Fragment } from "jsx-pragmatic";
 
 function Login({ prefilledEmail }) {
   return (
@@ -191,7 +181,7 @@ Or use the `@jsxFrag` comment, and the new `<>` `</>` syntax for Fragments, prov
 /* @jsx node */
 /* @jsxFrag Fragment */
 
-import { node, Fragment } from 'jsx-pragmatic';
+import { node, Fragment } from "jsx-pragmatic";
 
 function Login({ prefilledEmail }) {
   return (
@@ -228,8 +218,7 @@ The only problem with that is, the decision of which pragma to use is made entir
 
 It also abstracts away some of the stuff in jsx that's a little tricky to deal with; like nested children arrays, dealing with basic element vs function components, and fragments -- leaving you to focus on the renderer logic.
 
-Quick Start
------------
+## Quick Start
 
 #### Install
 

@@ -3,23 +3,22 @@
 /** @jsxFrag Fragment */
 /* eslint max-lines: off */
 
-import { node, html, Style } from '../../src';
+import { node, html, Style } from "../../src";
 
-describe('style cases', () => {
-
-    it('should render a style component', () => {
-        const css = `
+describe("style cases", () => {
+  it("should render a style component", () => {
+    const css = `
             b {
                 color: blue;
             }
         `;
 
-        const jsxNode = (
-            <Style css={ css }>
-                <b>Hello world</b>
-            </Style>
-        );
+    const jsxNode = (
+      <Style css={css}>
+        <b>Hello world</b>
+      </Style>
+    );
 
-        jsxNode.render(html());
-    });
+    jsxNode.render(html());
+  });
 });
