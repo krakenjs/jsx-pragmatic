@@ -1,5 +1,3 @@
-/* @flow */
-
 export * from "./text";
 export * from "./dom";
 export * from "./react";

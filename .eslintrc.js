@@ -1,13 +1,13 @@
-/* @flow */
-
 module.exports = {
-  extends: "@krakenjs/eslint-config-grumbler/eslintrc-browser",
+  extends:
+    "./node_modules/@krakenjs/eslint-config-grumbler/eslintrc-typescript.js",
+
+  globals: {
+    __TEST__: true,
+  },
 
   rules: {
-    "react/display-name": "off",
-    "react/button-has-type": "off",
-    "react/prop-types": "off",
-    "react/require-default-props": "off",
+    "@typescript-eslint/keyword-spacing": "off",
   },
 
   overrides: [

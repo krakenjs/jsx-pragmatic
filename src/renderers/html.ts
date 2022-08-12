@@ -1,24 +1,14 @@
-/* @flow */
 /* eslint unicorn/prefer-spread: off */
-
-import {
-  ComponentNode,
-  TextNode,
-  ElementNode,
-  type NodePropsType,
-  type NodeRenderer,
-} from "../node";
+import type { NodePropsType, NodeRenderer } from "../node";
+import { ComponentNode, TextNode, ElementNode } from "../node";
 import { NODE_TYPE } from "../constants";
-
 type HTMLRenderer = NodeRenderer<
-  ElementNode | TextNode | ComponentNode<*>,
+  ElementNode | TextNode | ComponentNode<any>,
   string
 >;
-
 const ELEMENT_PROP = {
   INNER_HTML: "innerHTML",
 };
-
 const SELF_CLOSING_TAGS = {
   br: true,
 };
@@ -69,7 +59,6 @@ function propsToHTML(props: NodePropsType): string {
 
     return `${htmlEncode(key)}="${htmlEncode(val.toString())}"`;
   });
-
   return ` ${pairs.join(" ")}`;
 }
 
@@ -89,7 +78,6 @@ export function html(): HTMLRenderer {
           typeof node.props[ELEMENT_PROP.INNER_HTML] === "string"
             ? node.props[ELEMENT_PROP.INNER_HTML]
             : node.renderChildren(htmlRenderer).join("");
-
         return `<${node.name}${renderedProps}>${renderedChildren}</${node.name}>`;
       }
     }

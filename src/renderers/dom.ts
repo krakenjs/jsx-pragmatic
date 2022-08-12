@@ -1,22 +1,15 @@
-/* @flow */
-
-import {
-  ComponentNode,
-  TextNode,
-  type NodeRenderer,
-  ElementNode,
-} from "../node";
+import { $Values } from "utility-types";
+import type { NodeRenderer } from "../node";
+import { ComponentNode, TextNode, ElementNode } from "../node";
 import { NODE_TYPE } from "../constants";
 import { uniqueID } from "../util";
-
 type DomNodeRenderer = NodeRenderer<ElementNode, HTMLElement>;
 type DomTextRenderer = NodeRenderer<TextNode, Text>;
 type DomComponentRenderer = NodeRenderer<
-  ComponentNode<*>,
-  HTMLElement | TextNode | $ReadOnlyArray<HTMLElement | TextNode> | void
+  ComponentNode<any>,
+  HTMLElement | TextNode | ReadonlyArray<HTMLElement | TextNode> | void
 >;
 type DomRenderer = DomComponentRenderer & DomNodeRenderer & DomTextRenderer;
-
 const ELEMENT_TAG = {
   HTML: "html",
   IFRAME: "iframe",
@@ -24,23 +17,22 @@ const ELEMENT_TAG = {
   SVG: "svg",
   DEFAULT: "default",
 };
-
 const ELEMENT_PROP = {
   ID: "id",
   INNER_HTML: "innerHTML",
   EL: "el",
   XLINK_HREF: "xlink:href",
 };
-
-const ELEMENT_DEFAULT_XML_NAMESPACE: {|
-  [$Values<typeof ELEMENT_TAG>]: string,
-|} = {
+const ELEMENT_DEFAULT_XML_NAMESPACE: Record<
+  $Values<typeof ELEMENT_TAG>,
+  string
+> = {
   [ELEMENT_TAG.SVG]: "http://www.w3.org/2000/svg",
 };
-
-const ATTRIBUTE_DEFAULT_XML_NAMESPACE: {|
-  [$Values<typeof ELEMENT_PROP>]: string,
-|} = {
+const ATTRIBUTE_DEFAULT_XML_NAMESPACE: Record<
+  $Values<typeof ELEMENT_PROP>,
+  string
+> = {
   [ELEMENT_PROP.XLINK_HREF]: "http://www.w3.org/1999/xlink",
 };
 
@@ -103,6 +95,7 @@ function addProps(el: HTMLElement | Element, node) {
       el.addEventListener(prop.slice(2).toLowerCase(), val);
     } else if (typeof val === "string" || typeof val === "number") {
       const xmlNamespace = ATTRIBUTE_DEFAULT_XML_NAMESPACE[prop];
+
       if (xmlNamespace) {
         el.setAttributeNS(xmlNamespace, prop, val.toString());
       } else {
@@ -119,9 +112,15 @@ function addProps(el: HTMLElement | Element, node) {
     el.setAttribute(ELEMENT_PROP.ID, `jsx-iframe-${uniqueID()}`);
   }
 }
-const ADD_CHILDREN: {
-  [string]: (HTMLElement | Element, ElementNode, DomNodeRenderer) => void,
-} = {
+
+const ADD_CHILDREN: Record<
+  string,
+  (
+    arg0: HTMLElement | Element,
+    arg1: ElementNode,
+    arg2: DomNodeRenderer
+  ) => void
+> = {
   [ELEMENT_TAG.IFRAME]: (el, node) => {
     const firstChild = node.children[0];
 
@@ -151,14 +150,17 @@ const ADD_CHILDREN: {
       }
 
       // eslint-disable-next-line no-use-before-define
-      const child: HTMLElement = firstChild.render(dom({ doc }));
+      const child: HTMLElement = firstChild.render(
+        dom({
+          doc,
+        })
+      );
 
       while (child.children.length) {
         docElement.appendChild(child.children[0]);
       }
     });
   },
-
   [ELEMENT_TAG.SCRIPT]: (el, node) => {
     const firstChild = node.children[0];
 
@@ -174,7 +176,6 @@ const ADD_CHILDREN: {
     // $FlowFixMe
     el.text = firstChild.text;
   },
-
   [ELEMENT_TAG.DEFAULT]: (el, node, renderer) => {
     for (const child of node.renderChildren(renderer)) {
       el.appendChild(child);
@@ -215,16 +216,16 @@ function addChildren(
   }
 }
 
-type DomOptions = {|
-  doc?: Document,
-|};
+type DomOptions = {
+  doc?: Document;
+};
 
 const getDefaultDomOptions = (): DomOptions => {
   // $FlowFixMe
   return {};
 };
 
-export function dom(opts?: DomOptions = getDefaultDomOptions()): DomRenderer {
+export function dom(opts: DomOptions = getDefaultDomOptions()): DomRenderer {
   const { doc = document } = opts;
 
   const xmlNamespaceDomRenderer = (

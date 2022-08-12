@@ -1,30 +1,22 @@
-/* @flow */
-
-import {
-  ComponentNode,
-  TextNode,
-  ElementNode,
-  type NodeRenderer,
-  type NodePropsType,
-} from "../node";
+import type { NodeRenderer, NodePropsType } from "../node";
+import { ComponentNode, TextNode, ElementNode } from "../node";
 import { NODE_TYPE } from "../constants";
-
-type PreactType = {|
-  h: Function,
-|};
-
-type PreactNode = {||};
-
+type PreactType = {
+  h: (...args: Array<any>) => any;
+};
+type PreactNode = {};
 type PreactRenderer = NodeRenderer<
-  ElementNode | TextNode | ComponentNode<*>,
+  ElementNode | TextNode | ComponentNode<any>,
   PreactNode | string | null
 >;
 
 function mapPreactProps(props: NodePropsType): NodePropsType {
   const { innerHTML, ...remainingProps } = props;
-
-  const dangerouslySetInnerHTML = innerHTML ? { __html: innerHTML } : null;
-
+  const dangerouslySetInnerHTML = innerHTML
+    ? {
+        __html: innerHTML,
+      }
+    : null;
   // $FlowFixMe
   return {
     dangerouslySetInnerHTML,
@@ -34,7 +26,9 @@ function mapPreactProps(props: NodePropsType): NodePropsType {
 
 export function preact({
   Preact,
-}: {| Preact: PreactType |} = {}): PreactRenderer {
+}: {
+  Preact: PreactType;
+} = {}): PreactRenderer {
   if (!Preact) {
     throw new Error(`Must pass Preact library to react renderer`);
   }

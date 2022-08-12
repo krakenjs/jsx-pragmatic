@@ -1,30 +1,22 @@
-/* @flow */
-
 import type { Node } from "react";
-
-import {
-  ComponentNode,
-  TextNode,
-  ElementNode,
-  type NodeRenderer,
-  type NodePropsType,
-} from "../node";
+import type { NodeRenderer, NodePropsType } from "../node";
+import { ComponentNode, TextNode, ElementNode } from "../node";
 import { NODE_TYPE } from "../constants";
-
-type ReactType = {|
-  createElement: Function,
-|};
-
+type ReactType = {
+  createElement: (...args: Array<any>) => any;
+};
 type ReactRenderer = NodeRenderer<
-  ElementNode | TextNode | ComponentNode<*>,
+  ElementNode | TextNode | ComponentNode<any>,
   Node | string | null
 >;
 
 function mapReactProps(props: NodePropsType): NodePropsType {
   const { innerHTML, class: className, ...remainingProps } = props;
-
-  const dangerouslySetInnerHTML = innerHTML ? { __html: innerHTML } : null;
-
+  const dangerouslySetInnerHTML = innerHTML
+    ? {
+        __html: innerHTML,
+      }
+    : null;
   // $FlowFixMe
   return {
     dangerouslySetInnerHTML,
@@ -33,7 +25,11 @@ function mapReactProps(props: NodePropsType): NodePropsType {
   };
 }
 
-export function react({ React }: {| React: ReactType |} = {}): ReactRenderer {
+export function react({
+  React,
+}: {
+  React: ReactType;
+} = {}): ReactRenderer {
   if (!React) {
     throw new Error(`Must pass React library to react renderer`);
   }

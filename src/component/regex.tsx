@@ -1,7 +1,6 @@
-/* @flow */
 /** @jsx node */
-
-import { type ChildType, type ChildrenType, TextNode } from "../node";
+import type { ChildType, ChildrenType } from "../node";
+import { TextNode } from "../node";
 import { isDefined } from "../util";
 import { NODE_TYPE } from "../constants";
 import { regex } from "../renderers";
@@ -12,7 +11,7 @@ const escapeRegex = (text: string): string => {
 
 const validateChildren = (
   name: string,
-  children: ?ChildrenType
+  children: ChildrenType | null | undefined
 ): ChildrenType => {
   if (!children) {
     throw new Error(`Must pass children to ${name}`);
@@ -21,7 +20,10 @@ const validateChildren = (
   return children;
 };
 
-const validateNoChildren = (name: string, children: ?ChildrenType) => {
+const validateNoChildren = (
+  name: string,
+  children: ChildrenType | null | undefined
+) => {
   if (children && children.length) {
     throw new Error(`Must not pass children to ${name}`);
   }
@@ -29,10 +31,9 @@ const validateNoChildren = (name: string, children: ?ChildrenType) => {
 
 const validateAndEscapeChildren = (
   name: string,
-  children: ?ChildrenType
+  children: ChildrenType | null | undefined
 ): ChildrenType => {
   children = validateChildren(name, children);
-
   return children.map((child) => {
     if (child.type === NODE_TYPE.TEXT) {
       return new TextNode(escapeRegex(child.text));
@@ -42,10 +43,9 @@ const validateAndEscapeChildren = (
   });
 };
 
-export type RegexOptions = {|
-  exact?: boolean,
-|};
-
+export type RegexOptions = {
+  exact?: boolean;
+};
 export function Regex(
   { exact = true }: RegexOptions,
   children?: ChildrenType
@@ -58,48 +58,38 @@ export function Regex(
 
   return ["^", ...children, "$"];
 }
-
 Regex.renderer = regex;
-
-type RegexTextOptions = {||};
-
+type RegexTextOptions = {};
 export function RegexText(
   props: RegexTextOptions,
   children?: ChildrenType
 ): ChildType {
   return validateAndEscapeChildren("RegexText", children);
 }
-
-type RegexWordOptions = {||};
-
+type RegexWordOptions = {};
 export function RegexWord(
   props: RegexWordOptions,
   children?: ChildrenType
 ): ChildType {
   validateNoChildren("RegexWord", children);
-
   return "\\w+";
 }
-
-type RegexCharactersOptions = {||};
-
+type RegexCharactersOptions = {};
 export function RegexCharacters(
   props: RegexCharactersOptions,
   children?: ChildrenType
 ): ChildType {
   return ["[", ...validateAndEscapeChildren("RegexText", children), "]"];
 }
-
-type RegexGroupOptions = {|
-  optional?: boolean,
-  repeat?: boolean | number,
-  repeatMin?: number,
-  repeatMax?: number,
-  capture?: boolean,
-  union?: boolean,
-  name?: string,
-|};
-
+type RegexGroupOptions = {
+  optional?: boolean;
+  repeat?: boolean | number;
+  repeatMin?: number;
+  repeatMax?: number;
+  capture?: boolean;
+  union?: boolean;
+  name?: string;
+};
 export function RegexGroup(
   {
     repeat,
@@ -135,7 +125,6 @@ export function RegexGroup(
   }
 
   const result = [];
-
   result.push(capture ? "(" : "(?:");
 
   if (name) {
@@ -163,15 +152,12 @@ export function RegexGroup(
 
   return result;
 }
-
-type RegexUnionOptions = {||};
-
+type RegexUnionOptions = {};
 export function RegexUnion(
   props: RegexUnionOptions,
   children?: ChildrenType
 ): ChildType {
   children = validateAndEscapeChildren("RegexGroup", children);
-
   const result = [];
 
   for (const child of children) {
@@ -180,6 +166,5 @@ export function RegexUnion(
   }
 
   result.pop();
-
   return result;
 }

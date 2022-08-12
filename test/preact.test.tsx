@@ -1,27 +1,24 @@
-/* @flow */
 /** @jsx node */
+import { describe, expect, it } from "vitest";
 
-import { node, react, type ElementNode } from "../../src";
-
-describe("react renderer cases", () => {
-  it("should render a basic element as a React element with a tag name, dynamic attribute, and inner text", () => {
+import type { ElementNode } from "../src";
+import { node, preact } from "../src";
+describe("preact renderer cases", () => {
+  it("should render a basic element as a Preact element with a tag name, dynamic attribute, and inner text", () => {
     const bar = "baz";
-
     const jsxNode = <button foo={bar}>click me</button>;
-
     let createElementCalled = false;
-
-    const React = {
-      createElement: (name, props, ...children) => {
+    const Preact = {
+      h: (name, props, ...children) => {
         createElementCalled = true;
 
         if (name !== "button") {
-          throw new Error(`Expected React tag name to be button, got ${name}`);
+          throw new Error(`Expected Preact tag name to be button, got ${name}`);
         }
 
         if (children[0] !== "click me") {
           throw new Error(
-            `Expected React inner text to be 'click me', got '${children[0]}'`
+            `Expected Preact inner text to be 'click me', got '${children[0]}'`
           );
         }
 
@@ -32,60 +29,30 @@ describe("react renderer cases", () => {
         }
       },
     };
-
-    jsxNode.render(react({ React }));
-
-    if (!createElementCalled) {
-      throw new Error(`Expected React.createElement to be called`);
-    }
-  });
-
-  it("should render a basic element as a React element with a class", () => {
-    const bar = "baz";
-
-    const jsxNode = <button class={bar}>click me</button>;
-
-    let createElementCalled = false;
-
-    const React = {
-      createElement: (name, props) => {
-        createElementCalled = true;
-
-        if (props.class) {
-          throw new Error(`Expected to not get class prop`);
-        }
-
-        if (props.className !== bar) {
-          throw new Error(
-            `Expected dom node attribute 'className' to be '${bar}', got ${props.className}`
-          );
-        }
-      },
-    };
-
-    jsxNode.render(react({ React }));
+    jsxNode.render(
+      preact({
+        Preact,
+      })
+    );
 
     if (!createElementCalled) {
-      throw new Error(`Expected React.createElement to be called`);
+      throw new Error(`Expected Preact.createElement to be called`);
     }
   });
-
-  it("should render a basic element as a React element with a child node", () => {
+  it("should render a basic element as a Preact element with a child node", () => {
     const jsxNode = (
       <section>
         <button>click me</button>
       </section>
     );
-
     let createElementCalled = false;
-
-    const React = {
-      createElement: (name, props, ...children) => {
+    const Preact = {
+      h: (name, props, ...children) => {
         createElementCalled = true;
 
         if (name !== "button" && name !== "section") {
           throw new Error(
-            `Expected React tag name to be button or section, got ${name}`
+            `Expected Preact tag name to be button or section, got ${name}`
           );
         }
 
@@ -99,22 +66,26 @@ describe("react renderer cases", () => {
           );
         }
 
-        return { name };
+        return {
+          name,
+        };
       },
     };
-
-    jsxNode.render(react({ React }));
+    jsxNode.render(
+      preact({
+        Preact,
+      })
+    );
 
     if (!createElementCalled) {
-      throw new Error(`Expected React.createElement to be called`);
+      throw new Error(`Expected Preact.createElement to be called`);
     }
   });
-
-  it("should error out if not passed React", () => {
+  it("should error out if not passed Preact", () => {
     let error;
 
     try {
-      react();
+      preact();
     } catch (err) {
       error = err;
     }
@@ -123,10 +94,8 @@ describe("react renderer cases", () => {
       throw new Error(`Expected error to be thrown`);
     }
   });
-
   it("should call onRender when the element is rendered", () => {
     let onRenderResult;
-
     const jsxNode = (
       <div
         onRender={(el) => {
@@ -134,21 +103,22 @@ describe("react renderer cases", () => {
         }}
       />
     );
-
-    const React = {
-      createElement: () => {
+    const Preact = {
+      h: () => {
         return {};
       },
     };
-
-    const renderResult = jsxNode.render(react({ React }));
+    const renderResult = jsxNode.render(
+      preact({
+        Preact,
+      })
+    );
 
     if (onRenderResult !== renderResult) {
       throw new Error(`Expected onRender to be passed correct element`);
     }
   });
-
-  it("should render a function element as a React element with a prop", () => {
+  it("should render a function element as a Preact element with a prop", () => {
     const bar = "baz";
 
     const MyComponent = ({ baz }): ElementNode => (
@@ -156,12 +126,10 @@ describe("react renderer cases", () => {
     );
 
     const jsxNode = <MyComponent baz={bar} />;
-
     let createElementCalledFunction = false;
     let createElementCalledElement = false;
-
-    const React = {
-      createElement: (el, props, ...children) => {
+    const Preact = {
+      h: (el, props, ...children) => {
         if (typeof el === "function") {
           createElementCalledFunction = true;
 
@@ -171,20 +139,17 @@ describe("react renderer cases", () => {
             );
           }
 
-          el({
-            ...props,
-            children,
-          });
+          el({ ...props, children });
         } else if (typeof el === "string") {
           createElementCalledElement = true;
 
           if (el !== "button") {
-            throw new Error(`Expected React tag name to be button, got ${el}`);
+            throw new Error(`Expected Preact tag name to be button, got ${el}`);
           }
 
           if (children[0] !== "click me") {
             throw new Error(
-              `Expected React inner text to be 'click me', got '${children[0]}'`
+              `Expected Preact inner text to be 'click me', got '${children[0]}'`
             );
           }
 
@@ -196,22 +161,24 @@ describe("react renderer cases", () => {
         }
       },
     };
-
-    jsxNode.render(react({ React }));
+    jsxNode.render(
+      preact({
+        Preact,
+      })
+    );
 
     if (!createElementCalledFunction) {
       throw new Error(
-        `Expected React.createElement to be called with a function component`
+        `Expected Preact.createElement to be called with a function component`
       );
     }
 
     if (!createElementCalledElement) {
       throw new Error(
-        `Expected React.createElement to be called with an element component`
+        `Expected Preact.createElement to be called with an element component`
       );
     }
   });
-
   it("should render a function element returning undefined", () => {
     const bar = "baz";
 
@@ -220,11 +187,9 @@ describe("react renderer cases", () => {
     };
 
     const jsxNode = <MyComponent baz={bar} />;
-
     let createElementCalledFunction = false;
-
-    const React = {
-      createElement: (el, props, ...children) => {
+    const Preact = {
+      h: (el, props, ...children) => {
         if (typeof el === "function") {
           createElementCalledFunction = true;
 
@@ -236,28 +201,30 @@ describe("react renderer cases", () => {
 
           if (typeof result === "undefined") {
             throw new TypeError(
-              `React component should never return undefined`
+              `Preact component should never return undefined`
             );
           }
 
           if (result !== null) {
             throw new Error(
-              `React component should always return null when blank`
+              `Preact component should always return null when blank`
             );
           }
         }
       },
     };
-
-    jsxNode.render(react({ React }));
+    jsxNode.render(
+      preact({
+        Preact,
+      })
+    );
 
     if (!createElementCalledFunction) {
       throw new Error(
-        `Expected React.createElement to be called with a function component`
+        `Expected Preact.createElement to be called with a function component`
       );
     }
   });
-
   it("should render a function element returning null", () => {
     const bar = "baz";
 
@@ -266,11 +233,9 @@ describe("react renderer cases", () => {
     };
 
     const jsxNode = <MyComponent baz={bar} />;
-
     let createElementCalledFunction = false;
-
-    const React = {
-      createElement: (el, props, ...children) => {
+    const Preact = {
+      h: (el, props, ...children) => {
         if (typeof el === "function") {
           createElementCalledFunction = true;
 
@@ -282,28 +247,30 @@ describe("react renderer cases", () => {
 
           if (typeof result === "undefined") {
             throw new TypeError(
-              `React component should never return undefined`
+              `Preact component should never return undefined`
             );
           }
 
           if (result !== null) {
             throw new Error(
-              `React component should always return null when blank`
+              `Preact component should always return null when blank`
             );
           }
         }
       },
     };
-
-    jsxNode.render(react({ React }));
+    jsxNode.render(
+      preact({
+        Preact,
+      })
+    );
 
     if (!createElementCalledFunction) {
       throw new Error(
-        `Expected React.createElement to be called with a function component`
+        `Expected Preact.createElement to be called with a function component`
       );
     }
   });
-
   it("should pass children as a prop", () => {
     const foo = "bar";
     const bar = "baz";
@@ -315,14 +282,11 @@ describe("react renderer cases", () => {
         <button bar={bar}>click me</button>
       </MyComponent>
     );
-
     let createElementCalledFunction = false;
     let createElementCalledElement = false;
-
     const renderedElement = {};
-
-    const React = {
-      createElement: (el, props, ...children) => {
+    const Preact = {
+      h: (el, props, ...children) => {
         if (typeof el === "function") {
           createElementCalledFunction = true;
 
@@ -340,10 +304,7 @@ describe("react renderer cases", () => {
             throw new Error(`Expected to have child`);
           }
 
-          const result = el({
-            ...props,
-            children,
-          });
+          const result = el({ ...props, children });
 
           if (result !== renderedElement) {
             throw new Error(`Expected el function to return children`);
@@ -354,12 +315,12 @@ describe("react renderer cases", () => {
           createElementCalledElement = true;
 
           if (el !== "button") {
-            throw new Error(`Expected React tag name to be button, got ${el}`);
+            throw new Error(`Expected Preact tag name to be button, got ${el}`);
           }
 
           if (children[0] !== "click me") {
             throw new Error(
-              `Expected React inner text to be 'click me', got '${children[0]}'`
+              `Expected Preact inner text to be 'click me', got '${children[0]}'`
             );
           }
 
@@ -373,35 +334,34 @@ describe("react renderer cases", () => {
         }
       },
     };
-
-    jsxNode.render(react({ React }));
+    jsxNode.render(
+      preact({
+        Preact,
+      })
+    );
 
     if (!createElementCalledFunction) {
       throw new Error(
-        `Expected React.createElement to be called with a function component`
+        `Expected Preact.createElement to be called with a function component`
       );
     }
 
     if (!createElementCalledElement) {
       throw new Error(
-        `Expected React.createElement to be called with an element component`
+        `Expected Preact.createElement to be called with an element component`
       );
     }
   });
-
-  it("should render a basic element as a React element with innerHTML", () => {
+  it("should render a basic element as a Preact element with innerHTML", () => {
     const html = `div: { color: red }`;
-
     const jsxNode = <style innerHTML={html} />;
-
     let createElementCalled = false;
-
-    const React = {
-      createElement: (name, props) => {
+    const Preact = {
+      h: (name, props) => {
         createElementCalled = true;
 
         if (name !== "style") {
-          throw new Error(`Expected React tag name to be style, got ${name}`);
+          throw new Error(`Expected Preact tag name to be style, got ${name}`);
         }
 
         if (
@@ -420,11 +380,14 @@ describe("react renderer cases", () => {
         }
       },
     };
-
-    jsxNode.render(react({ React }));
+    jsxNode.render(
+      preact({
+        Preact,
+      })
+    );
 
     if (!createElementCalled) {
-      throw new Error(`Expected React.createElement to be called`);
+      throw new Error(`Expected Preact.createElement to be called`);
     }
   });
 });

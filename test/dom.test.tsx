@@ -1,17 +1,25 @@
-/* @flow */
 /** @jsx node */
+
 /** @jsxFrag Fragment */
+
 /* eslint max-lines: off, unicorn/prefer-spread: off */
+import { describe, expect, it } from "vitest";
 
-import { node, dom, Fragment } from "../../src";
-
-type ExpectedNode = {|
-  name?: string,
-  element?: string,
-  attrs?: { [string]: string | {| value: string, xmlns?: string |} },
-  text?: string,
-  children?: $ReadOnlyArray<ExpectedNode>,
-|};
+import { node, dom, Fragment } from "../src";
+type ExpectedNode = {
+  name?: string;
+  element?: string;
+  attrs?: Record<
+    string,
+    | string
+    | {
+        value: string;
+        xmlns?: string;
+      }
+  >;
+  text?: string;
+  children?: ReadonlyArray<ExpectedNode>;
+};
 
 function validateDOMElement(
   domNode: HTMLElement | Text,
@@ -68,10 +76,15 @@ function validateDOM(domNode: HTMLElement | Text, expected: ExpectedNode) {
   }
 
   const attrs = expected.attrs;
+
   if (attrs) {
     for (const key of Object.keys(attrs)) {
       const expectedAttr =
-        typeof attrs[key] === "string" ? { value: attrs[key] } : attrs[key];
+        typeof attrs[key] === "string"
+          ? {
+              value: attrs[key],
+            }
+          : attrs[key];
 
       if (domNode.getAttribute(key) !== expectedAttr.value) {
         throw new Error(
@@ -93,7 +106,7 @@ function validateDOM(domNode: HTMLElement | Text, expected: ExpectedNode) {
   }
 
   // $FlowFixMe
-  const children: $ReadOnlyArray<HTMLElement | Text> = Array.from(
+  const children: ReadonlyArray<HTMLElement | Text> = Array.from(
     domNode.childNodes
   ).filter((child) => {
     return (
@@ -121,14 +134,12 @@ function validateDOM(domNode: HTMLElement | Text, expected: ExpectedNode) {
     );
   }
 }
+
 describe("dom renderer cases", () => {
   it("should render a basic element as a dom element with a tag name, dynamic attribute, and inner text", () => {
     const bar = "baz";
-
     const jsxNode = <button foo={bar}>click me</button>;
-
     const domNode = jsxNode.render(dom());
-
     validateDOM(domNode, {
       name: "button",
       attrs: {
@@ -141,19 +152,15 @@ describe("dom renderer cases", () => {
       ],
     });
   });
-
   it("should render an advanced element as a dom element ", () => {
     const bar = "baz";
-
     const jsxNode = (
       <section foo={null} bar={undefined}>
         <p hello={true} />
         <button foo={bar}>click me</button>
       </section>
     );
-
     const domNode = jsxNode.render(dom());
-
     validateDOM(domNode, {
       name: "section",
       children: [
@@ -177,10 +184,8 @@ describe("dom renderer cases", () => {
       ],
     });
   });
-
   it("should render an element with an event listener", () => {
     let clicked = false;
-
     const jsxNode = (
       <button
         onClick={() => {
@@ -190,21 +195,16 @@ describe("dom renderer cases", () => {
         click me
       </button>
     );
-
     const domNode = jsxNode.render(dom());
-
     domNode.click();
 
     if (!clicked) {
       throw new Error(`Expected button to be clicked`);
     }
   });
-
   it("should render an element with innerHTML", () => {
     const jsxNode = <section innerHTML={`<p id="foo">hello world</p>`} />;
-
     const domNode = jsxNode.render(dom());
-
     validateDOM(domNode, {
       name: "section",
       children: [
@@ -222,18 +222,14 @@ describe("dom renderer cases", () => {
       ],
     });
   });
-
   it("should render an element with innerHTML and a script tag", () => {
     window.scriptTagRun = false;
-
     const jsxNode = (
       <section
         innerHTML={`<p id="foo"><script>window.scriptTagRun = true;</script></p>`}
       />
     );
-
     const domNode = jsxNode.render(dom());
-
     const body = document.body;
 
     if (!body) {
@@ -246,14 +242,10 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected script tag to run`);
     }
   });
-
   it("should render an element with innerHTML as a script tag", () => {
     window.scriptTagRun = false;
-
     const jsxNode = <script innerHTML={`window.scriptTagRun = true;`} />;
-
     const domNode = jsxNode.render(dom());
-
     const body = document.body;
 
     if (!body) {
@@ -266,10 +258,8 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected script tag to run`);
     }
   });
-
   it("should error when a non-string is passed as innerHTML to a script tag", () => {
     const jsxNode = <script innerHTML={1} />;
-
     let error;
 
     try {
@@ -282,14 +272,12 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected error to be thrown`);
     }
   });
-
   it("should error when both innerHTML and children are passed to an element", () => {
     const jsxNode = (
       <div innerHTML={"hello"}>
         <p />
       </div>
     );
-
     let error;
 
     try {
@@ -302,10 +290,8 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected error to be thrown`);
     }
   });
-
   it("should render an element with a script tag", () => {
     window.scriptTagRun = false;
-
     const jsxNode = (
       <section>
         <p id="foo">
@@ -313,9 +299,7 @@ describe("dom renderer cases", () => {
         </p>
       </section>
     );
-
     const domNode = jsxNode.render(dom());
-
     const body = document.body;
 
     if (!body) {
@@ -328,10 +312,8 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected script tag to run`);
     }
   });
-
   it("should render an element with multiple script tags", () => {
     window.scriptTagRunCount = 0;
-
     const jsxNode = (
       <section>
         <p id="foo">
@@ -340,9 +322,7 @@ describe("dom renderer cases", () => {
         <script>window.scriptTagRunCount += 1;</script>
       </section>
     );
-
     const domNode = jsxNode.render(dom());
-
     const body = document.body;
 
     if (!body) {
@@ -355,7 +335,6 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected both script tags to run`);
     }
   });
-
   it("should error when an element node is passed as a child to a script tag", () => {
     const jsxNode = (
       <section>
@@ -364,7 +343,6 @@ describe("dom renderer cases", () => {
         </script>
       </section>
     );
-
     let error;
 
     try {
@@ -377,7 +355,6 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected error to be thrown`);
     }
   });
-
   it("should error when multiple nodes are passed as a child to a script tag", () => {
     const jsxNode = (
       <section>
@@ -387,7 +364,6 @@ describe("dom renderer cases", () => {
         </script>
       </section>
     );
-
     let error;
 
     try {
@@ -400,10 +376,8 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected error to be thrown`);
     }
   });
-
   it("should render an advanced element as a dom element inside an iframe", () => {
     const bar = "baz";
-
     const jsxNode = (
       <iframe>
         <html>
@@ -419,6 +393,7 @@ describe("dom renderer cases", () => {
 
     const domNode = jsxNode.render(dom());
 
+    // eslint-disable-next-line no-restricted-globals, promise/no-native
     const promise = new Promise((resolve, reject) => {
       domNode.addEventListener("load", () => {
         try {
@@ -461,7 +436,6 @@ describe("dom renderer cases", () => {
         }
       });
     });
-
     const body = document.body;
 
     if (!body) {
@@ -469,10 +443,8 @@ describe("dom renderer cases", () => {
     }
 
     body.appendChild(domNode);
-
     return promise;
   });
-
   it("should error when multiple nodes are passed as a child to an iframe tag", () => {
     const jsxNode = (
       <section>
@@ -482,7 +454,6 @@ describe("dom renderer cases", () => {
         </iframe>
       </section>
     );
-
     let error;
 
     try {
@@ -495,14 +466,12 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected error to be thrown`);
     }
   });
-
   it("should error when a text node is passed as a child to an iframe tag", () => {
     const jsxNode = (
       <section>
         <iframe>hello world</iframe>
       </section>
     );
-
     let error;
 
     try {
@@ -515,7 +484,6 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected error to be thrown`);
     }
   });
-
   it("should error when a non-html node is passed as a child to an iframe tag", () => {
     const jsxNode = (
       <section>
@@ -524,7 +492,6 @@ describe("dom renderer cases", () => {
         </iframe>
       </section>
     );
-
     let error;
 
     try {
@@ -537,10 +504,8 @@ describe("dom renderer cases", () => {
       throw new Error(`Expected error to be thrown`);
     }
   });
-
   it("should call onRender when the element is rendered", () => {
     let onRenderResult;
-
     const jsxNode = (
       <div
         onRender={(el) => {
@@ -548,20 +513,16 @@ describe("dom renderer cases", () => {
         }}
       />
     );
-
     const renderResult = jsxNode.render(dom());
 
     if (onRenderResult !== renderResult) {
       throw new Error(`Expected onRender to be passed correct element`);
     }
   });
-
   it("should render an advanced element as a dom element with a node child", () => {
     const myNode = document.createElement("span");
     myNode.setAttribute("aaa", "bbb");
-
     const bar = "baz";
-
     const jsxNode = (
       <section foo={null} bar={undefined}>
         <p hello={true} />
@@ -569,9 +530,7 @@ describe("dom renderer cases", () => {
         <button foo={bar}>click me</button>
       </section>
     );
-
     const domNode = jsxNode.render(dom());
-
     validateDOM(domNode, {
       name: "section",
       children: [
@@ -601,18 +560,14 @@ describe("dom renderer cases", () => {
       ],
     });
   });
-
   it("should render a component element as a dom element with a tag name, dynamic attribute, and inner text", () => {
     const MyButton = ({ foo }) => {
       return <button foo={foo}>click me</button>;
     };
 
     const bar = "baz";
-
     const jsxNode = <MyButton foo={bar} />;
-
     const domNode = jsxNode.render(dom());
-
     validateDOM(domNode, {
       name: "button",
       attrs: {
@@ -625,18 +580,14 @@ describe("dom renderer cases", () => {
       ],
     });
   });
-
   it("should render a component element with children as a dom element with a tag name, dynamic attribute, and inner text", () => {
     const MyButton = ({ foo }, children) => {
       return <button foo={foo}>{children}</button>;
     };
 
     const bar = "baz";
-
     const jsxNode = <MyButton foo={bar}>click me</MyButton>;
-
     const domNode = jsxNode.render(dom());
-
     validateDOM(domNode, {
       name: "button",
       attrs: {
@@ -649,22 +600,18 @@ describe("dom renderer cases", () => {
       ],
     });
   });
-
   it("should render a component element with multiple children as a dom element with a tag name, dynamic attribute, and inner text", () => {
     const MyButton = ({ foo }, children) => {
       return <button foo={foo}>{children}</button>;
     };
 
     const bar = "baz";
-
     const jsxNode = (
       <MyButton foo={bar}>
         <span>please</span> click me
       </MyButton>
     );
-
     const domNode = jsxNode.render(dom());
-
     validateDOM(domNode, {
       name: "button",
       attrs: {
@@ -685,23 +632,19 @@ describe("dom renderer cases", () => {
       ],
     });
   });
-
   it("should render a fragment as a dom element with a tag name, dynamic attribute, and inner text", () => {
     const bar = "baz";
-
-    const jsxNode = (
-      // $FlowFixMe
-      <>
-        <button foo={bar}>click me</button>
-        <span>meep</span>
-        <p>
-          <div zomg="womg">way</div>
-        </p>
-      </>
-    );
-
+    const jsxNode = // $FlowFixMe
+      (
+        <>
+          <button foo={bar}>click me</button>
+          <span>meep</span>
+          <p>
+            <div zomg="womg">way</div>
+          </p>
+        </>
+      );
     const [node1, node2, node3] = jsxNode.render(dom());
-
     validateDOM(node1, {
       name: "button",
       attrs: {
@@ -713,7 +656,6 @@ describe("dom renderer cases", () => {
         },
       ],
     });
-
     validateDOM(node2, {
       name: "span",
       children: [
@@ -722,7 +664,6 @@ describe("dom renderer cases", () => {
         },
       ],
     });
-
     validateDOM(node3, {
       name: "p",
       children: [
@@ -740,25 +681,21 @@ describe("dom renderer cases", () => {
       ],
     });
   });
-
   it("should render a fragment as a dom element with a tag name, dynamic attribute, and inner text", () => {
     const bar = "baz";
-
-    const jsxNode = (
-      // $FlowFixMe
-      <>
-        <button foo={bar}>click me</button>
-        {false}
-        <span>meep</span>
-        {null}
-        <p>
-          <div zomg="womg">way</div>
-        </p>
-      </>
-    );
-
+    const jsxNode = // $FlowFixMe
+      (
+        <>
+          <button foo={bar}>click me</button>
+          {false}
+          <span>meep</span>
+          {null}
+          <p>
+            <div zomg="womg">way</div>
+          </p>
+        </>
+      );
     const [node1, node2, node3] = jsxNode.render(dom());
-
     validateDOM(node1, {
       name: "button",
       attrs: {
@@ -770,7 +707,6 @@ describe("dom renderer cases", () => {
         },
       ],
     });
-
     validateDOM(node2, {
       name: "span",
       children: [
@@ -779,7 +715,6 @@ describe("dom renderer cases", () => {
         },
       ],
     });
-
     validateDOM(node3, {
       name: "p",
       children: [
@@ -797,7 +732,6 @@ describe("dom renderer cases", () => {
       ],
     });
   });
-
   it("should render a list as a dom element with a tag name, dynamic attribute, and inner text", () => {
     const bar = "baz";
 
@@ -812,9 +746,7 @@ describe("dom renderer cases", () => {
     };
 
     const jsxNode = <Foo />;
-
     const [node1, node2, node3] = jsxNode.render(dom());
-
     validateDOM(node1, {
       name: "button",
       attrs: {
@@ -826,7 +758,6 @@ describe("dom renderer cases", () => {
         },
       ],
     });
-
     validateDOM(node2, {
       name: "span",
       children: [
@@ -835,7 +766,6 @@ describe("dom renderer cases", () => {
         },
       ],
     });
-
     validateDOM(node3, {
       name: "p",
       children: [
@@ -853,7 +783,6 @@ describe("dom renderer cases", () => {
       ],
     });
   });
-
   it("should render as an svg element", () => {
     const svgProps = {
       width: "36",
@@ -862,57 +791,47 @@ describe("dom renderer cases", () => {
       fill: "transparent",
       xmlns: "http://www.w3.org/2000/svg",
     };
-
     const styles = "path{transition: all 0.3s;}";
-
     const pathProps = {
       stroke: "#000000",
       "stroke-width": "2",
       "stroke-linecap": "round",
       transform: "translate(12 12)",
     };
-
     const forwardSlashNodeProps = {
       ...pathProps,
       d: "M12 0L0 12",
       id: "forwardSlash",
     };
-
     const backwardSlashNodeProps = {
       ...pathProps,
       d: "M0 0L12 12",
       id: "backwardSlash",
     };
-
     const circleProps = {
       id: "defCircle",
       cx: "0",
       cy: "0",
       r: "5",
     };
-
     const blueGradient = {
       id: "blueGradient",
       gradientTransform: "rotate(90)",
     };
-
     const blueGradientStart = {
       offset: "0%",
       "stop-color": "white",
     };
-
     const blueGradientEnd = {
       offset: "90%",
       "stop-color": "blue",
     };
-
     const useCircleProps = {
       x: "5",
       y: "5",
       "xlink:href": "#defCircle",
       fill: 'url("#blueGradient")',
     };
-
     const someText = "foo bar";
 
     const SvgImage = () => {
@@ -935,9 +854,7 @@ describe("dom renderer cases", () => {
     };
 
     const jsxNode = <SvgImage />;
-
     const node1 = jsxNode.render(dom());
-
     validateDOM(node1, {
       name: "svg",
       attrs: { ...svgProps },
@@ -984,7 +901,11 @@ describe("dom renderer cases", () => {
         {
           name: "style",
           element: "SVGStyleElement",
-          children: [{ text: styles }],
+          children: [
+            {
+              text: styles,
+            },
+          ],
         },
         {
           name: "path",
@@ -999,7 +920,11 @@ describe("dom renderer cases", () => {
         {
           name: "text",
           element: "SVGTextElement",
-          children: [{ text: someText }],
+          children: [
+            {
+              text: someText,
+            },
+          ],
         },
       ],
     });
