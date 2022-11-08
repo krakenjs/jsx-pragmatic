@@ -1,3 +1,4 @@
+/* eslint compat/compat: off */
 /* @flow */
 /** @jsx node */
 /** @jsxFrag Fragment */
