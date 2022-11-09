@@ -419,7 +419,6 @@ describe("dom renderer cases", () => {
 
     const domNode = jsxNode.render(dom());
 
-    // eslint-disable-next-line no-restricted-globals, promise/no-native
     const promise = new Promise((resolve, reject) => {
       domNode.addEventListener("load", () => {
         try {
