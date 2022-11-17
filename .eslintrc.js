@@ -1,9 +1,7 @@
 /* @flow */
 
 module.exports = {
-  extends: require.resolve(
-    "@krakenjs/grumbler-scripts/config/.eslintrc-browser"
-  ),
+  extends: "@krakenjs/eslint-config-grumbler/eslintrc-browser",
 
   rules: {
     "react/display-name": "off",
@@ -11,4 +9,15 @@ module.exports = {
     "react/prop-types": "off",
     "react/require-default-props": "off",
   },
+
+  overrides: [
+    {
+      files: ["**/test/**/*"],
+      rules: {
+        "compat/compat": "off",
+        "no-restricted-globals": "off",
+        "promise/no-native": "off",
+      },
+    },
+  ],
 };

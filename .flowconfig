@@ -7,7 +7,6 @@
 .*/node_modules/resolve
 .*/dist/module
 [include]
-node_modules/@krakenjs/grumbler-scripts/declarations.js
 [libs]
 flow-typed
 [options]
