@@ -7,7 +7,6 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v2
         with:
-          token: ${{ secrets.ACCESS_TOKEN }}
           fetch-depth: 0
 
       - name: ⎔ Setup node
