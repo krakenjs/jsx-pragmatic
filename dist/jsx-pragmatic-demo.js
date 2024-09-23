@@ -194,6 +194,7 @@
             "iframe" !== el.tagName.toLowerCase() || props.id || el.setAttribute("id", "jsx-iframe-" + "xxxxxxxxxx".replace(/./g, (function() {
                 return "0123456789abcdef".charAt(Math.floor(Math.random() * "0123456789abcdef".length));
             })));
+            "iframe" !== el.tagName.toLowerCase() || props.srcdoc || props.src || el.setAttribute("srcdoc", "");
         }
         var ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(el, node) {
             var firstChild = node.children[0];
@@ -207,37 +208,39 @@
                 var child = firstChild.render(function(opts) {
                     void 0 === opts && (opts = {});
                     var _opts$doc = opts.doc, doc = void 0 === _opts$doc ? document : _opts$doc;
-                    return function domRenderer(node) {
-                        if ("component" === node.type) return node.renderComponent(domRenderer);
+                    var _xmlNamespaceDomRenderer = function(node, xmlNamespace) {
+                        if ("component" === node.type) return node.renderComponent((function(childNode) {
+                            return _xmlNamespaceDomRenderer(childNode, xmlNamespace);
+                        }));
                         if ("text" === node.type) return createTextElement(doc, node);
                         if ("element" === node.type) {
-                            var xmlNamespace = ELEMENT_DEFAULT_XML_NAMESPACE[node.name.toLowerCase()];
-                            if (xmlNamespace) return function xmlNamespaceDomRenderer(node, xmlNamespace) {
-                                if ("component" === node.type) return node.renderComponent((function(childNode) {
-                                    return xmlNamespaceDomRenderer(childNode, xmlNamespace);
-                                }));
-                                if ("text" === node.type) return createTextElement(doc, node);
-                                if ("element" === node.type) {
-                                    var el = function(doc, node, xmlNamespace) {
-                                        return doc.createElementNS(xmlNamespace, node.name);
-                                    }(doc, node, xmlNamespace);
-                                    addProps(el, node);
-                                    addChildren(el, node, doc, (function(childNode) {
-                                        return xmlNamespaceDomRenderer(childNode, xmlNamespace);
-                                    }));
-                                    return el;
-                                }
-                                throw new TypeError("Unhandleable node");
-                            }(node, xmlNamespace);
-                            var el = function(doc, node) {
-                                return node.props.el ? node.props.el : doc.createElement(node.name);
-                            }(doc, node);
+                            var el = function(doc, node, xmlNamespace) {
+                                return doc.createElementNS(xmlNamespace, node.name);
+                            }(doc, node, xmlNamespace);
                             addProps(el, node);
-                            addChildren(el, node, doc, domRenderer);
+                            addChildren(el, node, doc, (function(childNode) {
+                                return _xmlNamespaceDomRenderer(childNode, xmlNamespace);
+                            }));
                             return el;
                         }
                         throw new TypeError("Unhandleable node");
                     };
+                    var _domRenderer = function(node) {
+                        if ("component" === node.type) return node.renderComponent(_domRenderer);
+                        if ("text" === node.type) return createTextElement(doc, node);
+                        if ("element" === node.type) {
+                            var xmlNamespace = ELEMENT_DEFAULT_XML_NAMESPACE[node.name.toLowerCase()];
+                            if (xmlNamespace) return _xmlNamespaceDomRenderer(node, xmlNamespace);
+                            var el = function(doc, node) {
+                                return node.props.el ? node.props.el : doc.createElement(node.name);
+                            }(doc, node);
+                            addProps(el, node);
+                            addChildren(el, node, doc, _domRenderer);
+                            return el;
+                        }
+                        throw new TypeError("Unhandleable node");
+                    };
+                    return _domRenderer;
                 }({
                     doc: doc
                 }));
@@ -273,13 +276,15 @@
             } else (ADD_CHILDREN[node.name] || ADD_CHILDREN.default)(el, node, renderer);
         }
         function regex() {
+            var regexRenderer = _textRenderer = function(node) {
+                if ("component" === node.type) return [].concat(node.renderComponent(_textRenderer)).join("");
+                if ("element" === node.type) throw new Error("Text renderer does not support basic elements");
+                if ("text" === node.type) return node.text;
+                throw new TypeError("Unhandleable node: " + node.type);
+            };
+            var _textRenderer;
             return function(nodeInstance) {
-                return new RegExp(function textRenderer(node) {
-                    if ("component" === node.type) return [].concat(node.renderComponent(textRenderer)).join("");
-                    if ("element" === node.type) throw new Error("Text renderer does not support basic elements");
-                    if ("text" === node.type) return node.text;
-                    throw new TypeError("Unhandleable node: " + node.type);
-                }(nodeInstance));
+                return new RegExp(regexRenderer(nodeInstance));
             };
         }
         regex.node = function(el, props) {

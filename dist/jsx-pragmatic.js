@@ -240,12 +240,13 @@
             return children;
         };
         function text_text() {
-            return function textRenderer(node) {
-                if (node.type === NODE_TYPE.COMPONENT) return [].concat(node.renderComponent(textRenderer)).join("");
+            var _textRenderer = function(node) {
+                if (node.type === NODE_TYPE.COMPONENT) return [].concat(node.renderComponent(_textRenderer)).join("");
                 if (node.type === NODE_TYPE.ELEMENT) throw new Error("Text renderer does not support basic elements");
                 if (node.type === NODE_TYPE.TEXT) return node.text;
                 throw new TypeError("Unhandleable node: " + node.type);
             };
+            return _textRenderer;
         }
         function isDefined(val) {
             return null != val;
@@ -271,6 +272,7 @@
             "iframe" !== el.tagName.toLowerCase() || props.id || el.setAttribute("id", "jsx-iframe-" + "xxxxxxxxxx".replace(/./g, (function() {
                 return "0123456789abcdef".charAt(Math.floor(Math.random() * "0123456789abcdef".length));
             })));
+            "iframe" !== el.tagName.toLowerCase() || props.srcdoc || props.src || el.setAttribute("srcdoc", "");
         }
         var ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(el, node) {
             var firstChild = node.children[0];
@@ -318,37 +320,39 @@
         function dom(opts) {
             void 0 === opts && (opts = {});
             var _opts$doc = opts.doc, doc = void 0 === _opts$doc ? document : _opts$doc;
-            return function domRenderer(node) {
-                if (node.type === NODE_TYPE.COMPONENT) return node.renderComponent(domRenderer);
+            var _xmlNamespaceDomRenderer = function(node, xmlNamespace) {
+                if (node.type === NODE_TYPE.COMPONENT) return node.renderComponent((function(childNode) {
+                    return _xmlNamespaceDomRenderer(childNode, xmlNamespace);
+                }));
                 if (node.type === NODE_TYPE.TEXT) return createTextElement(doc, node);
                 if (node.type === NODE_TYPE.ELEMENT) {
-                    var xmlNamespace = ELEMENT_DEFAULT_XML_NAMESPACE[node.name.toLowerCase()];
-                    if (xmlNamespace) return function xmlNamespaceDomRenderer(node, xmlNamespace) {
-                        if (node.type === NODE_TYPE.COMPONENT) return node.renderComponent((function(childNode) {
-                            return xmlNamespaceDomRenderer(childNode, xmlNamespace);
-                        }));
-                        if (node.type === NODE_TYPE.TEXT) return createTextElement(doc, node);
-                        if (node.type === NODE_TYPE.ELEMENT) {
-                            var el = function(doc, node, xmlNamespace) {
-                                return doc.createElementNS(xmlNamespace, node.name);
-                            }(doc, node, xmlNamespace);
-                            addProps(el, node);
-                            addChildren(el, node, doc, (function(childNode) {
-                                return xmlNamespaceDomRenderer(childNode, xmlNamespace);
-                            }));
-                            return el;
-                        }
-                        throw new TypeError("Unhandleable node");
-                    }(node, xmlNamespace);
-                    var el = function(doc, node) {
-                        return node.props.el ? node.props.el : doc.createElement(node.name);
-                    }(doc, node);
+                    var el = function(doc, node, xmlNamespace) {
+                        return doc.createElementNS(xmlNamespace, node.name);
+                    }(doc, node, xmlNamespace);
                     addProps(el, node);
-                    addChildren(el, node, doc, domRenderer);
+                    addChildren(el, node, doc, (function(childNode) {
+                        return _xmlNamespaceDomRenderer(childNode, xmlNamespace);
+                    }));
                     return el;
                 }
                 throw new TypeError("Unhandleable node");
             };
+            var _domRenderer = function(node) {
+                if (node.type === NODE_TYPE.COMPONENT) return node.renderComponent(_domRenderer);
+                if (node.type === NODE_TYPE.TEXT) return createTextElement(doc, node);
+                if (node.type === NODE_TYPE.ELEMENT) {
+                    var xmlNamespace = ELEMENT_DEFAULT_XML_NAMESPACE[node.name.toLowerCase()];
+                    if (xmlNamespace) return _xmlNamespaceDomRenderer(node, xmlNamespace);
+                    var el = function(doc, node) {
+                        return node.props.el ? node.props.el : doc.createElement(node.name);
+                    }(doc, node);
+                    addProps(el, node);
+                    addChildren(el, node, doc, _domRenderer);
+                    return el;
+                }
+                throw new TypeError("Unhandleable node");
+            };
+            return _domRenderer;
         }
         function _extends() {
             return (_extends = Object.assign || function(target) {
@@ -371,21 +375,22 @@
         function react(_temp) {
             var React = (void 0 === _temp ? {} : _temp).React;
             if (!React) throw new Error("Must pass React library to react renderer");
-            return function reactRenderer(node) {
+            var _reactRenderer = function(node) {
                 if (node.type === NODE_TYPE.COMPONENT) return React.createElement.apply(React, [ function() {
-                    return node.renderComponent(reactRenderer) || null;
-                }, node.props ].concat(node.renderChildren(reactRenderer)));
+                    return node.renderComponent(_reactRenderer) || null;
+                }, node.props ].concat(node.renderChildren(_reactRenderer)));
                 if (node.type === NODE_TYPE.ELEMENT) return React.createElement.apply(React, [ node.name, (props = node.props, 
                 innerHTML = props.innerHTML, _extends({
                     dangerouslySetInnerHTML: innerHTML ? {
                         __html: innerHTML
                     } : null,
                     className: props.class
-                }, _objectWithoutPropertiesLoose(props, _excluded))) ].concat(node.renderChildren(reactRenderer)));
+                }, _objectWithoutPropertiesLoose(props, _excluded))) ].concat(node.renderChildren(_reactRenderer)));
                 var props, innerHTML;
                 if (node.type === NODE_TYPE.TEXT) return node.text;
                 throw new TypeError("Unhandleable node");
             };
+            return _reactRenderer;
         }
         var SELF_CLOSING_TAGS = {
             br: !0
@@ -394,8 +399,8 @@
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\//g, "&#x2F;");
         }
         function html() {
-            return function htmlRenderer(node) {
-                if (node.type === NODE_TYPE.COMPONENT) return [].concat(node.renderComponent(htmlRenderer)).join("");
+            var _htmlRenderer = function(node) {
+                if (node.type === NODE_TYPE.COMPONENT) return [].concat(node.renderComponent(_htmlRenderer)).join("");
                 if (node.type === NODE_TYPE.ELEMENT) {
                     var renderedProps = (props = node.props, (keys = Object.keys(props).filter((function(key) {
                         var val = props[key];
@@ -407,32 +412,34 @@
                         return "" === val ? htmlEncode(key) : htmlEncode(key) + '="' + htmlEncode(val.toString()) + '"';
                     })).join(" ") : "");
                     if (SELF_CLOSING_TAGS[node.name]) return "<" + node.name + renderedProps + " />";
-                    var renderedChildren = "string" == typeof node.props.innerHTML ? node.props.innerHTML : node.renderChildren(htmlRenderer).join("");
+                    var renderedChildren = "string" == typeof node.props.innerHTML ? node.props.innerHTML : node.renderChildren(_htmlRenderer).join("");
                     return "<" + node.name + renderedProps + ">" + renderedChildren + "</" + node.name + ">";
                 }
                 var props, keys;
                 if (node.type === NODE_TYPE.TEXT) return htmlEncode(node.text);
                 throw new TypeError("Unhandleable node: " + node.type);
             };
+            return _htmlRenderer;
         }
         var preact_excluded = [ "innerHTML" ];
         function preact(_temp) {
             var Preact = (void 0 === _temp ? {} : _temp).Preact;
             if (!Preact) throw new Error("Must pass Preact library to react renderer");
-            return function reactRenderer(node) {
+            var _reactRenderer = function(node) {
                 if (node.type === NODE_TYPE.COMPONENT) return Preact.h.apply(Preact, [ function() {
-                    return node.renderComponent(reactRenderer) || null;
-                }, node.props ].concat(node.renderChildren(reactRenderer)));
+                    return node.renderComponent(_reactRenderer) || null;
+                }, node.props ].concat(node.renderChildren(_reactRenderer)));
                 if (node.type === NODE_TYPE.ELEMENT) return Preact.h.apply(Preact, [ node.name, (props = node.props, 
                 innerHTML = props.innerHTML, _extends({
                     dangerouslySetInnerHTML: innerHTML ? {
                         __html: innerHTML
                     } : null
-                }, _objectWithoutPropertiesLoose(props, preact_excluded))) ].concat(node.renderChildren(reactRenderer)));
+                }, _objectWithoutPropertiesLoose(props, preact_excluded))) ].concat(node.renderChildren(_reactRenderer)));
                 var props, innerHTML;
                 if (node.type === NODE_TYPE.TEXT) return node.text;
                 throw new TypeError("Unhandleable node");
             };
+            return _reactRenderer;
         }
         function regex() {
             var regexRenderer = text_text();
