@@ -118,17 +118,6 @@ function addProps(el: HTMLElement | Element, node) {
   if (el.tagName.toLowerCase() === ELEMENT_TAG.IFRAME && !props.id) {
     el.setAttribute(ELEMENT_PROP.ID, `jsx-iframe-${uniqueID()}`);
   }
-
-  // If the element is an iframe and it has no srcdoc or src, set the srcdoc to an empty string.
-  // Content specified via srcdoc is treated as being from the same origin as the parent document.
-  // In some browsers (like Safari 17+), empty iframes without src or srcdoc may be treated as "anonymous," potentially blocking certain content.
-  if (
-    el.tagName.toLowerCase() === ELEMENT_TAG.IFRAME &&
-    !props.srcdoc &&
-    !props.src
-  ) {
-    el.setAttribute("srcdoc", "");
-  }
 }
 const ADD_CHILDREN: {
   [string]: (HTMLElement | Element, ElementNode, DomNodeRenderer) => void,
