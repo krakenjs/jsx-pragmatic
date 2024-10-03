@@ -194,7 +194,6 @@
             "iframe" !== el.tagName.toLowerCase() || props.id || el.setAttribute("id", "jsx-iframe-" + "xxxxxxxxxx".replace(/./g, (function() {
                 return "0123456789abcdef".charAt(Math.floor(Math.random() * "0123456789abcdef".length));
             })));
-            "iframe" !== el.tagName.toLowerCase() || props.srcdoc || props.src || el.setAttribute("srcdoc", "");
         }
         var ADD_CHILDREN = ((_ADD_CHILDREN = {}).iframe = function(el, node) {
             var firstChild = node.children[0];

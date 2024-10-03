@@ -71,9 +71,6 @@ function addProps(el, node) {
   if (el.tagName.toLowerCase() === ELEMENT_TAG.IFRAME && !props.id) {
     el.setAttribute(ELEMENT_PROP.ID, "jsx-iframe-" + uniqueID());
   }
-  if (el.tagName.toLowerCase() === ELEMENT_TAG.IFRAME && !props.srcdoc && !props.src) {
-    el.setAttribute("srcdoc", "");
-  }
 }
 var ADD_CHILDREN = (_ADD_CHILDREN = {}, _ADD_CHILDREN[ELEMENT_TAG.IFRAME] = function (el, node) {
   var firstChild = node.children[0];
